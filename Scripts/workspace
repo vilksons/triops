@@ -232,7 +232,6 @@ compat() {
     fi
 }
 
-
 function wait_and_cnd() {
     local lib_name=$1
     local lib_url_1=$2
@@ -414,14 +413,17 @@ bash_OPS() {
                         : '
                             @PawnCC.Compile
                         '
+                        
+                        INCLUDE_GAMEMODES_DIRS=$(find "gamemodes" -type d | tr '\n' ':')
+                        INCLUDE_GAMEMODES_DIRS=${INCLUDE_DIRS%:}
 
                         start_time=$(date +%s%3N)
 
                             for _ in {1..10}; do
                                 if [ $COMPILER_NEXT == 1 ]; then
-                                    "$COMPILER_PAWNCC" -i"$TRIOPS_DEFAULT_INCLUDE" -i"$TRIOPS_ALLOW_EXCLUDE" "$COMPILED_FILES" -o"$AMX_O" "$AMX_OPT_F" > "$METADAT_FILE" 2>&1
+                                    "$COMPILER_PAWNCC" -i"$TRIOPS_DEFAULT_INCLUDE" -i"$TRIOPS_ALLOW_EXCLUDE" -i"$INCLUDE_GAMEMODES_DIRS" "$COMPILED_FILES" -o"$AMX_O" "$AMX_OPT_F" > "$METADAT_FILE" 2>&1
                                 elif [ $COMPILER_NEXT == 2 ]; then
-                                    "$COMPILER_PAWNCC" -i"$TRIOPS_DEFAULT_INCLUDE" -i"$TRIOPS_ALLOW_EXCLUDE" "$COMPILED_FILES" -o"$AMX_O" "$AMX_OPT_F" "${OPS_FIND_OPTION_AMX[@]}" > "$METADAT_FILE" 2>&1
+                                    "$COMPILER_PAWNCC" -i"$TRIOPS_DEFAULT_INCLUDE" -i"$TRIOPS_ALLOW_EXCLUDE" -i"$INCLUDE_GAMEMODES_DIRS" "$COMPILED_FILES" -o"$AMX_O" "$AMX_OPT_F" "${OPS_FIND_OPTION_AMX[@]}" > "$METADAT_FILE" 2>&1
                                 fi
                             done
                             
