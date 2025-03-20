@@ -1,0 +1,61 @@
+#!/usr/bin/bash
+
+check_firewalld_status() {
+    systemctl is-active --quiet firewalld && echo "Firewalld is running." || echo "Firewalld is not running."
+}
+
+start_firewalld() {
+    systemctl start firewalld
+    systemctl enable firewalld
+    echo "Firewalld started and enabled."
+}
+
+add_firewall_rule() {
+    local zone="public"
+    local port="8080"
+    local protocol="tcp"
+
+    if ! systemctl is-active --quiet firewalld; then
+        echo "Firewalld is not running. Starting it now..."
+        start_firewalld
+    fi
+
+    echo "Adding firewall rule to allow $protocol traffic on port $port..."
+    firewall-cmd --zone="$zone" --add-port="$port"/"$protocol" --permanent
+    firewall-cmd --reload
+    echo "Firewall rule added and reloaded."
+}
+
+remove_firewall_rule() {
+    local port="8080"
+    local protocol="tcp"
+
+    echo "Removing firewall rule for port $port..."
+    firewall-cmd --zone=public --remove-port="$port"/"$protocol" --permanent
+    firewall-cmd --reload
+    echo "Firewall rule removed and reloaded."
+}
+
+firewall_management() {
+    local action="$1"
+
+    case "$action" in
+        "check")
+            check_firewalld_status
+            ;;
+        "start")
+            start_firewalld
+            ;;
+        "add")
+            add_firewall_rule
+            ;;
+        "remove")
+            remove_firewall_rule
+            ;;
+        *)
+            echo "Usage: $0 {check|start|add|remove}"
+            ;;
+    esac
+}
+
+firewall_management "$1"

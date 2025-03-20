@@ -1,0 +1,380 @@
+#!/usr/bin/bash
+
+function bash_typeof2() {
+    if [ ! -f "tpm.json" ]; then
+        echo -e "$(bash_coltext_g "warn:") tpm.json not found"
+            
+        cat > tpm.json <<EOF
+{
+    "package": [
+        "github/example/user/repository",
+        "github/example/user/repository/to/files/.zip",
+        "github/example/user/repository/to/files/.tar.gz",
+        "gitlab/example/user/repository",
+        "gitlab/example/user/repository/to/files/.zip",
+        "gitlab/example/user/repository/to/files/.tar.gz",
+        "sourceforge/example/user/repository",
+        "sourceforge/example/user/repository/to/files/.zip",
+        "sourceforge/example/user/repository/to/files/.tar.gz"
+        "unknownhost/example/path/to/target"
+        "unknownhost/example/path/to/target/to/files/.zip"
+        "unknownhost/example/path/to/target/to/files/.tar.gz"
+    ]
+}
+EOF
+    fi
+    
+    BASH_TITLE="TPM Mode"
+    bash_title "$BASH_TITLE"
+
+    echo -n "$(bash_coltext_y "$SHUSERS")"
+    echo -n ":~$ "
+    read -r TPM_OPTION_FLAGS
+    bash_TPM ""
+}
+export bash_typeof2
+
+TPM_PLUGIN_DIR="plugins"
+TPM_PACKAGE_FILE="tpm.json"
+TPM_SERVER_CFG="server.cfg"
+
+bash_TPM()
+{
+    : '
+        TPM Mode
+    '
+
+    local TPM_TRIGGER="tpm"
+    local TPM_UNKNOWNS_HOST=0
+
+    case "$TPM_OPTION_FLAGS" in
+        "install"*)
+            BASH_TITLE="TPM Install/Reinstall Package"
+            bash_title "$SHUSERS:~/ $BASH_TITLE"
+
+            if [ ! -d "$TPM_DIR" ]; then
+                mkdir -p "$TPM_DIR"
+            fi
+
+            tpm_repository_url="${TPM_OPTION_FLAGS#"install "}"
+            tpm_repository_url="${tpm_repository_url#install }"
+
+            if [[ -n "$tpm_repository_url" && "$tpm_repository_url" != "install" ]]; then
+                TPM_URLS=("$tpm_repository_url")
+            else
+                TPM_URLS=()
+                    while IFS= read -r line; do
+                        TPM_URLS+=("$line")
+                    done < <(process_package "$TPM_PACKAGE_FILE" || echo "error load json for : \"package\"")
+            fi
+
+            for tpm_repository_url in "${TPM_URLS[@]}"; do
+                : ' array to variable '
+
+                if [[ "$tpm_repository_url" != https://* ]]; then
+                : ' tpm: package URL to https
+                '
+                    if [[ "$tpm_repository_url" == github/* ]]; then
+                        : ' github '
+                        tpm_repository_url="https://github.com/${tpm_repository_url#github/}"
+                    elif [[ "$tpm_repository_url" == gitlab/* ]]; then
+                        : ' gitlab '
+                        tpm_repository_url="https://gitlab.com/${tpm_repository_url#gitlab/}"
+                    elif [[ "$tpm_repository_url" == sourceforge/* ]]; then
+                        : ' sourceforge '
+                        tpm_repository_url="https://sourceforge.net/projects/${tpm_repository_url#sourceforge/}"
+                    else
+                        : ' unknown '
+                        echo "$(bash_coltext_g "warn:") host url unknown's: $TPM_API_URL..."
+                        TPM_UNKNOWNS_HOST=1
+                        continue
+                    fi
+                fi
+                
+                if [[ "$tpm_repository_url" == *"/releases/download/"* ]]; then
+                    tpm_archive_url="$tpm_repository_url"
+                elif [[ "$tpm_repository_url" == *"/releases/tag/"* ]]; then
+                    TPM_REPO_NAME=$(echo "$tpm_repository_url" | awk -F '/' '{print $(NF-3) "/" $(NF-2)}')
+                    TPM_TAG_VERSION=$(echo "$tpm_repository_url" | awk -F '/' '{print $NF}')
+                
+                    if [[ "$tpm_repository_url" == *"github.com"* ]]; then
+                        : ' github '
+                        TPM_API_URL="https://api.github.com/repos/$TPM_REPO_NAME/git/refs/tags/$TPM_TAG_VERSION"
+                    elif [[ "$tpm_repository_url" == *"gitlab.com"* ]]; then
+                        : ' gitlab '
+                        TPM_API_URL="https://gitlab.com/api/v4/projects/$(echo "$TPM_REPO_NAME" | tr '/' '%2F')/releases/$TPM_TAG_VERSION"
+                    elif [[ "$tpm_repository_url" == *"sourceforge.net"* ]]; then
+                        : ' sourceforge '
+                        TPM_API_URL="https://sourceforge.net/projects/$TPM_REPO_NAME/files/latest/download"
+                    else
+                        : ' unknown '
+                        echo "$(bash_coltext_g "warn:") host url unknown's: $TPM_API_URL..."
+                        TPM_UNKNOWNS_HOST=1
+                        continue
+                    fi
+                
+                    if [ $TPM_UNKNOWNS_HOST == 1 ]; then
+                        [[ -z "$tpm_archive_url" ]] && tpm_archive_url=$(curl -s "$tpm_repository_url" | grep "browser_download_url" | grep -E ".zip|.tar.gz" | awk -F '"' '{print $4}' | head -n 1)
+                    elif [ $TPM_UNKNOWNS_HOST == 0 ]; then
+                        [[ -z "$tpm_archive_url" ]] && tpm_archive_url=$(curl -s "$TPM_API_URL" | grep "browser_download_url" | grep -E ".zip|.tar.gz" | awk -F '"' '{print $4}' | head -n 1)
+                    fi
+                else
+                    TPM_REPO_NAME=$(echo "$tpm_repository_url" | awk -F '/' '{print $(NF-1) "/" $NF}')
+                
+                    if [[ "$tpm_repository_url" == *"github.com"* ]]; then
+                        : ' github '
+                        TPM_API_URL="https://api.github.com/repos/$TPM_REPO_NAME/releases/latest"
+                    elif [[ "$tpm_repository_url" == *"gitlab.com"* ]]; then
+                        : ' gitlab '
+                        TPM_API_URL="https://gitlab.com/api/v4/projects/$(echo "$TPM_REPO_NAME" | tr '/' '%2F')/releases/permalink/latest"
+                    elif [[ "$tpm_repository_url" == *"sourceforge.net"* ]]; then
+                        : ' sourceforge '
+                        tpm_archive_url="https://sourceforge.net/projects/$TPM_REPO_NAME/files/latest/download"
+                    else
+                        : ' unknown '
+                        echo "$(bash_coltext_g "warn:") host url unknown's: $TPM_API_URL..."
+                        TPM_UNKNOWNS_HOST=1
+                        continue
+                    fi
+
+                    if [ $TPM_UNKNOWNS_HOST == 1 ]; then
+                        [[ -z "$tpm_archive_url" ]] && tpm_archive_url=$(curl -s "$tpm_repository_url" | grep "browser_download_url" | grep -E ".zip|.tar.gz" | awk -F '"' '{print $4}' | head -n 1)
+                    elif [ $TPM_UNKNOWNS_HOST == 0 ]; then
+                        [[ -z "$tpm_archive_url" ]] && tpm_archive_url=$(curl -s "$TPM_API_URL" | grep "browser_download_url" | grep -E ".zip|.tar.gz" | awk -F '"' '{print $4}' | head -n 1)
+                    fi
+                fi
+
+                TPM_ARCHIVE_FILE=".tcache.zip"
+                TPM_EXTRACT_DIR=".tcache"
+
+                rm -rf "$TPM_EXTRACT_DIR"
+                mkdir -p "$TPM_EXTRACT_DIR"
+
+                TPM_FILE_NAME=$(basename "$tpm_repository_url")
+                TPM_FILE_NAME="${TPM_FILE_NAME%.*}"
+                TPM_EX_VERSION_REPO=""
+
+                if [[ "$tpm_repository_url" == *"/releases/tag/"* ]]; then
+                    TPM_VERSION_REPO=$(echo "$tpm_repository_url" | awk -F '/' '{print $NF}')
+                elif [[ "$tpm_repository_url" == *"/releases/download/"* ]]; then
+                    TPM_VERSION_REPO=$(echo "$tpm_repository_url" | awk -F '/' '{print $(NF-1)}')
+                else
+                    TPM_VERSION_REPO="Unknown's"
+                fi
+
+                TPM_VERSION_REPO=${TPM_VERSION_REPO#v}
+                TPM_EX_VERSION_REPO="$TPM_VERSION_REPO"
+
+                if ! [[ "$TPM_VERSION_REPO" =~ [0-9] ]]; then
+                    TPM_VERSION_REPO=""
+                    TPM_EX_VERSION_REPO="Unknown's"
+                fi
+
+                if [[ -z "$TPM_FILE_NAME" ]]; then
+                    TPM_FILE_NAME="Unknown's"
+                fi
+
+                echo -e "$(bash_coltext_y "Downloading") $TPM_FILE_NAME $TPM_VERSION_REPO"
+                
+if [ "$TPM_INSTALLER" == "curl" ]; then # curl
+    curl -sL "$tpm_archive_url" -o "$TPM_ARCHIVE_FILE"
+elif [ "$TPM_INSTALLER" == "pycurl" ]; then # pycurl
+    python3 -c "
+import pycurl
+
+with open('$TPM_ARCHIVE_FILE', 'wb') as f:
+    c = pycurl.Curl()
+    c.setopt(c.URL, '$tpm_archive_url')
+    c.setopt(c.WRITEDATA, f)
+    c.setopt(c.FOLLOWLOCATION, True)
+    c.perform()
+    c.close()
+"
+elif [ "$TPM_INSTALLER" == "urllib3" ]; then # urllib3
+    python3 -c "
+import urllib3
+
+http = urllib3.PoolManager()
+r = http.request('GET', '$tpm_archive_url', preload_content=False)
+
+with open('$TPM_ARCHIVE_FILE', 'wb') as f:
+    [f.write(chunk) for chunk in r.stream(1024)]
+
+r.release_conn()
+"
+elif [ "$TPM_INSTALLER" == "requests" ]; then # requests
+    python3 -c "
+import requests
+
+r = requests.get('$tpm_archive_url', stream=True)
+
+with open('$TPM_ARCHIVE_FILE', 'wb') as f:
+    [f.write(chunk) for chunk in r.iter_content(1024)]
+"
+fi
+
+                if file "$TPM_ARCHIVE_FILE" | grep -q "Zip archive data"; then
+                    unzip -q "$TPM_ARCHIVE_FILE" -d "$TPM_EXTRACT_DIR"
+                elif file "$TPM_ARCHIVE_FILE" | grep -q "gzip compressed data"; then
+                    mkdir -p "$TPM_EXTRACT_DIR"
+                    tar -xzf "$TPM_ARCHIVE_FILE" -C "$TPM_EXTRACT_DIR" --strip-components=1
+                else
+                    echo -e "$(bash_coltext_r "crit:") Downloaded file is not a valid ZIP or TAR.GZ - Please check Downloader status.."
+                    rm -rf "$TPM_ARCHIVE_FILE" "$TPM_EXTRACT_DIR"
+                    continue
+                fi
+
+                TPM_EXTRACT_SUBDIR=$(find "$TPM_EXTRACT_DIR" -mindepth 1 -maxdepth 1 -type d | head -n 1)
+                
+                if [[ -d "$TPM_EXTRACT_SUBDIR" ]]; then
+                    mv "$TPM_EXTRACT_SUBDIR"/* "$TPM_EXTRACT_DIR/"
+                    rm -rf "$TPM_EXTRACT_SUBDIR"
+                fi
+
+                echo -e "$(bash_coltext_y "dbg: ")Extraction Directory.."
+
+                find "$TPM_EXTRACT_DIR" -type f -name "*.inc" | while IFS= read -r inc_file; do
+                    real_path=$(realpath --relative-to="$TPM_EXTRACT_DIR" "$inc_file" 2> /dev/null || echo "$inc_file")
+
+                    if [[ "$real_path" =~ (^|/)include/ ]]; then
+                        real_path="${real_path#*include/}"
+                    fi
+
+                    if [[ "$real_path" == */* ]]; then
+                        dest_path="$TPM_DIR/$(dirname "$real_path")"
+                    else
+                        dest_path="$TPM_DIR"
+                    fi
+
+                    mkdir -p "$dest_path"
+                    mv "$inc_file" "$dest_path/"
+                done
+
+                find "$TPM_EXTRACT_DIR" -type f \( -name "*.dll" -o -name "*.so" \) -exec mv {} "$TPM_PLUGIN_DIR/" \;
+
+                rm -rf "$TPM_ARCHIVE_FILE" "$TPM_EXTRACT_DIR"
+                echo -e "$(bash_coltext_y "Complete!.") Packages: $TPM_FILE_NAME | $TPM_EX_VERSION_REPO"
+            done
+
+            echo -e "$(bash_coltext_y "[All packages installed]")"
+
+            mkdir -p "$TPM_PLUGIN_DIR"
+
+            if [ ! -f "$TPM_SERVER_CFG" ]; then
+                echo -e "$(bash_coltext_g "warn:") $TPM_SERVER_CFG not found!."
+                echo "plugins " > "$TPM_SERVER_CFG"
+            fi
+            
+            if ! grep -q "^plugins " "$TPM_SERVER_CFG"; then
+                sed -i '1i plugins ' "$TPM_SERVER_CFG"
+            fi
+            
+            _EXIST_PLUG=$(grep -oP '(?<=plugins ).*' "$TPM_SERVER_CFG" | tr ' ' '\n' | sort -u)
+            
+            TPM_NEW_PLUGINS=()
+            for FILE in "$TPM_PLUGIN_DIR"/*.{so,dll}; do
+                if [ -e "$FILE" ]; then
+                    EXT="${FILE##*.}"
+                    if [ "$EXT" == "so" ]; then
+                        _TPM_PLUGIN_NAME=$(basename "$FILE")
+                    else
+                        _TPM_PLUGIN_NAME=$(basename "$FILE" | sed 's/\.[^.]*$//')
+                    fi
+                    if ! echo "$_EXIST_PLUG" | grep -qx "$_TPM_PLUGIN_NAME"; then
+                        TPM_NEW_PLUGINS+=("$_TPM_PLUGIN_NAME")
+                    fi
+                fi
+            done
+            
+            if [ ${#TPM_NEW_PLUGINS[@]} -gt 0 ]; then
+                TPM_UPDATED_PLUGINS=$(echo "$_EXIST_PLUG" "${TPM_NEW_PLUGINS[@]}" | tr '\n' ' ' | xargs -n1 | sort -u | xargs)
+                sed -i "s/^plugins .*/plugins $TPM_UPDATED_PLUGINS/" "$TPM_SERVER_CFG"
+                echo " Added new plugins to server.cfg: ${TPM_NEW_PLUGINS[*]}"
+            else
+                echo -e "$(bash_coltext_y "dbg:") No new plugins need to be added."
+            fi
+
+            bash_typeof2 ""
+            ;;
+        "remove"*)
+            BASH_TITLE="TPM Remove Package"
+            bash_title "$SHUSERS:~/ $BASH_TITLE"
+
+            local FOR_FIND_ARGS="${TPM_OPTION_FLAGS#"remove "}"
+            local FOR_FIND_ARGS="${FOR_FIND_ARGS#remove }"
+
+            if [[ -n "$FOR_FIND_ARGS" ]]; then
+                REMOVE_PATTERN="$FOR_FIND_ARGS"
+            else
+                echo ":: Enter the name pattern of the include/plugin to remove:"
+                read -r -p ">>> " REMOVE_PATTERN
+            fi
+            
+            FILTER_REMOVE_FILES() {
+                local pattern="$1"
+                while read -r file; do
+                    filn=$(basename "$file")
+                    if [[ "$filn" =~ ^$pattern(\.[a-z]+)?$ || "$filn" =~ .*-?$pattern(\.[a-z]+)?$ ]]; then
+                        echo "$file"
+                    fi
+                done
+            }
+
+            INC_FILES=$(find "$TPM_DIR" -type f -name "*.inc" | FILTER_REMOVE_FILES "$REMOVE_PATTERN")
+
+            if [[ -n "$INC_FILES" ]]; then
+                echo "$INC_FILES" | xargs rm -rf
+                echo -e "$(bash_coltext_y "[OK] ") Removed includes: $INC_FILES"
+            else
+                echo -e "$(bash_coltext_y "dbg:") No matching include files found for pattern: $REMOVE_PATTERN"
+            fi
+
+            PLUGIN_FILES=$(find "$TPM_PLUGIN_DIR" -type f \( -name "*.dll" -o -name "*.so" \) | FILTER_REMOVE_FILES "$REMOVE_PATTERN")
+
+            if [[ -n "$PLUGIN_FILES" ]]; then
+                echo "$PLUGIN_FILES" | xargs rm -rf
+                echo -e "$(bash_coltext_y "[OK] ") Removed plugins: $PLUGIN_FILES"
+            else
+                echo -e "$(bash_coltext_y "dbg:") No matching plugins found for pattern: $REMOVE_PATTERN"
+            fi
+
+            if [[ -f "$TPM_SERVER_CFG" ]]; then
+                if grep -q "^plugins" "$TPM_SERVER_CFG"; then
+                    sed -i "/^plugins /s/\b$REMOVE_PATTERN\(\.so\|\.dll\|\.dylib\|\)//g" "$TPM_SERVER_CFG"
+                    sed -i 's/  / /g' "$TPM_SERVER_CFG"
+                    sed -i 's/^plugins *$/plugins /' "$TPM_SERVER_CFG"
+                    echo -e "$(bash_coltext_y "[OK] ") Removed $REMOVE_PATTERN from server.cfg"
+                else
+                    echo -e "$(bash_coltext_y "dbg:") No 'plugins' entry found in server.cfg"
+                fi
+            fi
+
+            echo -e "$(bash_coltext_y "[OK] ") Removal process completed!"
+            echo 
+            
+            bash_typeof2 ""
+            ;;
+        "$BASH_OPTION -C" | "clear" | "cc")
+            clear; echo -ne "\033[3J"
+            bash_typeof2 ""
+            ;;
+        "$TPM_TRIGGER" | "$TPM_TRIGGER " | "" | " ")
+            bash_help2
+            bash_typeof2 ""
+            ;;
+        "help")
+            BASH_TITLE="help"
+            bash_title "$SHUSERS:~/ $BASH_TITLE"
+
+            bash_help2
+            bash_typeof2 ""
+            ;;
+       "exit")
+            bash_typeof ""
+            ;;
+        *)
+            echo "error: $TPM_OPTION_FLAGS: command not found"
+            bash_typeof2 ""
+            ;;
+    esac
+}

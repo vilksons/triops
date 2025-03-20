@@ -1,0 +1,10 @@
+## Wiki Guide
+- [Get Started](https://github-wiki-see.page/m/vilksons/triops/wiki/Get-Started)
+- [Downloads](https://github-wiki-see.page/m/vilksons/triops/wiki/Downloads)
+- [Development](https://github-wiki-see.page/m/vilksons/triops/wiki/Development)
+- [Licenses](https://github-wiki-see.page/m/vilksons/triops/wiki/Licenses)
+- [Compiler Option](https://github-wiki-see.page/m/vilksons/triops/wiki/Compiler-Option)
+- [PawnCC Installation](https://github-wiki-see.page/m/vilksons/triops/wiki/PawnCC-Installation)
+- [Required Packages](https://github-wiki-see.page/m/vilksons/triops/wiki/Required-Packages)
+- [Package Manager (TPM)](https://github-wiki-see.page/m/vilksons/triops/wiki/Package-Manager-(TPM))
+- [CODE OF CONDUCT](https://github-wiki-see.page/m/vilksons/triops/wiki/CODE-OF-CONDUCT)

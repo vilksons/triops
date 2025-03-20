@@ -1,0 +1,1041 @@
+#!/usr/bin/bash
+
+clear && cd "$(dirname "$(realpath "$0")")" || echo
+
+m_cmds=()
+
+for cmd in python3 grep awk sed tr; do
+    if ! command -v "$cmd" &>/dev/null; then
+        m_cmds+=("$cmd")
+    fi
+done
+
+if [ ${#m_cmds[@]} -gt 0 ]; then
+    echo "missing commands packages: ${m_cmds[*]}"
+    echo "Please install first."
+    echo "See: https://github.com/vilksons/triops/wiki/Required-Packages"
+    bash -
+fi
+
+if [ ! -f "triops.json" ]; then
+python3 -c 'import json; 
+data = {
+    "amx_opt": [
+        "-d2",
+        "-Z+"
+    ],
+    "default_include": "pawno/include",
+    "tpm_dir": "pawno/include",
+    "tpm_type": "curl",
+    "chatbot_token": "",
+    "chatbot_model": "",
+    "chatbot_biodata": ""
+}; 
+with open("triops.json", "w") as f: 
+    json.dump(data, f, indent=4)' 
+fi
+
+if [ ! -d ".cache" ]; then
+    mkdir ".cache"
+fi
+
+MODULE_LOADED_NOTICE=0
+DO_NOT_SHOW_LNOT=0
+
+ignore_this() {
+    "$@" > /dev/null 2>&1
+}
+export ignore_this
+
+SERVERS_NEXT=0
+export SERVERS_NEXT
+
+METADAT_FILE=".cache/compiler.log"
+export METADAT_FILE
+
+BASH_TITLE=""
+export BASH_TITLE
+BASH_DIR="$(dirname "$(realpath "$0")")"
+export BASH_DIR
+BASH_NAME="$(basename "$0")"
+export BASH_NAME
+LICENSES="GPL v2.0 or MIT Licenses"
+export LICENSES
+
+COMPILER_MODE="null"
+export COMPILER_MODE
+COMPILER_PAWNCC=""
+export COMPILER_PAWNCC
+COMPILER_NEXT=0
+export COMPILER_NEXT
+
+SHUSERS="$USER@$(hostname 2> /dev/null || echo )"
+
+function bash_title() {
+    echo -ne "\033]0;$1\007"
+}
+bash_title "$SHUSERS:~"
+
+COLOR_Y="\e[33m"
+COLOR_G="\e[32m"
+COLOR_R="\e[91m"
+COLOR_A="\e[97m"
+
+function bash_coltext_y() {
+    local color="$COLOR_Y"
+    local text="$1"
+    echo -e "${color}${text}\e[0m"
+}
+export bash_coltext_y
+
+function bash_coltext_g() {
+    local color="$COLOR_G"
+    local text="$1"
+    echo -e "${color}${text}\e[0m"
+}
+export bash_coltext_g
+
+function bash_coltext_r() {
+    local color="$COLOR_R"
+    local text="$1"
+    echo -e "${color}${text}\e[0m" 
+}
+export bash_coltext_r
+
+function bash_coltext_a() {
+    local color="$COLOR_A"
+    local text="$1"
+    echo -e "${color}${text}\e[0m"
+}
+export bash_coltext_a
+
+resetVariable() {
+    COMPILER_MODE="false"
+    COMPILER_PAWNCC=""
+    COMPILER_NEXT=0
+    SERVERS_NEXT=0
+}
+
+if [ ! -d ".lib" ]; then
+    mkdir ".lib"
+fi
+
+_OS_ACCEPT=0
+export _OS_ACCEPT
+_OS_GNU_LINUX=0
+export _OS_GNU_LINUX
+_OS_WINDOWS=0
+export _OS_WINDOWS
+_OS_DARWIN=0
+export _OS_DARWIN
+_OS_SSERVER="null"
+export _OS_SSERVER
+_OS_PAWNCC="null"
+export _OS_PAWNCC
+_OS_DISABLE_GNU_NANO=""
+export _OS_DISABLE_GNU_NANO
+
+# shellcheck source=/dev/null
+
+function loaded_all_modules() {
+
+workspace_py() {
+    : '
+        @File.workspace.py
+    '
+    
+    cd "$(dirname "$(realpath "$0")")" || echo
+    
+    if [ -f "$BASH_DIR/.workspace.py" ] && [ $DO_NOT_SHOW_LNOT != 1 ]; then
+        chmod +x .workspace.py
+        source <(python3 .workspace.py)
+        echo -n "$(bash_coltext_y "process:") Processing "
+        echo -e "$(bash_coltext_y "workspace.py") .. done."
+        sleep 0.10
+        clear
+    else
+    	DO_NOT_SHOW_LNOT=1
+        BASH_TITLE="Waiting resource.."
+        bash_title "$BASH_TITLE"
+
+        echo -e "$(bash_coltext_y "info:") workspace.py not found!."
+        echo -e "$(bash_coltext_g "note:") Installing.."
+        ignore_this sleep 0.10 && clear
+
+        if ! curl -L -s -o ".workspace.py" "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Scripts/workspace.py" > /dev/null; then
+            echo -e "$(bash_coltext_r "Failed: Always check for updates on the official Triops repository before doing Sync.")"
+        fi
+
+        clear
+    fi
+}
+
+security_safe() {
+    : '
+        @File.Security
+    '
+    if [ -f "$BASH_DIR/.lib/security" ] && [ $DO_NOT_SHOW_LNOT != 1 ]; then
+        chmod +x "$BASH_DIR/.lib/security"
+        source "$BASH_DIR/.lib/security"
+        echo -n "$(bash_coltext_y "process:") Processing "
+        echo -e "$(bash_coltext_y "security") .. done."
+        sleep 0.10
+        clear
+    else
+    	DO_NOT_SHOW_LNOT=1
+        BASH_TITLE="Waiting resource.."
+        bash_title "$BASH_TITLE"
+
+        echo -e "$(bash_coltext_y "info:") security not found!."
+        echo -e "$(bash_coltext_g "note:") Installing.."
+        ignore_this sleep 0.10 && clear
+
+        cd "$BASH_DIR/.lib" >/dev/null 2>&1 || echo ""
+
+        if ! curl -L -s -o "security" "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Tools/security" > /dev/null; then
+            echo -e "$(bash_coltext_r "Failed: Always check for updates on the official Triops repository before doing Sync.")"
+        fi
+
+        clear
+    fi
+}
+
+compat() {
+    : '
+        @File.Compat
+    '
+    if [ -f "$BASH_DIR/.lib/compat" ] && [ $DO_NOT_SHOW_LNOT != 1 ]; then
+        chmod +x "$BASH_DIR/.lib/compat"
+        source "$BASH_DIR/.lib/compat"
+        echo -n "$(bash_coltext_y "process:") Processing "
+        echo -e "$(bash_coltext_y "compat") .. done."
+        sleep 0.10
+        clear
+        check_os ""
+    else
+    	DO_NOT_SHOW_LNOT=1
+        BASH_TITLE="Waiting resource.."
+        bash_title "$BASH_TITLE"
+
+        echo -e "$(bash_coltext_y "info:") compat not found!."
+        echo -e "$(bash_coltext_g "note:") Installing.."
+        ignore_this sleep 0.10 && clear
+
+        cd "$BASH_DIR/.lib" >/dev/null 2>&1 || echo ""
+
+        if ! curl -L -s -o "compat" "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Tools/compat" > /dev/null; then
+            echo -e "$(bash_coltext_r "Failed: Always check for updates on the official Triops repository before doing Sync.")"
+        fi
+
+        clear
+    fi
+}
+
+
+function wait_and_cnd() {
+    local lib_name=$1
+    local lib_url_1=$2
+    local lib_url_2=$3
+
+    if [ -f "$BASH_DIR/.lib/$lib_name" ] && [ $DO_NOT_SHOW_LNOT != 1 ]; then
+        chmod +x "$BASH_DIR/.lib/$lib_name"
+        source "$BASH_DIR/.lib/$lib_name"
+        echo -n "$(bash_coltext_y "process:") Processing "
+        echo -e "$(bash_coltext_y "$lib_name") .. done."
+        sleep 0.10
+        clear
+    else
+    	DO_NOT_SHOW_LNOT=1
+        BASH_TITLE="Waiting resource.."
+        bash_title "$BASH_TITLE"
+
+        echo -e "$(bash_coltext_y "info:") $lib_name not found!."
+        echo -e "$(bash_coltext_g "note:") Installing.."
+        ignore_this sleep 0.10 && clear
+
+        cd "$BASH_DIR/.lib" >/dev/null 2>&1 || echo ""
+
+        if ! curl -L -s -o "$lib_name" "$lib_url_1" &&
+        ! curl -L -s -o "$lib_name" "$lib_url_2"; then
+            echo -e "$(bash_coltext_r "Failed: Always check for updates on the official Triops repository before doing Sync.")"
+        fi
+
+        clear
+    fi
+}
+
+    workspace_py "" && security_safe "" && compat ""
+    
+wait_and_cnd "libtpm" \
+    "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Tools/libtpm" &&
+
+wait_and_cnd "libpack" \
+    "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Tools/libpack" &&
+
+wait_and_cnd "liblocal" \
+    "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Tools/liblocal"
+    
+    ignore_this sleep 0.1 && cd "$BASH_DIR" >/dev/null 2>&1 || echo ""
+}
+
+# shellcheck source=/dev/null
+
+function bash_typeof() {
+    : '
+        @Send.Typeof
+    '
+        
+    if [ $MODULE_LOADED_NOTICE != 1 ]; then
+        loaded_all_modules ""
+
+        _OS_ACCEPT=1
+        MODULE_LOADED_NOTICE=1
+    fi
+
+    go_next ""
+}
+export bash_typeof
+
+function go_next() {
+    : '
+        @Send.Permissions.Typing
+    '
+
+    BASH_TITLE="OPS Mode"
+    bash_title "$BASH_TITLE"
+
+    echo -n "$(bash_coltext_y "$SHUSERS")"
+    echo -n ":~$ "
+    read -r OPS_OPTION_FLAGS
+
+    bash_OPS "" && resetVariable ""
+}
+
+bash_OPS() {
+    : '
+        @Send.OPS-Mode
+    '
+
+    local OPS_TRIGGER="ops"
+
+    case "$OPS_OPTION_FLAGS" in
+        "compile"*)
+            BASH_TITLE="compiler"
+            bash_title "$SHUSERS:~/ $BASH_TITLE"
+
+            if [ $_OS_DARWIN == 1 ]; then
+                ignore_this docker stop $_OS_SSERVER
+            elif [ "$_OS_GNU_LINUX" == 1 ] || [ "$_OS_WINDOWS" == 1 ]; then 
+                if [ -f "$STRING_LOCK_NAME_SERVER" ]; then
+                    PID=$(cat "$STRING_LOCK_NAME_SERVER")
+                    ignore_this kill -9 "$PID"
+                    rm -rf "$STRING_LOCK_NAME_SERVER"
+                fi
+            fi
+            
+            local OPS_FIND_ARGS="${OPS_OPTION_FLAGS#compile }"
+            OPS_FIND_INPUT=""
+            OPS_FIND_OPTION_AMX=()
+
+            for arg in $OPS_FIND_ARGS; do
+                if [ -z "$OPS_FIND_INPUT" ]; then
+                    OPS_FIND_INPUT="$arg"
+                else
+                    OPS_FIND_OPTION_AMX+=("$arg")
+                fi
+            done
+
+            if [[ "$OPS_OPTION_FLAGS" == "compile" ]]; then
+                COMPILER_MODE="true"
+                triops_compilers ""
+            else
+                if [[ -n "$OPS_FIND_INPUT" ]]; then
+                    if [[ "$OPS_FIND_INPUT" == "." ]]; then
+                        COMPILER_MODE="true"
+                        triops_compilers ""
+                    else
+                        if [[ ${#OPS_FIND_OPTION_AMX[@]} -eq 0 ]]; then
+                            COMPILER_NEXT=1
+                        else
+                            COMPILER_NEXT=2
+                        fi
+                    fi
+                fi
+
+                while IFS= read -r -d '' pawncc; do
+                if [ -f "$pawncc" ]; then
+                    COMPILER_PAWNCC="$pawncc"
+                    break
+                fi
+                done < <(find "$BASH_DIR" -type f -iname "$_OS_PAWNCC" -print0)
+
+                if [ -z "$COMPILER_PAWNCC" ]; then
+                    echo -e "$(bash_coltext_r "crit:") $_OS_PAWNCC not found!. You can get this in \`ops -p\`"
+                    echo
+                    read -r -p "install now? [y/n] " INSTALL_NOW
+
+                    while true; do
+                        case "$INSTALL_NOW" in
+                            [Yy])
+                                what_is_choice_pawncc ""
+                                ;;
+                            [Nn])
+                                bash_typeof ""
+                                ;;
+                            *)
+                                what_is_choice_pawncc ""
+                                ;;
+                        esac
+                    done
+                fi
+
+                if ! find "$BASH_DIR" -type f -name "$OPS_FIND_INPUT" | grep -q .; then
+                    echo -e "$(bash_coltext_r "crit:") $OPS_FIND_INPUT not found!."
+                    bash_typeof ""
+                fi
+
+                : '
+                    @Map
+                '
+                files=()
+                while IFS= read -r -d '' file; do
+                    files+=("$file")
+                done < <(find "$BASH_DIR" -name "$OPS_FIND_INPUT" -type f -print0)
+
+                for file in "${files[@]}"; do
+                    if [ -f "$file" ] && [[ "$file" != *.amx ]]; then
+                        bash_title "$file"
+
+                        AMX_O="$(dirname "$file")/$(basename "${file%.*}.amx")"
+
+                        echo -e "$(bash_coltext_y "dbg:") Processing: $file"
+
+                        : '
+                            @PawnCC.Compile
+                        '
+
+                        start_time=$(date +%s%3N)
+
+                            for _ in {1..10}; do
+                                if [ $COMPILER_NEXT == 1 ]; then
+                                    "$COMPILER_PAWNCC" -i"$TRIOPS_DEFAULT_INCLUDE" "$file" -o"$AMX_O" "$AMX_OPT_F" > "$METADAT_FILE" 2>&1
+                                elif [ $COMPILER_NEXT == 2 ]; then
+                                    "$COMPILER_PAWNCC" -i"$TRIOPS_DEFAULT_INCLUDE" "$file" -o"$AMX_O" "$AMX_OPT_F" "${OPS_FIND_OPTION_AMX[@]}" > "$METADAT_FILE" 2>&1
+                                fi
+                            done
+                            
+                        end_time=$(date +%s%3N)
+
+                        elapsed=$((end_time - start_time))
+                        avg_time=$((elapsed / 10))
+                        
+                        bash_cache_compiler ""
+                        ignore_this sleep 0.100 &&
+                        cat "$METADAT_FILE"
+
+                        if [ -s "$AMX_O" ]; then
+                            echo
+                            echo "~ $AMX_O"
+                            if [ "$COMPILER_MODE" == "true" ]; then
+                                BASH_TITLE="compilers"
+                                bash_title "$SHUSERS:~/ $BASH_TITLE"
+                            elif [ "$COMPILER_MODE" == "false" ]; then
+                                BASH_TITLE="compiler - running"
+                                bash_title "$SHUSERS:~/ $BASH_TITLE"
+                            fi
+                            echo
+                            echo "total size: $(stat -c%s "$AMX_O") bytes"
+                            if [ $COMPILER_NEXT == 2 ]; then
+                                echo -n "with +option compiler: "
+                                echo "${OPS_FIND_OPTION_AMX[@]}"
+                            fi
+                            echo "Total execution time: ${elapsed} ms"
+                            echo "Average time per iteration: ${avg_time} ms"
+                        fi
+                    fi
+                done
+            fi
+
+            bash_end ""
+            ;;
+        "running"*)
+            BASH_TITLE="running"
+            bash_title "$SHUSERS:~/ $BASH_TITLE"
+
+            if [ $_OS_DARWIN == 1 ]; then
+                ignore_this docker stop $_OS_SSERVER
+            elif [ "$_OS_GNU_LINUX" == 1 ] || [ "$_OS_WINDOWS" == 1 ]; then 
+                if [ -f "$STRING_LOCK_NAME_SERVER" ]; then
+                    PID=$(cat "$STRING_LOCK_NAME_SERVER")
+                    ignore_this kill -9 "$PID"
+                    rm -rf "$STRING_LOCK_NAME_SERVER"
+                fi
+            fi
+            
+            local OPS_FIND_ARGS="${OPS_OPTION_FLAGS#running }"
+            
+            if [[ -n "$OPS_FIND_ARGS" && "$OPS_FIND_ARGS" != "$OPS_OPTION_FLAGS" ]]; then
+                OPS_FIND_INPUT="$OPS_FIND_ARGS"
+            else
+                triops_servers ""
+            fi
+
+            SERVERS_NEXT=1
+
+            if [ "$OPS_FIND_INPUT" == "." ]; then
+                triops_servers ""
+            else
+                withArgs_triops_servers "$OPS_FIND_INPUT"
+            fi
+            bash_end ""
+            ;;
+        "irunn")
+            BASH_TITLE="compile & running"
+            bash_title "$SHUSERS:~/ $BASH_TITLE"
+
+            if [ $_OS_DARWIN == 1 ]; then
+                ignore_this docker stop $_OS_SSERVER
+            elif [ "$_OS_GNU_LINUX" == 1 ] || [ "$_OS_WINDOWS" == 1 ]; then 
+                if [ -f "$STRING_LOCK_NAME_SERVER" ]; then
+                    PID=$(cat "$STRING_LOCK_NAME_SERVER")
+                    ignore_this kill -9 "$PID"
+                    rm -rf "$STRING_LOCK_NAME_SERVER"
+                fi
+            fi
+
+            COMPILER_MODE="false"
+            triops_compilers ""
+
+            triops_servers ""
+            ;;
+        "debug"*)
+            BASH_TITLE="debugging a server"
+            bash_title "$SHUSERS:~/ $BASH_TITLE"
+
+            if [ $_OS_DARWIN == 1 ]; then
+                ignore_this docker stop $_OS_SSERVER
+            elif [ "$_OS_GNU_LINUX" == 1 ] || [ "$_OS_WINDOWS" == 1 ]; then 
+                if [ -f "$STRING_LOCK_NAME_SERVER" ]; then
+                    PID=$(cat "$STRING_LOCK_NAME_SERVER")
+                    ignore_this kill -9 "$PID"
+                    rm -rf "$STRING_LOCK_NAME_SERVER"
+                fi
+            fi
+
+            local OPS_FIND_ARGS="${OPS_OPTION_FLAGS#debug }"
+            
+            if [[ -n "$OPS_FIND_ARGS" && "$OPS_FIND_ARGS" != "$OPS_OPTION_FLAGS" ]]; then
+                OPS_FIND_INPUT="$OPS_FIND_ARGS"
+            else
+                if [ ! -f "$BASH_DIR/$_OS_SSERVER" ]; then
+                    echo -e "$(bash_coltext_r "crit:") $_OS_SSERVER not found!. You can get this in \`ops -g\`" && read -r -n 1 -s
+                    echo
+                    read -r -p "install now? [y/n] " INSTALL_NOW
+
+                    while true; do
+                        case "$INSTALL_NOW" in
+                            [Yy])
+                                what_is_choice_samp ""
+                                ;;
+                            [Nn])
+                                bash_typeof ""
+                                ;;
+                            *)
+                                what_is_choice_samp ""
+                                ;;
+                        esac
+                    done
+                fi
+                
+                echo -e "$(bash_coltext_a ":: Enter GM Name:")"
+                read -r -p ">>> " OPS_FIND_INPUT
+            fi
+
+            SERVERS_NEXT=2
+            
+            if [ "$OPS_FIND_INPUT" == "." ]; then
+                triops_servers ""
+            else
+                withArgs_triops_servers "$OPS_FIND_INPUT"
+            fi
+            bash_end ""
+            ;;
+        "stop")
+            BASH_TITLE="stopped a server"
+            bash_title "$SHUSERS:~/ $BASH_TITLE"
+
+            if [ $_OS_DARWIN == 1 ]; then
+                ignore_this docker stop $_OS_SSERVER
+            elif [ "$_OS_GNU_LINUX" == 1 ] || [ "$_OS_WINDOWS" == 1 ]; then 
+                if [ -f "$STRING_LOCK_NAME_SERVER" ]; then
+                    PID=$(cat "$STRING_LOCK_NAME_SERVER")
+                    ignore_this kill -9 "$PID"
+                    rm -rf "$STRING_LOCK_NAME_SERVER"
+                fi
+            fi
+            bash_end ""
+            ;;
+        "restart")
+            BASH_TITLE="restart a server"
+            bash_title "$SHUSERS:~/ $BASH_TITLE"
+
+            if [ $_OS_DARWIN == 1 ]; then
+                if docker ps --filter "$_OS_SSERVER" | grep -q "$_OS_SSERVER"; then
+                    ignore_this docker stop $_OS_SSERVER
+
+                    ignore_this sleep 2
+                    triops_servers ""
+                else
+                    echo "error: No progress Server running."
+                fi
+            elif [ "$_OS_GNU_LINUX" == 1 ] || [ "$_OS_WINDOWS" == 1 ]; then 
+                if [ -f "$STRING_LOCK_NAME_SERVER" ]; then
+                    PID=$(cat "$STRING_LOCK_NAME_SERVER")
+                    ignore_this kill -9 "$PID"
+                    rm -rf "$STRING_LOCK_NAME_SERVER"
+
+                    ignore_this sleep 2
+                    triops_servers ""
+                else
+                    echo "error: No progress Server running."
+                fi
+            fi
+            ;;
+        "gamemode")
+            BASH_TITLE="Downloads GameMode SA:MP"
+            bash_title "$SHUSERS:~/ $BASH_TITLE"
+
+            what_is_choice_samp ""
+
+            bash_end ""
+            ;;
+        "pawncc")
+            BASH_TITLE="Downloads PawnCC SA:MP"
+            bash_title "$SHUSERS:~/ $BASH_TITLE"
+
+            what_is_choice_pawncc ""
+
+            bash_end ""
+            ;;
+        "clear")
+            clear; echo -ne "\033[3J"
+            bash_typeof ""
+            ;;
+        "fcheck")
+            BASH_TITLE="folder check"
+            bash_title "$SHUSERS:~/ $BASH_TITLE"
+
+            bash_check_dir "filterscripts"
+            bash_check_dir "gamemodes"
+            bash_check_dir "scriptfiles"
+
+            if [ -f "server.cfg" ]; then
+                echo
+                echo "# server.cfg is .. Ok .."
+                echo " [A subdirectory or file server.cfg already exists.]" &&
+                bash_end ""
+            else
+                cat <<EOF > server.cfg
+echo Executing Server Config...
+lanmode 0
+rcon_password changename
+maxplayers 150
+port 7777
+hostname SA-MP 0.3
+gamemode0 main 1
+filterscripts
+announce 0
+chatlogging 0
+weburl www.sa-mp.com
+onfoot_rate 40
+incar_rate 40
+weapon_rate 40
+stream_distance 300.0
+stream_rate 1000
+maxnpc 0
+logtimeformat [%H:%M:%S]
+language English
+EOF
+                echo -e "OK? '$BASH_DIR/server.cfg'...: [yes]"
+                cat server.cfg
+
+                echo
+                bash_end ""
+            fi
+            ;;
+        "cat"*)
+            BASH_TITLE="cat files"
+            bash_title "$SHUSERS:~/ $BASH_TITLE"
+
+            local OPS_FIND_ARGS="${OPS_OPTION_FLAGS#cat }"
+            
+            if [[ -n "$OPS_FIND_ARGS" && "$OPS_FIND_ARGS" != "$OPS_OPTION_FLAGS" ]]; then
+                OPS_FIND_INPUT="$OPS_FIND_ARGS"
+            else
+                echo -e "$(bash_coltext_a ":: Enter File Name:")"
+                read -r -p ">>> " OPS_FIND_INPUT
+            fi
+
+            cat "$OPS_FIND_INPUT"
+            echo
+            bash_end ""
+            ;;
+        "directory"*)
+            BASH_TITLE="directory - $BASH_DIR"
+            bash_title "$SHUSERS:~/ $BASH_TITLE"
+
+            local OPS_FIND_ARGS="${OPS_OPTION_FLAGS#directory }"
+            
+            if [[ -n "$OPS_FIND_ARGS" && "$OPS_FIND_ARGS" != "$OPS_OPTION_FLAGS" ]]; then
+                OPS_FIND_INPUT="$OPS_FIND_ARGS"
+            else
+                ls -a
+                bash_end ""
+            fi
+
+            ignore_this cd "$OPS_FIND_INPUT" && ls -a && BASH_TITLE="directory - $BASH_DIR" && bash_title "$SHUSERS:~/ $BASH_TITLE" || echo
+            bash_typeof ""
+            ;;
+        "ls")
+        	ls -a
+        	bash_typeof ""
+        	;;
+        "kill")
+            BASH_TITLE="kill"
+            bash_title "$SHUSERS:~/ $BASH_TITLE"
+
+            clear
+            ignore_this sleep 0.100
+            chmod +x "$BASH_NAME"
+            bash ./"$BASH_NAME"
+            ;;
+        "sync")
+            BASH_TITLE="Update Triops"
+            bash_title "$SHUSERS:~/ $BASH_TITLE"
+
+            FIND_GITHUB_REPO="vilksons/triops"
+            FIND_LATEST_COMMIT=$(curl -s "https://api.github.com/repos/$FIND_GITHUB_REPO/commits/main" | grep -o '"sha": "[^"]*' | awk -F': "' '{print $2}')
+
+            FIND_CURRENT_COMMIT=$(cat "$BASH_DIR/.curr_commits" 2>/dev/null)
+
+            if [[ "$FIND_LATEST_COMMIT" == "$FIND_CURRENT_COMMIT" ]]; then
+                echo "warning: $BASH_NAME is up to date"
+                bash_end ""
+            else
+                echo -e "$(bash_coltext_a ":: There is an update!. Commits: (SHA1): ")"
+                echo "$FIND_LATEST_COMMIT"
+                read -r -p ":: Do you want to continue Sync Triops? [y/n] " PERMISSION_NEED_S
+
+                while true; do
+                    case "$PERMISSION_NEED_S" in
+                        [Yy])
+                            echo "Updating..."
+                            
+                            echo "$FIND_LATEST_COMMIT" > "$BASH_DIR/.curr_commits"
+                            
+                            cd "$BASH_DIR/.lib" >/dev/null 2>&1 || echo ""
+
+                            curl -L -o "security" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Tools/security"
+                            curl -L -o "compat" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Tools/compat"
+                            curl -L -o "libtpm" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Tools/libtpm"
+                            curl -L -o "libpack" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Tools/libtpm"
+                            curl -L -o "liblocal" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Tools/liblocal"
+
+                            ignore_this sleep 1 && cd "$BASH_DIR" >/dev/null 2>&1 || echo ""
+
+                            curl -L -o ".$BASH_NAME.py" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Scripts/$BASH_NAME.py"
+
+                            touch ".cach"
+                            chmod +x .cach &&
+                            echo "curl -L -o \"workspace\" \"https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Scripts/workspace\"" >> ".cach"
+                            echo "echo Complete!. Re-open Now!" >> ".cach"
+                            ./".cach"
+
+                            ignore_this sleep 2.999 && clear && rm -rf ".cach"
+                            bash -
+                            ;;
+                        *)
+                            bash_end ""
+                            break
+                            ;;
+                    esac
+                done
+            fi
+            ;;
+        "checksums"*)
+            BASH_TITLE="Checksums"
+            bash_title "$SHUSERS:~/ $BASH_TITLE"
+
+            local OPS_FIND_ARGS="${OPS_OPTION_FLAGS#checksums }"
+
+            ignore_this cd "$BASH_DIR" || echo ""
+
+            if [[ -n "$OPS_FIND_ARGS" && "$OPS_FIND_ARGS" != "$OPS_OPTION_FLAGS" ]]; then
+                OPS_FIND_INPUT="$OPS_FIND_ARGS"
+            else
+                echo "sha1:" && sha1sum "$BASH_NAME" && echo "sha256:" && sha256sum "$BASH_NAME" && echo "md5:" && md5sum "$BASH_NAME"
+                bash_end ""
+            fi
+
+            for algo in $OPS_FIND_INPUT; do
+                if [[ "$algo" == "sha1" ]]; then
+                    echo "sha1:" && sha1sum "$BASH_NAME"
+                elif [[ "$algo" == "sha256" ]]; then
+                    echo "sha256:" && sha256sum "$BASH_NAME"
+                elif [[ "$algo" == "md5" ]]; then
+                    echo "md5:" && md5sum "$BASH_NAME"
+                else
+                    echo "Invalid option: $algo (use sha1, sha256, md5)"
+                fi
+            done
+
+            bash_end ""
+            ;;
+        "exit"*)
+            BASH_TITLE="exit"
+            bash_title "$SHUSERS:~/ $BASH_TITLE"
+            
+            local OPS_FIND_ARGS="${OPS_OPTION_FLAGS#exit }"
+
+            if [[ -n "$OPS_FIND_ARGS" && "$OPS_FIND_ARGS" != "$OPS_OPTION_FLAGS" ]]; then
+                OPS_FIND_INPUT="$OPS_FIND_ARGS"
+            else
+		        ignore_this sleep 0.100 &&
+		        bash -
+            fi
+
+
+            if [ -f "$STRING_LOCK_NAME" ]; then
+				PID=$(cat "$STRING_LOCK_NAME")
+				ignore_this kill -9 "$PID"
+				rm -rf "$STRING_LOCK_NAME"
+			fi
+			bash -
+            ;;
+        "chatbot"*)
+            BASH_TITLE="chatbot"
+            bash_title "$SHUSERS:~/ $BASH_TITLE"
+
+            local OPS_FIND_ARGS="${OPS_OPTION_FLAGS#chatbot }"
+
+            if [[ -n "$OPS_FIND_ARGS" && "$OPS_FIND_ARGS" != "$OPS_OPTION_FLAGS" ]]; then
+                OPS_FIND_INPUT="$OPS_FIND_ARGS"
+            else
+                echo -e "$(bash_coltext_a ":: Enter Question:")"
+                echo " -> enter \"exit\" to exit"
+                read -r -p ">>> " OPS_FIND_INPUT
+            fi
+
+            if [[ "$OPS_FIND_ARGS" == "exit" ]]; then
+                bash_end ""
+            fi
+
+            response=$(curl -s -X POST https://api.groq.com/openai/v1/chat/completions \
+                -H "Authorization: Bearer $CHATBOT_TOKEN" \
+                -H "Content-Type: application/json" \
+                -d "{
+                    \"model\": \"$CHATBOT_MODEL\",
+                    \"messages\": [
+                        {
+                        \"role\": \"system\",
+                        \"content\": \"$CHATBOT_BIODATA\"
+                        },
+                        {
+                        \"role\": \"user\",
+                        \"content\": \"$OPS_FIND_INPUT .. do not add markdown symbols (.md)\"
+                        }
+                    ],
+                    \"temperature\": 1,
+                    \"max_tokens\": 1024,
+                    \"top_p\": 1,
+                    \"stream\": false,
+                    \"stop\": null
+                    }")
+
+                echo "$response" | python3 -c "
+import sys, json
+try:
+    data = json.load(sys.stdin)
+    print(data.get('choices', [{}])[0].get('message', {}).get('content', 'Error: Key not found'))
+except json.JSONDecodeError:
+    print('Error: Invalid JSON')
+"
+
+            echo "----------------------------------"
+            bash_end ""
+            ;;
+        "nano"*)
+            if [ "$_OS_DISABLE_GNU_NANO" == "false" ]; then
+                BASH_TITLE="GNU Nano Editor"
+                bash_title "$BASH_TITLE"
+                
+                local OPS_FIND_ARGS="${OPS_OPTION_FLAGS#nano }"
+
+                if [[ -n "$OPS_FIND_ARGS" && "$OPS_FIND_ARGS" != "$OPS_OPTION_FLAGS" ]]; then
+                    OPS_FIND_INPUT="$OPS_FIND_ARGS"
+                else
+                    echo -e "$(bash_coltext_a ":: Enter File Name:")"
+                    read -r -p ">>> " OPS_FIND_INPUT
+                fi
+
+                nano "$OPS_FIND_INPUT"
+                bash_end ""
+            else
+                echo "error: $OPS_OPTION_FLAGS: command not found"
+                bash_end ""
+            fi
+            ;;
+        "remcac")
+            BASH_TITLE="Remove Cache"
+            bash_title "$BASH_TITLE"
+
+            echo -e "$(bash_coltext_a ":: Cache Dir: $BASH_DIR/.cache")"
+            read -r -p ":: Do you want to remove ALL files from cache? [y/n] " PERMISSION_NEED_RC
+
+            while true; do
+            case "$PERMISSION_NEED_RC" in
+                [Yy])
+                    ignore_this cd "$BASH_DIR" || echo ""
+                    rm -rf "$BASH_DIR/.cache" && ignore_this sleep 1
+
+                    if [ ! -d ".cache" ]; then
+                        mkdir ".cache"
+                    fi
+
+                    ignore_this sleep 0.100 &&
+                    bash_end ""
+                    break
+                    ;;
+                *)
+                    bash_end ""
+                    esac
+            done
+            ;;
+        "fetch")
+            fetch_now ""
+            ;;
+        "tpm")
+            bash_typeof2 ""
+            bash_help2 ""
+            ;;
+        "help"* | "$OPS_TRIGGER -h"* | "$OPS_TRIGGER --h"*)
+            local OPS_FIND_ARGS="${OPS_OPTION_FLAGS#"$OPS_TRIGGER -h "}"
+            local OPS_FIND_ARGS="${OPS_FIND_ARGS#help }"
+            local OPS_FIND_ARGS="${OPS_FIND_ARGS#"$OPS_TRIGGER --h "}"
+
+            declare -A descriptions=(
+                ["compile"]=":: Compile a project - Usage: compile | (+) [<args>] [target]"
+                ["running"]=":: Running a project - Usage: running | (+) [<args>] [target]"
+                ["irunn"]=":: Compile & Running a project - Usage: irunn"
+                ["debug"]=":: Debug a project - Usage: debug | (+) [<args>] [target]"
+                ["stop"]=":: stop all running server progress - Usage: stop"
+                ["restart"]=":: Restart all Server - Usage: restart"
+                ["gamemode"]=":: Download GameModes SA-MP with Selection - Usage: gamemode"
+                ["pawncc"]=":: Download PawnCC SA-MP with Selection - Usage: pawncc"
+                ["clear"]=":: Clear Screen Terminal - Usage: clear"
+                ["checksums"]=":: Checksums of Triops - Usage: checksums"
+                ["fcheck"]=":: Checks Directory of SA-MP - Usage: fcheck"
+                ["cat"]=":: Display a files to Triops Terminal - Usage: cat"
+                ["kill"]=":: Kill a Triops Terminal - Usage: kill"
+                ["exit"]=":: Exit/End Triops Terminal - Usage: exit | (+) [<args>] \"all\" to kill all tasks"
+                ["directory"]=":: Display or Change Terminal Directory - Usage: directory | ls"
+                ["update"]=":: Update/Upgrade/Sync Triops Shell up-to-date - Usage: sync"
+                ["remcac"]=":: Remove cache \".cache\" Triops - Usage: remcac"
+                ["chatbot"]=":: Chatbot Terminal - Usage: chatbot"
+                ["nano"]=":: GNU/Nano Editor - Usage: nano"
+                ["tpm"]=":: Triops Mode to TPM Mode - Usage: tpm"
+                ["fetch"]=":: Fetch Triops -> Usage: fetch"
+            )
+            
+            if [[ -n "$OPS_FIND_ARGS" && "$OPS_FIND_ARGS" != "$OPS_OPTION_FLAGS" ]]; then
+                if [[ -n "${descriptions[$OPS_FIND_ARGS]}" ]]; then
+                    if [[ "$OPS_FIND_ARGS" == "nano" && "$_OS_DISABLE_GNU_NANO" == "true" ]]; then
+                        bash_help "invalid"
+                    else
+                        if [ "$OPS_FIND_ARGS" == "compile" ]; then
+                            echo "${descriptions[$OPS_FIND_ARGS]}"
+                            echo " Example: compile bare.pwn +option_amx"
+                            echo " For Option. Please See: https://github.com/vilksons/triops/wiki/Compiler-Option"
+                        else
+                            echo "${descriptions[$OPS_FIND_ARGS]}"
+                        fi
+                    fi
+                else
+                    bash_help "invalid"
+                fi
+            else
+                bash_help ""
+            fi
+
+            bash_typeof ""
+            ;;
+        "$OPS_TRIGGER")
+            bash_help ""
+            bash_typeof ""
+            ;;
+        "" | " ")
+            bash_typeof ""
+            ;;
+        *)
+            not_found ""
+            ;;
+    esac
+}
+export bash_OPS
+
+function not_found()
+{
+    echo "error: $OPS_OPTION_FLAGS: command not found"
+    bash_typeof ""
+}
+
+function bash_help()
+{
+    : '
+        @Send.Help
+    '
+    local check_param=$1
+
+    if [ "$check_param" == "invalid" ]; then
+        echo "Invalid!.. Please Use:"
+    fi
+
+    echo "Usage: ops <command> | help | -h | --h | [<commands>]"
+    echo "Commands:"
+    echo " compile, running, irunn, debug, stop, restart"
+    echo " gamemode, pawncc, clear, checksums"
+    echo " fcheck, cat, tpm, kill, directory"
+
+    if [ "$_OS_DISABLE_GNU_NANO" == "true" ]; then
+        echo " sync, exit, remcac, chatbot, fetch"
+    else
+        echo " sync, exit, remcac, chatbot, nano, fetch"
+    fi
+}
+
+function bash_help2()
+{
+    echo "Usage: ops <command> [<args>]"
+    echo "Commands:"
+    echo " install - Install/Reinstall Packages"
+    echo " remove  - Remove Packages"
+    echo " exit    - Exit TPM Mode"
+}
+
+function bash_end() {
+    echo -e "$(bash_coltext_y "# Press any key to return.")"
+    read -r -n 1 -s
+    bash_typeof ""
+}
+
+: '
+    @summary: Main
+'
+bash_typeof ""
+
+: '
+    @summary: End - if no function is running
+'
+if [ -z "$1" ]; then
+    bash_typeof ""
+fi
