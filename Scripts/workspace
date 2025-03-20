@@ -399,17 +399,17 @@ bash_OPS() {
                     @Map
                 '
                 files=()
-                while IFS= read -r -d '' file; do
-                    files+=("$file")
+                while IFS= read -r -d '' COMPILED_FILES; do
+                    files+=("$COMPILED_FILES")
                 done < <(find "$BASH_DIR" -name "$OPS_FIND_INPUT" -type f -print0)
 
-                for file in "${files[@]}"; do
-                    if [ -f "$file" ] && [[ "$file" != *.amx ]]; then
-                        bash_title "$file"
+                for COMPILED_FILES in "${files[@]}"; do
+                    if [ -f "$COMPILED_FILES" ] && [[ "$COMPILED_FILES" != *.amx ]]; then
+                        bash_title "$COMPILED_FILES"
 
-                        AMX_O="$(dirname "$file")/$(basename "${file%.*}.amx")"
+                        AMX_O="$(dirname "$COMPILED_FILES")/$(basename "${COMPILED_FILES%.*}.amx")"
 
-                        echo -e "$(bash_coltext_y "dbg:") Processing: $file"
+                        echo -e "$(bash_coltext_y "dbg:") Processing: $COMPILED_FILES"
 
                         : '
                             @PawnCC.Compile
@@ -419,9 +419,9 @@ bash_OPS() {
 
                             for _ in {1..10}; do
                                 if [ $COMPILER_NEXT == 1 ]; then
-                                    "$COMPILER_PAWNCC" -i"$TRIOPS_DEFAULT_INCLUDE" -i"$TRIOPS_ALLOW_EXCLUDE""$file" -o"$AMX_O" "$AMX_OPT_F" > "$METADAT_FILE" 2>&1
+                                    "$COMPILER_PAWNCC" -i"$TRIOPS_DEFAULT_INCLUDE" -i"$TRIOPS_ALLOW_EXCLUDE" "$COMPILED_FILES" -o"$AMX_O" "$AMX_OPT_F" > "$METADAT_FILE" 2>&1
                                 elif [ $COMPILER_NEXT == 2 ]; then
-                                    "$COMPILER_PAWNCC" -i"$TRIOPS_DEFAULT_INCLUDE" -i"$TRIOPS_ALLOW_EXCLUDE""$file" -o"$AMX_O" "$AMX_OPT_F" "${OPS_FIND_OPTION_AMX[@]}" > "$METADAT_FILE" 2>&1
+                                    "$COMPILER_PAWNCC" -i"$TRIOPS_DEFAULT_INCLUDE" -i"$TRIOPS_ALLOW_EXCLUDE" "$COMPILED_FILES" -o"$AMX_O" "$AMX_OPT_F" "${OPS_FIND_OPTION_AMX[@]}" > "$METADAT_FILE" 2>&1
                                 fi
                             done
                             

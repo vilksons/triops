@@ -274,18 +274,18 @@ function triops_compilers() {
         @Map
     '
     files=()
-    while IFS= read -r -d '' file; do
-        files+=("$file")
+    while IFS= read -r -d '' COMPILED_FILES; do
+        files+=("$COMPILED_FILES")
     done < <(find "$BASH_DIR" -name "*.io*" -type f -print0)
 
-    for file in "${files[@]}"; do
-        if [ -f "$file" ] && [[ "$file" != *.amx ]]; then
+    for COMPILED_FILES in "${files[@]}"; do
+        if [ -f "$COMPILED_FILES" ] && [[ "$COMPILED_FILES" != *.amx ]]; then
             SHFILE="true"
-            bash_title "$file"
+            bash_title "$COMPILED_FILES"
 
-            AMX_O="$(dirname "$file")/$(basename "${file%.io*}.amx")"
+            AMX_O="$(dirname "$COMPILED_FILES")/$(basename "${COMPILED_FILES%.io*}.amx")"
 
-            echo -e "$(bash_coltext_y "dbg:") Processing: $file"
+            echo -e "$(bash_coltext_y "dbg:") Processing: $COMPILED_FILES"
 
             : '
                 @PawnCC.Compile
@@ -294,7 +294,7 @@ function triops_compilers() {
             start_time=$(date +%s%3N)
 
                 for _ in {1..10}; do
-                    "$COMPILER_PAWNCC" -i"$TRIOPS_DEFAULT_INCLUDE" -i"$TRIOPS_ALLOW_EXCLUDE" "$file" -o"$AMX_O" "$AMX_OPT_F" > "$METADAT_FILE" 2>&1
+                    "$COMPILER_PAWNCC" -i"$TRIOPS_DEFAULT_INCLUDE" -i"$TRIOPS_ALLOW_EXCLUDE" "$COMPILED_FILES" -o"$AMX_O" "$AMX_OPT_F" > "$METADAT_FILE" 2>&1
                 done
 
             end_time=$(date +%s%3N)
