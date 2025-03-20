@@ -31,9 +31,10 @@ data = load_json()
 def print_export(key, value):
     print(f"export {key}='{value}'")
 
-print_export("TRIOPS_DEFAULT_INCLUDE", data.get('default_include', ''))
-print_export("TPM_DIR", data.get('tpm_dir', ''))
-print_export("TPM_INSTALLER", data.get('tpm_type', ''))
+print_export("TRIOPS_DEFAULT_INCLUDE", data.get('triops_default_exclude', ''))
+print_export("TRIOPS_ALLOW_EXCLUDE", data.get('triops_allow_exclude', ''))
+print_export("TPM_DIR", data.get('package_dir', ''))
+print_export("TPM_INSTALLER", data.get('package_type', ''))
 print_export("CHATBOT_TOKEN", data.get('chatbot_token', ''))
 print_export("CHATBOT_MODEL", data.get('chatbot_model', ''))
 print_export("CHATBOT_BIODATA", data.get('chatbot_biodata', ''))

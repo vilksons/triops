@@ -20,15 +20,16 @@ fi
 if [ ! -f "triops.json" ]; then
 python3 -c 'import json; 
 data = {
-    "amx_opt": [
+    "triops_amx_options": [
         "-d2",
         "-Z+"
     ],
-    "default_include": "pawno/include",
-    "tpm_dir": "pawno/include",
-    "tpm_type": "curl",
-    "chatbot_token": "",
-    "chatbot_model": "",
+    "triops_default_exclude": "pawno/include",
+    "triops_allow_exclude": "includes",
+    "package_dir": "pawno/include",
+    "package_type": "curl",
+    "chatbot_token": "gsk_abcd",
+    "chatbot_model": "qwen-2.5-32b",
     "chatbot_biodata": ""
 }; 
 with open("triops.json", "w") as f: 
@@ -418,9 +419,9 @@ bash_OPS() {
 
                             for _ in {1..10}; do
                                 if [ $COMPILER_NEXT == 1 ]; then
-                                    "$COMPILER_PAWNCC" -i"$TRIOPS_DEFAULT_INCLUDE" "$file" -o"$AMX_O" "$AMX_OPT_F" > "$METADAT_FILE" 2>&1
+                                    "$COMPILER_PAWNCC" -i"$TRIOPS_DEFAULT_INCLUDE" -i"$TRIOPS_ALLOW_EXCLUDE""$file" -o"$AMX_O" "$AMX_OPT_F" > "$METADAT_FILE" 2>&1
                                 elif [ $COMPILER_NEXT == 2 ]; then
-                                    "$COMPILER_PAWNCC" -i"$TRIOPS_DEFAULT_INCLUDE" "$file" -o"$AMX_O" "$AMX_OPT_F" "${OPS_FIND_OPTION_AMX[@]}" > "$METADAT_FILE" 2>&1
+                                    "$COMPILER_PAWNCC" -i"$TRIOPS_DEFAULT_INCLUDE" -i"$TRIOPS_ALLOW_EXCLUDE""$file" -o"$AMX_O" "$AMX_OPT_F" "${OPS_FIND_OPTION_AMX[@]}" > "$METADAT_FILE" 2>&1
                                 fi
                             done
                             
@@ -697,9 +698,9 @@ EOF
             bash_typeof ""
             ;;
         "ls")
-        	ls -a
-        	bash_typeof ""
-        	;;
+            ls -a
+            bash_typeof ""
+            ;;
         "kill")
             BASH_TITLE="kill"
             bash_title "$SHUSERS:~/ $BASH_TITLE"
@@ -794,23 +795,22 @@ EOF
         "exit"*)
             BASH_TITLE="exit"
             bash_title "$SHUSERS:~/ $BASH_TITLE"
-            
+
             local OPS_FIND_ARGS="${OPS_OPTION_FLAGS#exit }"
 
             if [[ -n "$OPS_FIND_ARGS" && "$OPS_FIND_ARGS" != "$OPS_OPTION_FLAGS" ]]; then
                 OPS_FIND_INPUT="$OPS_FIND_ARGS"
             else
-		        ignore_this sleep 0.100 &&
-		        bash -
+                ignore_this sleep 0.100 &&
+                bash -
             fi
 
-
             if [ -f "$STRING_LOCK_NAME" ]; then
-				PID=$(cat "$STRING_LOCK_NAME")
-				ignore_this kill -9 "$PID"
-				rm -rf "$STRING_LOCK_NAME"
-			fi
-			bash -
+                PID=$(cat "$STRING_LOCK_NAME")
+                ignore_this kill -9 "$PID"
+                rm -rf "$STRING_LOCK_NAME"
+            fi
+            bash -
             ;;
         "chatbot"*)
             BASH_TITLE="chatbot"
@@ -821,7 +821,7 @@ EOF
             if [[ -n "$OPS_FIND_ARGS" && "$OPS_FIND_ARGS" != "$OPS_OPTION_FLAGS" ]]; then
                 OPS_FIND_INPUT="$OPS_FIND_ARGS"
             else
-                echo -e "$(bash_coltext_a ":: Enter Question:")"
+               	echo -e "$(bash_coltext_a ":: Enter Question:")"
                 echo " -> enter \"exit\" to exit"
                 read -r -p ">>> " OPS_FIND_INPUT
             fi
