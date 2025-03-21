@@ -28,6 +28,7 @@ fi
 security_file_rm()
 {
     : ' Remove File Logs '
+    cd "$BASH_DIR" >/dev/null 2>&1 || echo "" &&
     ignore_this rm ".cache"
 
     if [ -f "$LOG_SERVER" ]; then
