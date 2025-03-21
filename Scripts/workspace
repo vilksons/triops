@@ -385,7 +385,7 @@ bash_OPS() {
                 if [ -f "$STRING_LOCK_NAME_SERVER" ]; then
                     PID=$(cat "$STRING_LOCK_NAME_SERVER")
                     ignore_this kill -9 "$PID"
-                    rm -rf "$STRING_LOCK_NAME_SERVER"
+                    rm "$STRING_LOCK_NAME_SERVER"
                 fi
             fi
             
@@ -527,7 +527,7 @@ bash_OPS() {
                 if [ -f "$STRING_LOCK_NAME_SERVER" ]; then
                     PID=$(cat "$STRING_LOCK_NAME_SERVER")
                     ignore_this kill -9 "$PID"
-                    rm -rf "$STRING_LOCK_NAME_SERVER"
+                    rm "$STRING_LOCK_NAME_SERVER"
                 fi
             fi
             
@@ -558,7 +558,7 @@ bash_OPS() {
                 if [ -f "$STRING_LOCK_NAME_SERVER" ]; then
                     PID=$(cat "$STRING_LOCK_NAME_SERVER")
                     ignore_this kill -9 "$PID"
-                    rm -rf "$STRING_LOCK_NAME_SERVER"
+                    rm "$STRING_LOCK_NAME_SERVER"
                 fi
             fi
 
@@ -577,7 +577,7 @@ bash_OPS() {
                 if [ -f "$STRING_LOCK_NAME_SERVER" ]; then
                     PID=$(cat "$STRING_LOCK_NAME_SERVER")
                     ignore_this kill -9 "$PID"
-                    rm -rf "$STRING_LOCK_NAME_SERVER"
+                    rm "$STRING_LOCK_NAME_SERVER"
                 fi
             fi
 
@@ -629,7 +629,7 @@ bash_OPS() {
                 if [ -f "$STRING_LOCK_NAME_SERVER" ]; then
                     PID=$(cat "$STRING_LOCK_NAME_SERVER")
                     ignore_this kill -9 "$PID"
-                    rm -rf "$STRING_LOCK_NAME_SERVER"
+                    rm "$STRING_LOCK_NAME_SERVER"
                 fi
             fi
             bash_end ""
@@ -651,7 +651,7 @@ bash_OPS() {
                 if [ -f "$STRING_LOCK_NAME_SERVER" ]; then
                     PID=$(cat "$STRING_LOCK_NAME_SERVER")
                     ignore_this kill -9 "$PID"
-                    rm -rf "$STRING_LOCK_NAME_SERVER"
+                    rm "$STRING_LOCK_NAME_SERVER"
 
                     ignore_this sleep 2
                     triops_servers ""
@@ -776,7 +776,7 @@ bash_OPS() {
                             echo "echo Complete!. Re-open Now!" >> ".cach"
                             ./".cach"
 
-                            ignore_this sleep 2.999 && clear && rm -rf ".cach"
+                            ignore_this sleep 2.999 && clear && rm ".cach"
                             bash -
                             ;;
                         *)
@@ -832,7 +832,7 @@ bash_OPS() {
             if [ -f "$STRING_LOCK_NAME" ]; then
                 PID=$(cat "$STRING_LOCK_NAME")
                 ignore_this kill -9 "$PID"
-                rm -rf "$STRING_LOCK_NAME"
+                rm "$STRING_LOCK_NAME"
             fi
             bash -
             ;;
@@ -920,7 +920,7 @@ except json.JSONDecodeError:
             case "$PERMISSION_NEED_RC" in
                 [Yy])
                     ignore_this cd "$BASH_DIR" || echo ""
-                    rm -rf "$BASH_DIR/.cache" && ignore_this sleep 1
+                    rm ".cache" && ignore_this sleep 1
 
                     if [ ! -d ".cache" ]; then
                         mkdir ".cache"
