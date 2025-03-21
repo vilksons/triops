@@ -4,8 +4,8 @@
     Double SHA256
     Generate a random 32-byte hex string and hash it twice using SHA256
 '
-STRING_LOCK_NAME="$BASH_DIR/.bash_hashing.lock"
-STRING_LOCK_NAME_SERVER="$BASH_DIR/.server_hashing.lock"
+STRING_LOCK_NAME=".bash_hashing.lock"
+STRING_LOCK_NAME_SERVER=".server_hashing.lock"
 export STRING_LOCK_NAME_SERVER
 
 : '
@@ -28,8 +28,11 @@ fi
 security_file_rm()
 {
     : ' Remove File Logs '
-    ignore_this rm -rf "$BASH_DIR/.cache"
-    ignore_this rm -rf "$BASH_DIR/$LOG_SERVER"
+    ignore_this rm ".cache"
+
+    if [ -f "$LOG_SERVER" ]; then
+        ignore_this rm "$LOG_SERVER"
+    fi
 }
 
 security_cleanup() {
@@ -41,7 +44,7 @@ security_cleanup() {
         # Kill All PID
         ignore_this kill -9 "$PID"
         # Delete the PID file
-        rm -rf "$STRING_LOCK_NAME"
+        rm "$STRING_LOCK_NAME"
     fi
 
     wait && exit

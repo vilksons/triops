@@ -7,13 +7,13 @@ function triops_servers() {
         if [ -f "$STRING_LOCK_NAME_SERVER" ]; then
             PID=$(cat "$STRING_LOCK_NAME_SERVER")
             ignore_this kill -9 "$PID"
-            rm -rf "$STRING_LOCK_NAME_SERVER"
+            rm "$STRING_LOCK_NAME_SERVER"
         fi
     fi
     
     ignore_this sleep 1
 
-    ignore_this rm -rf "$BASH_DIR/$LOG_SERVER"
+    ignore_this rm "$BASH_DIR/$LOG_SERVER"
 
     ignore_this sleep 1
 
@@ -102,7 +102,7 @@ function triops_servers() {
                 if [ -f "$STRING_LOCK_NAME_SERVER" ]; then
                     PID=$(cat "$STRING_LOCK_NAME_SERVER")
                     ignore_this kill -9 "$PID"
-                    rm -rf "$STRING_LOCK_NAME_SERVER"
+                    rm "$STRING_LOCK_NAME_SERVER"
                 fi
             fi
         fi
@@ -117,13 +117,13 @@ function withArgs_triops_servers() {
         if [ -f "$STRING_LOCK_NAME_SERVER" ]; then
             PID=$(cat "$STRING_LOCK_NAME_SERVER")
             ignore_this kill -9 "$PID"
-            rm -rf "$STRING_LOCK_NAME_SERVER"
+            rm "$STRING_LOCK_NAME_SERVER"
         fi
     fi
     
     ignore_this sleep 1
     
-    ignore_this rm -rf "$BASH_DIR/$LOG_SERVER"
+    ignore_this rm "$BASH_DIR/$LOG_SERVER"
 
     ignore_this sleep 1
 
@@ -240,7 +240,7 @@ function withArgs_triops_servers() {
                 if [ -f "$STRING_LOCK_NAME_SERVER" ]; then
                     PID=$(cat "$STRING_LOCK_NAME_SERVER")
                     ignore_this kill -9 "$PID"
-                    rm -rf "$STRING_LOCK_NAME_SERVER"
+                    rm "$STRING_LOCK_NAME_SERVER"
                 fi
             fi
         fi
@@ -362,7 +362,7 @@ function bash_cache_compiler() {
     cache_compiler=".cache/compiler.log"
     _cache_compiler=".cache/.compiler.log"
     if [ -f "$_cache_compiler" ]; then
-        rm -rf "$_cache_compiler"
+        rm "$_cache_compiler"
     fi
     while IFS= read -r line; do
         echo "~" >> "$_cache_compiler"

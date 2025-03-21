@@ -89,8 +89,6 @@ fi
 MODULE_LOADED_NOTICE=0
 DO_NOT_SHOW_LNOT=0
 
-NEXT_LOCAL=0
-
 ignore_this() {
     "$@" > /dev/null 2>&1
 }
@@ -315,23 +313,23 @@ function wait_and_cnd() {
         fi
 
         clear
-    fi
 
-    if [ "$lib_name" == "liblocal" ]; then
-        NEXT_LOCAL=1
+        if [ "$lib_name" == "liblocal" ]; then
+            ignore_this sleep 0.1 && cd "$BASH_DIR" && ./"$BASH_NAME"
+        fi
     fi
 }
 
     workspace_py "" && security_safe "" && compat ""
     
 wait_and_cnd "libtpm" \
-    "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Tools/libtpm" &&
+    "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Tools/libtpm" 
 
 wait_and_cnd "libpack" \
-    "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Tools/libpack" &&
+    "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Tools/libpack" 
 
 wait_and_cnd "liblocal" \
-    "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Tools/liblocal" && 
+    "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Tools/liblocal" 
     
     ignore_this sleep 0.1 && cd "$BASH_DIR" >/dev/null 2>&1 || echo "" 
 }
@@ -342,11 +340,6 @@ function bash_typeof() {
     : '
         @Send.Typeof
     '
-
-    if [ $NEXT_LOCAL == 1 ]; then
-        NEXT_LOCAL=0
-        ignore_this sleep 0.1 && cd "$BASH_DIR" >/dev/null 2>&1 || echo "" && bash ./"$BASH_NAME"
-    fi
         
     if [ $MODULE_LOADED_NOTICE != 1 ]; then
         loaded_all_modules ""
