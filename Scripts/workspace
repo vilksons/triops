@@ -429,7 +429,7 @@ bash_OPS() {
                 done < <(find "$BASH_DIR" -type f -iname "$_OS_PAWNCC" -print0)
 
                 if [ -z "$COMPILER_PAWNCC" ]; then
-                    echo -e "$(bash_coltext_r "crit:") $_OS_PAWNCC not found!. You can get this in \`ops -p\`"
+                    echo -e "$(bash_coltext_r "crit:") $_OS_PAWNCC not found!. You can get this in \`pawncc\`"
                     echo
                     read -r -p "install now? [y/n] " INSTALL_NOW
 
@@ -593,7 +593,7 @@ bash_OPS() {
                 OPS_FIND_INPUT="$OPS_FIND_ARGS"
             else
                 if [ ! -f "$BASH_DIR/$_OS_SSERVER" ]; then
-                    echo -e "$(bash_coltext_r "crit:") $_OS_SSERVER not found!. You can get this in \`ops -g\`" && read -r -n 1 -s
+                    echo -e "$(bash_coltext_r "crit:") $_OS_SSERVER not found!. You can get this in \`gamemode\`" && read -r -n 1 -s
                     echo
                     read -r -p "install now? [y/n] " INSTALL_NOW
 

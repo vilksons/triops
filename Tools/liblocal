@@ -18,7 +18,7 @@ function triops_servers() {
     ignore_this sleep 1
 
     if [ ! -f "$BASH_DIR/$_OS_SSERVER" ]; then
-        echo -e "$(bash_coltext_r "crit:") $_OS_SSERVER not found!. You can get this in \`ops -g\`"
+        echo -e "$(bash_coltext_r "crit:") $_OS_SSERVER not found!. You can get this in \`gamemode\`"
         echo
         read -r -p "install now? [y/n] " INSTALL_NOW
 
@@ -158,7 +158,7 @@ function withArgs_triops_servers() {
     fi
     
     if [ ! -f "$BASH_DIR/$_OS_SSERVER" ]; then
-        echo -e "$(bash_coltext_r "crit:") $_OS_SSERVER not found!. You can get this in \`ops -g\`"
+        echo -e "$(bash_coltext_r "crit:") $_OS_SSERVER not found!. You can get this in \`gamemode\`"
         echo
         read -r -p "install now? [y/n] " INSTALL_NOW
 
@@ -269,7 +269,7 @@ function triops_compilers() {
     done < <(find "$BASH_DIR" -type f -iname "$_OS_PAWNCC" -print0)
 
     if [ -z "$COMPILER_PAWNCC" ]; then
-        echo -e "$(bash_coltext_r "crit:") $_OS_PAWNCC not found!. You can get this in \`ops -p\`"
+        echo -e "$(bash_coltext_r "crit:") $_OS_PAWNCC not found!. You can get this in \`pawncc\`"
         echo
         read -r -p "install now? [y/n] " INSTALL_NOW
 

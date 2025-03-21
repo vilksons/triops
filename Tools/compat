@@ -113,7 +113,7 @@ check_os() {
             LOG_SERVER="server_log.txt"
             pacman_PLUGIN_DIR="plugins"
         else
-            echo -e "$(bash_coltext_r "crit:") server not found!. You can get this in \`ops -g\`"
+            echo -e "$(bash_coltext_r "crit:") server not found!. You can get this in \`gamemode\`"
         fi
     fi
 }
