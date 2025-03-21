@@ -187,6 +187,8 @@ OMP_SERVER=0
 export OMP_SERVER
 LOG_SERVER=""
 export LOG_SERVER
+pacman_PLUGIN_DIR="null"
+export pacman_PLUGIN_DIR
 
 # shellcheck source=/dev/null
 

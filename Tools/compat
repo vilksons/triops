@@ -71,7 +71,7 @@ check_os() {
         
         if [ $_OS_GNU_LINUX == 1 ]; then
             OMP_FOUND=$(find . -maxdepth 1 -type f -name "omp-server" | head -n 1)
-            SAMP_FOUND=$(find . -maxdepth 1 -type f -name "samp-server" | head -n 1)
+            SAMP_FOUND=$(find . -maxdepth 1 -type f -name "samp03svr" | head -n 1)
         elif [[ $_OS_DARWIN == 1 || $_OS_WINDOWS == 1 ]]; then
             OMP_FOUND=$(find . -maxdepth 1 -type f -name "omp-server.exe" | head -n 1)
             SAMP_FOUND=$(find . -maxdepth 1 -type f -name "samp-server.exe" | head -n 1)
@@ -105,11 +105,15 @@ check_os() {
             SAMP_SERVER=0
             _OS_SSERVER="$(basename "$OMP_FOUND")"
             LOG_SERVER=$(grep '"file"' config.json | sed -E 's/.*"file": *"([^"]+)".*/\1/')
+            pacman_PLUGIN_DIR="components"
         elif [[ -n "$SAMP_FOUND" ]]; then
             OMP_SERVER=0
             SAMP_SERVER=1
             _OS_SSERVER="$(basename "$SAMP_FOUND")"
             LOG_SERVER="server_log.txt"
+            pacman_PLUGIN_DIR="plugins"
+        else
+            echo -e "$(bash_coltext_r "crit:") server not found!. You can get this in \`ops -g\`"
         fi
     fi
 }

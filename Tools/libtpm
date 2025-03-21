@@ -35,12 +35,6 @@ if not os.path.isfile("tpm.json"):
 }
 export bash_typeof2
 
-if [ $SAMP_SERVER == 1 ]; then
-    pacman_PLUGIN_DIR="plugins"
-elif [ $OMP_SERVER == 1 ]; then
-    pacman_PLUGIN_DIR="components"
-fi
-
 pacman_PACKAGE_FILE="tpm.json"
 pacman_SERVER_CFG="server.cfg"
 pacman_CONFIG_FILE="config.json"
@@ -180,11 +174,15 @@ function bash_TPM()
                 if [[ -z "$pacman_FILE_NAME" ]]; then
                     pacman_FILE_NAME="Unknown's"
                 fi
+
+                pacman_FILE_NAME_SAVE="$pacman_FILE_NAME"
+
+                sleep 0.10
+                
                 pacman_FILE_NAME=$(basename "$pacman_repository_url")
                 pacman_FILE_NAME="${pacman_FILE_NAME%%-*}"
 
-
-                echo -e "$(bash_coltext_y "Downloading") $pacman_FILE_NAME $pacman_VERSION_REPO"
+                echo -e "$(bash_coltext_y "Downloading") $pacman_FILE_NAME_SAVE $pacman_VERSION_REPO"
                 
 if [ "$pacman_INSTALLER" == "curl" ]; then # curl
     curl -sL "$pacman_archive_url" -o "$pacman_ARCHIVE_FILE"
@@ -222,6 +220,8 @@ with open('$pacman_ARCHIVE_FILE', 'wb') as f:
     [f.write(chunk) for chunk in r.iter_content(1024)]
 "
 fi
+
+                mkdir -p "$pacman_PLUGIN_DIR"
 
                 if file "$pacman_ARCHIVE_FILE" | grep -q "Zip archive data"; then
                     unzip -q "$pacman_ARCHIVE_FILE" -d "$pacman_EXTRACT_DIR"
@@ -263,89 +263,100 @@ fi
                 find "$pacman_EXTRACT_DIR" -type f \( -name "*.dll" -o -name "*.so" \) -exec mv {} "$pacman_PLUGIN_DIR/" \;
 
                 rm -rf "$pacman_ARCHIVE_FILE" "$pacman_EXTRACT_DIR"
-                echo -e "$(bash_coltext_y "Complete!.") Packages: $pacman_FILE_NAME | $pacman_EX_VERSION_REPO"
+                echo -e "$(bash_coltext_y "Complete!.") Packages: $pacman_FILE_NAME_SAVE | $pacman_EX_VERSION_REPO"
             done
 
             echo -e "$(bash_coltext_y "[All packages installed]")"
 
-            mkdir -p "$pacman_PLUGIN_DIR"
+            sleep 0.10
 
             FOUND_pacman_PLUGINS=false
             for ext in ".so" ".dll"; do
-            if compgen -G "${pacman_FILE_NAME}*${ext}" > /dev/null; then
-                FOUND_pacman_PLUGINS=true
-                break
-            fi
+                if ls "${pacman_FILE_NAME}"*"$ext" &>/dev/null; then
+                    FOUND_pacman_PLUGINS=true
+                fi
+                if ls "${pacman_FILE_NAME_SAVE}"*"$ext" &>/dev/null; then
+                    FOUND_pacman_PLUGINS=true
+                fi
             done
 
             if [ "$FOUND_pacman_PLUGINS" = true ]; then
                 pacman_NEWPLG=()
                 
                 while IFS= read -r line; do
-                    [[ "$line" =~ \.so$|\.dll$ ]] && pacman_NEWPLG+=("$(basename "$line" | sed 's/\.[^.]*$//')")
+                    if [[ "$line" =~ \.so$|\.dll$ ]]; then
+                        plugin_name="$(basename "$line" | sed 's/\.[^.]*$//')"
+                        pacman_NEWPLG+=("$plugin_name")
+                    fi
                 done < "$pacman_FILE_NAME"
-                
+
+                if [[ -f "$pacman_FILE_NAME_SAVE" ]]; then
+                    while IFS= read -r line; do
+                        if [[ "$line" =~ \.so$|\.dll$ ]]; then
+                            plugin_name="$(basename "$line" | sed 's/\.[^.]*$//')"
+                            pacman_NEWPLG+=("$plugin_name")
+                        fi
+                    done < "$pacman_FILE_NAME_SAVE"
+                fi
+
+                if [[ $SAMP_SERVER == 1 || $OMP_SERVER == 1 ]]; then
+                    if [ ! -f "$pacman_SERVER_CFG" ]; then
+                        echo -e "$(bash_coltext_g "warn:") $pacman_SERVER_CFG not found!."
+                        bash_end ""
+                    fi
+                fi
+
                 if [ ${#pacman_NEWPLG[@]} -gt 0 ]; then
                     if [ $SAMP_SERVER == 1 ]; then
-                        if [ -f "$pacman_SERVER_CFG" ]; then
-                            if ! grep -q "^plugins " "$pacman_SERVER_CFG"; then
-                                sed -i '1i plugins ' "$pacman_SERVER_CFG"
-                            fi
-                            
-                            _pacman_EXTPLG=$(grep -oP '(?<=plugins ).*' "$pacman_SERVER_CFG" | tr ' ' '\n' | sort -u)
+                        if ! grep -q "^plugins " "$pacman_SERVER_CFG"; then
+                            sed -i '1i plugins ' "$pacman_SERVER_CFG"
+                        fi
+                        
+                        _pacman_EXTPLG=$(grep -oP '(?<=plugins ).*' "$pacman_SERVER_CFG" | tr ' ' '\n' | sort -u)
 
-                            _pacman_NEWPLG=()
-                            for PLUGIN in "${pacman_NEWPLG[@]}"; do
-                                if ! echo "$_pacman_EXTPLG" | grep -qx "$PLUGIN"; then
-                                    _pacman_NEWPLG+=("$PLUGIN")
-                                fi
-                            done
-
-                            if [ ${#_pacman_NEWPLG[@]} -gt 0 ]; then
-                                pacman_UPDATED_PLUGINS=$(echo "$_pacman_EXTPLG" "${_pacman_NEWPLG[@]}" | tr '\n' ' ' | xargs -n1 | sort -u | xargs)
-                                sed -i "s/^plugins .*/plugins $pacman_UPDATED_PLUGINS/" "$pacman_SERVER_CFG"
-                                echo " Added new plugins to server.cfg: ${_pacman_NEWPLG[*]}"
-                            else
-                                echo -e "$(bash_coltext_y "dbg:") No new plugins need to be added."
+                        _pacman_NEWPLG=()
+                        for PLUGIN in "${pacman_NEWPLG[@]}"; do
+                            if ! echo "$_pacman_EXTPLG" | grep -qx "$PLUGIN"; then
+                                _pacman_NEWPLG+=("$PLUGIN")
                             fi
+                        done
+
+                        if [ ${#_pacman_NEWPLG[@]} -gt 0 ]; then
+                            pacman_UPDATED_PLUGINS=$(echo "$_pacman_EXTPLG" "${_pacman_NEWPLG[@]}" | tr '\n' ' ' | xargs -n1 | sort -u | xargs)
+                            sed -i "s/^plugins .*/plugins $pacman_UPDATED_PLUGINS/" "$pacman_SERVER_CFG"
+                            echo " Added new plugins to server.cfg: ${_pacman_NEWPLG[*]}"
                         else
-                            echo -e "$(bash_coltext_g "warn:") $pacman_SERVER_CFG not found!."
+                            echo -e "$(bash_coltext_y "dbg:") No new plugins need to be added."
                         fi
                     elif [ $OMP_SERVER == 1 ]; then
-                        if [ -f "$pacman_CONFIG_FILE" ]; then
-                            if ! grep -q '"legacy_plugins":' "$pacman_CONFIG_FILE"; then
-                                sed -i '1i "legacy_plugins": [],' "$pacman_CONFIG_FILE"
+                        if ! grep -q '"legacy_plugins":' "$pacman_CONFIG_FILE"; then
+                            sed -i '1i "legacy_plugins": [],' "$pacman_CONFIG_FILE"
+                        fi
+                        
+                        _pacman_EXTPLG=$(awk -F'[][]' '/"legacy_plugins":/ {gsub(/"|,/,"",$2); print $2}' "$pacman_CONFIG_FILE" | tr '\n' ' ')
+
+                        _pacman_NEWPLG=()
+                        for PLUGIN in "${pacman_NEWPLG[@]}"; do
+                            if ! echo "$_pacman_EXTPLG" | grep -qw "$PLUGIN"; then
+                                _pacman_NEWPLG+=("\"$PLUGIN\"")
                             fi
-                            
-                            _pacman_EXTPLG=$(awk -F'[][]' '/"legacy_plugins":/ {gsub(/"|,/,"",$2); print $2}' "$pacman_CONFIG_FILE" | tr '\n' ' ')
+                        done
 
-                            _pacman_NEWPLG=()
-                            for PLUGIN in "${pacman_NEWPLG[@]}"; do
-                                if ! echo "$_pacman_EXTPLG" | grep -qw "$PLUGIN"; then
-                                    _pacman_NEWPLG+=("\"$PLUGIN\"")
-                                fi
-                            done
+                        if [ ${#_pacman_NEWPLG[@]} -gt 0 ]; then
+                            pacman_UPDATED_PLUGINS=$(echo "$_pacman_EXTPLG" "${_pacman_NEWPLG[@]}" | tr ' ' '\n' | sort -u | xargs | sed 's/ /", "/g')
+                            awk -v plugins="$pacman_UPDATED_PLUGINS" '
+                            /"legacy_plugins":/ {print "\"legacy_plugins\": [ " plugins " ],"; next} 
+                            {print}
+                            ' "$pacman_CONFIG_FILE" > temp.json && mv temp.json "$pacman_CONFIG_FILE"
 
-                            if [ ${#_pacman_NEWPLG[@]} -gt 0 ]; then
-                                pacman_UPDATED_PLUGINS=$(echo "$_pacman_EXTPLG" "${_pacman_NEWPLG[@]}" | tr ' ' '\n' | sort -u | xargs | sed 's/ /", "/g')
-                                awk -v plugins="$pacman_UPDATED_PLUGINS" '
-                                /"legacy_plugins":/ {print "\"legacy_plugins\": [ " plugins " ],"; next} 
-                                {print}
-                                ' "$pacman_CONFIG_FILE" > temp.json && mv temp.json "$pacman_CONFIG_FILE"
-
-                                echo "Added new plugins to legacy_plugins: ${_pacman_NEWPLG[*]}"
-                            else
-                                echo -e "$(bash_coltext_y "dbg:") No new plugins need to be added."
-                            fi
+                            echo "Added new plugins to legacy_plugins: ${_pacman_NEWPLG[*]}"
                         else
-                            echo -e "$(bash_coltext_y "dbg:") config.json not found"
+                            echo -e "$(bash_coltext_y "dbg:") No new plugins need to be added."
                         fi
                     fi
                 else
-                    echo -e "$(bash_coltext_y "dbg:") No valid plugins found in $pacman_FILE_NAME."
+                    echo -e "$(bash_coltext_y "dbg:") No valid plugins found in $pacman_FILE_NAME_SAVE."
                 fi
-            else
-                echo -e "$(bash_coltext_g "warn:") $pacman_FILE_NAME not found!."
             fi
 
             
