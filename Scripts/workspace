@@ -330,6 +330,9 @@ wait_and_cnd "pacman" \
 wait_and_cnd "resource" \
     "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Tools/resource" 
 
+wait_and_cnd "image" \
+    "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Tools/image" 
+
 wait_and_cnd "compiler" \
     "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Tools/compiler" 
     
