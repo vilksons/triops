@@ -775,6 +775,7 @@ bash_OPS() {
                             curl -L -o "compat" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Tools/compat"
                             curl -L -o "pacman" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Tools/pacman"
                             curl -L -o "resource" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Tools/pacman"
+                            curl -L -o "image" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Tools/image"
                             curl -L -o "compiler" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Tools/compiler"
 
                             ignore_this sleep 1 && cd "$BASH_DIR" >/dev/null 2>&1 || echo ""
