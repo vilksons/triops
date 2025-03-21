@@ -72,17 +72,17 @@ fi
 if [ ! -f "lang.json" ]; then
 python3 -c 'import json; 
 data = {
-    "amx_options": [
-        "-d2",
-        "-Z+"
-    ],
-    "triops_default_exclude": "pawno/include",
-    "triops_allow_exclude": "includes",
-    "package_dir": "pawno/include",
-    "package_type": "curl",
-    "chatbot_token": "gsk_abcd",
-    "chatbot_model": "qwen-2.5-32b",
-    "chatbot_biodata": ""
+        "amx_options": [
+            "-d2",
+            "-Z+"
+        ],
+        "triops_default_exclude": "pawno/include",
+        "triops_allow_exclude":   "includes",
+        "package_dir":            "pawno/include",
+        "package_type":           "wget",
+        "chatbot_token":          "gsk_abcd",
+        "chatbot_model":          "qwen-2.5-32b",
+        "chatbot_biodata":        ""
 }; 
 with open("lang.json", "w") as f: 
     json.dump(data, f, indent=4)' 
@@ -223,7 +223,7 @@ workspace_py() {
         echo -e "$(bash_coltext_g "note:") Installing.."
         ignore_this sleep 0.10 && clear
 
-        if ! curl -L -s -o ".workspace.py" "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Scripts/workspace.py" > /dev/null; then
+        if ! wget -q --show-progress -O ".workspace.py" "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Scripts/workspace.py" > /dev/null; then
             echo -e "$(bash_coltext_r "Failed: Always check for updates on the official Triops repository before doing Sync.")"
         fi
 
@@ -253,7 +253,7 @@ security_safe() {
 
         cd "$BASH_DIR/.lib" >/dev/null 2>&1 || echo ""
 
-        if ! curl -L -s -o "security" "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Tools/security" > /dev/null; then
+        if ! wget -q --show-progress -O "security" "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Tools/security" > /dev/null; then
             echo -e "$(bash_coltext_r "Failed: Always check for updates on the official Triops repository before doing Sync.")"
         fi
 
@@ -284,7 +284,7 @@ compat() {
 
         cd "$BASH_DIR/.lib" >/dev/null 2>&1 || echo ""
 
-        if ! curl -L -s -o "compat" "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Tools/compat" > /dev/null; then
+        if ! wget -q --show-progress -O "compat" "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Tools/compat" > /dev/null; then
             echo -e "$(bash_coltext_r "Failed: Always check for updates on the official Triops repository before doing Sync.")"
         fi
 
@@ -315,8 +315,8 @@ function wait_and_cnd() {
 
         cd "$BASH_DIR/.lib" >/dev/null 2>&1 || echo ""
 
-        if ! curl -L -s -o "$lib_name" "$lib_url_1" &&
-        ! curl -L -s -o "$lib_name" "$lib_url_2"; then
+        if ! wget -q --show-progress -O "$lib_name" "$lib_url_1" &&
+        ! wget -q --show-progress -O "$lib_name" "$lib_url_2"; then
             echo -e "$(bash_coltext_r "Failed: Always check for updates on the official Triops repository before doing Sync.")"
         fi
 
@@ -777,20 +777,20 @@ bash_OPS() {
                             
                             cd "$BASH_DIR/.lib" >/dev/null 2>&1 || echo ""
 
-                            curl -L -o "security" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Tools/security"
-                            curl -L -o "compat" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Tools/compat"
-                            curl -L -o "pacman" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Tools/pacman"
-                            curl -L -o "resource" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Tools/pacman"
-                            curl -L -o "image" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Tools/image"
-                            curl -L -o "compiler" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Tools/compiler"
+                            wget -q --show-progress -O "security" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Tools/security"
+                            wget -q --show-progress -O "compat" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Tools/compat"
+                            wget -q --show-progress -O "pacman" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Tools/pacman"
+                            wget -q --show-progress -O "resource" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Tools/pacman"
+                            wget -q --show-progress -O "image" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Tools/image"
+                            wget -q --show-progress -O "compiler" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Tools/compiler"
 
                             ignore_this sleep 1 && cd "$BASH_DIR" >/dev/null 2>&1 || echo ""
 
-                            curl -L -o ".$BASH_NAME.py" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Scripts/$BASH_NAME.py"
+                            wget -q --show-progress -O ".$BASH_NAME.py" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Scripts/$BASH_NAME.py"
 
                             touch ".cach"
                             chmod +x .cach &&
-                            echo "curl -L -o \"workspace\" \"https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Scripts/workspace\"" >> ".cach"
+                            echo "wget -q --show-progress -O \"workspace\" \"https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Scripts/workspace\"" >> ".cach"
                             echo "echo Complete!. Re-open Now!" >> ".cach"
                             ./".cach"
 
@@ -958,7 +958,7 @@ except json.JSONDecodeError:
             fetch_now ""
             ;;
         "pacman")
-            bash_typeof2 ""
+            bash_typeof_pacman ""
             bash_help2 ""
             ;;
         "help"* | "$OPS_TRIGGER -h"* | "$OPS_TRIGGER --h"*)

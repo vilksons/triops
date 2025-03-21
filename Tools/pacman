@@ -1,6 +1,6 @@
 #!/usr/bin/bash
 
-function bash_typeof2() {
+function bash_typeof_pacman() {
     if [ ! -f "pacman.json" ]; then
 python3 -c 'import json, os
 if not os.path.isfile("pacman.json"):
@@ -33,7 +33,7 @@ if not os.path.isfile("pacman.json"):
     read -r pacman_OPTION_FLAGS
     bash_TPM ""
 }
-export bash_typeof2
+export bash_typeof_pacman
 
 pacman_PACKAGE_FILE="pacman.json"
 pacman_SERVER_CFG="server.cfg"
@@ -184,8 +184,8 @@ function bash_TPM()
 
                 echo -e "$(bash_coltext_y "Downloading") $pacman_FILE_NAME_SAVE $pacman_VERSION_REPO"
                 
-if [ "$pacman_INSTALLER" == "curl" ]; then # curl
-    curl -sL "$pacman_archive_url" -o "$pacman_ARCHIVE_FILE"
+if [ "$pacman_INSTALLER" == "wget" ]; then # wget
+    wget -q --show-progress -O "$pacman_ARCHIVE_FILE" "$pacman_archive_url"
 elif [ "$pacman_INSTALLER" == "pycurl" ]; then # pycurl
     python3 -c "
 import pycurl
@@ -360,7 +360,7 @@ fi
             fi
 
             
-            bash_typeof2 ""
+            bash_typeof_pacman ""
             ;;
         "remove"*)
             BASH_TITLE="TPM Remove Package"
@@ -447,29 +447,29 @@ fi
                 echo 
             fi
             
-            bash_typeof2 ""
+            bash_typeof_pacman ""
             ;;
         "$BASH_OPTION -C" | "clear" | "cc")
             clear; echo -ne "\033[3J"
-            bash_typeof2 ""
+            bash_typeof_pacman ""
             ;;
         "$pacman_TRIGGER" | "$pacman_TRIGGER " | "" | " ")
             bash_help2
-            bash_typeof2 ""
+            bash_typeof_pacman ""
             ;;
         "help")
             BASH_TITLE="help"
             bash_title "$SHUSERS:~/ $BASH_TITLE"
 
             bash_help2
-            bash_typeof2 ""
+            bash_typeof_pacman ""
             ;;
        "exit")
             bash_typeof ""
             ;;
         *)
             echo "error: $pacman_OPTION_FLAGS: command not found"
-            bash_typeof2 ""
+            bash_typeof_pacman ""
             ;;
     esac
 }
