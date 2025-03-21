@@ -63,7 +63,7 @@ if [ -n "$missing_cmds" ]; then
     fi
 fi
 
-if [ ! -f "triops.json" ]; then
+if [ ! -f "lang.json" ]; then
 python3 -c 'import json; 
 data = {
     "triops_amx_options": [
@@ -78,7 +78,7 @@ data = {
     "chatbot_model": "qwen-2.5-32b",
     "chatbot_biodata": ""
 }; 
-with open("triops.json", "w") as f: 
+with open("lang.json", "w") as f: 
     json.dump(data, f, indent=4)' 
 fi
 
@@ -951,7 +951,7 @@ except json.JSONDecodeError:
         "fetch")
             fetch_now ""
             ;;
-        "tpm")
+        "pacman")
             bash_typeof2 ""
             bash_help2 ""
             ;;
@@ -980,7 +980,7 @@ except json.JSONDecodeError:
                 ["remcac"]=":: Remove cache \".cache\" Triops - Usage: remcac"
                 ["chatbot"]=":: Chatbot Terminal - Usage: chatbot"
                 ["nano"]=":: GNU/Nano Editor - Usage: nano"
-                ["tpm"]=":: Triops Mode to TPM Mode - Usage: tpm"
+                ["pacman"]=":: Triops Mode to TPM Mode - Usage: pacman"
                 ["fetch"]=":: Fetch Triops -> Usage: fetch"
             )
             
@@ -1041,7 +1041,7 @@ function bash_help()
     echo "Commands:"
     echo " compile, running, irunn, debug, stop, restart"
     echo " gamemode, pawncc, clear, checksums"
-    echo " fcheck, cat, tpm, kill, directory"
+    echo " fcheck, cat, pacman, kill, directory"
 
     if [ "$_OS_DISABLE_GNU_NANO" == "true" ]; then
         echo " sync, exit, remcac, chatbot, fetch"

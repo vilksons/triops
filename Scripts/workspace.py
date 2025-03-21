@@ -18,9 +18,9 @@ print(f"export SERVER_DOUBLE_SHA256={SERVER_DOUBLE_SHA256}")
 print(f"export BASH_DOUBLE_SHA256={BASH_DOUBLE_SHA256}")
 
 def load_json():
-    """ Load json for triops.json """
+    """ Load json for lang.json """
     try:
-        with open('triops.json', 'r') as f:
+        with open('lang.json', 'r') as f:
             return json.load(f)
     except Exception as e:
         print(f"Error loading JSON: {e}")
@@ -43,7 +43,7 @@ amx_opt = data.get('amx_opt', [])
 print_export("AMX_OPT_F", ' '.join(amx_opt))
 
 def process_package(file):
-    """ Load json for tpm.json """
+    """ Load json for pacman.json """
     try:
         with open(file) as f:
             try:

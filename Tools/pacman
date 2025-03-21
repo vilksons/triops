@@ -1,9 +1,9 @@
 #!/usr/bin/bash
 
 function bash_typeof2() {
-    if [ ! -f "tpm.json" ]; then
+    if [ ! -f "pacman.json" ]; then
 python3 -c 'import json, os
-if not os.path.isfile("tpm.json"):
+if not os.path.isfile("pacman.json"):
     data = {
         "package": [
             "github/example/user/repository",
@@ -20,7 +20,7 @@ if not os.path.isfile("tpm.json"):
             "unknownhost/example/path/to/target/to/files/.tar.gz"
         ]
     }
-    with open("tpm.json", "w") as f:
+    with open("pacman.json", "w") as f:
         json.dump(data, f, indent=4)
 ' 
     fi
@@ -35,7 +35,7 @@ if not os.path.isfile("tpm.json"):
 }
 export bash_typeof2
 
-pacman_PACKAGE_FILE="tpm.json"
+pacman_PACKAGE_FILE="pacman.json"
 pacman_SERVER_CFG="server.cfg"
 pacman_CONFIG_FILE="config.json"
 
