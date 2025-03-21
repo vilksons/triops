@@ -7,10 +7,14 @@ function send_samp_linux()
     if [[ "$SEL_C" =~ ^[Yy]$ ]]; then
         cd "$BASH_DIR" || bash_end ""
         echo "Select the SA-MP version to download:"
-        echo "[A/a] SA-MP 0.3.DL R1"
-        echo "[B/b] SA-MP 0.3.7 R3"
-        echo "[C/c] SA-MP 0.3.7 R2-2-1"
-        echo "[D/d] SA-MP 0.3.7 R2-1"
+        echo "[A/a] SA-MP  0.3.DL R1"
+        echo "[B/b] SA-MP  0.3.7 R3"
+        echo "[C/c] SA-MP  0.3.7 R2-2-1"
+        echo "[D/d] SA-MP  0.3.7 R2-1"
+        echo "[E/e] OpenMP v1.4.0.2779"
+        echo "[F/f] OpenMP v1.3.1.2748"
+        echo "[G/g] OpenMP v1.2.0.2670"
+        echo "[H/h] OpenMP v1.1.0.2612"
         read -r -p ">> " VERSION_NEED
         
         while true; do
@@ -33,6 +37,26 @@ function send_samp_linux()
                 [Dd])
                     DOWNLOAD_URL_CURL="https://github.com/vilksons/files.sa-mp.com-Archive/raw/refs/heads/master/samp037svr_R2-1.tar.gz"
                     DOWNLOAD_FILE_CURL="samp037svr_R2-1.tar.gz"
+                    break
+                    ;;
+                [Ee])
+                    DOWNLOAD_URL_CURL="https://github.com/openmultiplayer/open.mp/releases/download/v1.4.0.2779/open.mp-linux-x86.tar.gz"
+                    DOWNLOAD_FILE_CURL="open.mp-win-x86.zip"
+                    break
+                    ;;
+                [Ff])
+                    DOWNLOAD_URL_CURL="https://github.com/openmultiplayer/open.mp/releases/download/v1.3.1.2748/open.mp-linux-x86.tar.gz"
+                    DOWNLOAD_FILE_CURL="open.mp-linux-x86.tar.gz"
+                    break
+                    ;;
+                [Gg])
+                    DOWNLOAD_URL_CURL="https://github.com/openmultiplayer/open.mp/releases/download/v1.2.0.2670/open.mp-linux-x86.tar.gz"
+                    DOWNLOAD_FILE_CURL="open.mp-linux-x86.tar.gz"
+                    break
+                    ;;
+                [Hh])
+                    DOWNLOAD_URL_CURL="https://github.com/openmultiplayer/open.mp/releases/download/v1.1.0.2612/open.mp-linux-x86.tar.gz"
+                    DOWNLOAD_FILE_CURL="open.mp-linux-x86.tar.gz"
                     break
                     ;;
                 *)
@@ -172,6 +196,10 @@ function send_samp_win()
         echo "[B/b] SA-MP 0.3.7 R3"
         echo "[C/c] SA-MP 0.3.7 R2-2-1"
         echo "[D/d] SA-MP 0.3.7 R2-1-1"
+        echo "[E/e] OpenMP v1.4.0.2779"
+        echo "[F/f] OpenMP v1.3.1.2748"
+        echo "[G/g] OpenMP v1.2.0.2670"
+        echo "[H/h] OpenMP v1.1.0.2612"
         read -r -p ">> " VERSION_NEED
 
         while true; do
@@ -194,6 +222,26 @@ function send_samp_win()
                 [Dd])
                     DOWNLOAD_URL_CURL="https://github.com/vilksons/files.sa-mp.com-Archive/raw/refs/heads/master/samp037_svr_R2-1-1_win32.zip"
                     DOWNLOAD_FILE_CURL="samp037_svr_R2-1-1_win32.zip"
+                    break
+                    ;;
+                [Ee])
+                    DOWNLOAD_URL_CURL="https://github.com/openmultiplayer/open.mp/releases/download/v1.4.0.2779/open.mp-win-x86.zip"
+                    DOWNLOAD_FILE_CURL="open.mp-win-x86.zip"
+                    break
+                    ;;
+                [Ff])
+                    DOWNLOAD_URL_CURL="https://github.com/openmultiplayer/open.mp/releases/download/v1.3.1.2748/open.mp-win-x86.zip"
+                    DOWNLOAD_FILE_CURL="open.mp-win-x86.zip"
+                    break
+                    ;;
+                [Gg])
+                    DOWNLOAD_URL_CURL="https://github.com/openmultiplayer/open.mp/releases/download/v1.2.0.2670/open.mp-win-x86.zip"
+                    DOWNLOAD_FILE_CURL="open.mp-win-x86.zip"
+                    break
+                    ;;
+                [Hh])
+                    DOWNLOAD_URL_CURL="https://github.com/openmultiplayer/open.mp/releases/download/v1.1.0.2612/open.mp-win-x86.zip"
+                    DOWNLOAD_FILE_CURL="open.mp-win-x86.zip"
                     break
                     ;;
                 *)

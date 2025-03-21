@@ -29,9 +29,7 @@ security_file_rm()
 {
     : ' Remove File Logs '
     ignore_this rm -rf "$BASH_DIR/.cache"
-    ignore_this rm -rf "$BASH_DIR/server_log.txt"
-    ignore_this rm -rf "$BASH_DIR/svlog.txt"
-    ignore_this rm -rf "$BASH_DIR/logs/"*
+    ignore_this rm -rf "$BASH_DIR/$LOG_SERVER"
 }
 
 security_cleanup() {

@@ -135,6 +135,12 @@ _OS_PAWNCC="null"
 export _OS_PAWNCC
 _OS_DISABLE_GNU_NANO=""
 export _OS_DISABLE_GNU_NANO
+SAMP_SERVER=0
+export SAMP_SERVER
+OMP_SERVER=0
+export OMP_SERVER
+LOG_SERVER=""
+export LOG_SERVER
 
 # shellcheck source=/dev/null
 
@@ -416,7 +422,7 @@ bash_OPS() {
                         
                         INCLUDE_GAMEMODES_DIRS=$(find "gamemodes" -type d | tr '\n' ':')
                         INCLUDE_GAMEMODES_DIRS=${INCLUDE_DIRS%:}
-
+                    
                         start_time=$(date +%s%3N)
 
                             for _ in {1..10}; do
@@ -631,40 +637,6 @@ bash_OPS() {
             bash_check_dir "filterscripts"
             bash_check_dir "gamemodes"
             bash_check_dir "scriptfiles"
-
-            if [ -f "server.cfg" ]; then
-                echo
-                echo "# server.cfg is .. Ok .."
-                echo " [A subdirectory or file server.cfg already exists.]" &&
-                bash_end ""
-            else
-                cat <<EOF > server.cfg
-echo Executing Server Config...
-lanmode 0
-rcon_password changename
-maxplayers 150
-port 7777
-hostname SA-MP 0.3
-gamemode0 main 1
-filterscripts
-announce 0
-chatlogging 0
-weburl www.sa-mp.com
-onfoot_rate 40
-incar_rate 40
-weapon_rate 40
-stream_distance 300.0
-stream_rate 1000
-maxnpc 0
-logtimeformat [%H:%M:%S]
-language English
-EOF
-                echo -e "OK? '$BASH_DIR/server.cfg'...: [yes]"
-                cat server.cfg
-
-                echo
-                bash_end ""
-            fi
             ;;
         "cat"*)
             BASH_TITLE="cat files"

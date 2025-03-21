@@ -13,9 +13,7 @@ function triops_servers() {
     
     ignore_this sleep 1
 
-    ignore_this rm -rf "$BASH_DIR/server_log.txt"
-    ignore_this rm -rf "$BASH_DIR/svlog.txt"
-    ignore_this rm -rf "$BASH_DIR/logs/"*
+    ignore_this rm -rf "$BASH_DIR/$LOG_SERVER"
 
     ignore_this sleep 1
 
@@ -74,12 +72,12 @@ function triops_servers() {
         echo
         echo -e "$(bash_coltext_r "# Fail")"
         echo
-        if [ -f "server_log.txt" ]; then
+        if [ -f "$LOG_SERVER" ]; then
             sleep 2 > /dev/null
-            cat server_log.txt
+            cat $LOG_SERVER
             echo
         else
-            echo "# server_log.txt not found."
+            echo "# $LOG_SERVER not found."
         fi
 
         echo -e "$(bash_coltext_y "# End.")"
@@ -91,7 +89,7 @@ function triops_servers() {
         echo
 
         sleep 2 > /dev/null
-        if grep -i "error" server_log.txt > /dev/null; then
+        if grep -i "error" $LOG_SERVER > /dev/null; then
             start_true ""
         else
             start_false ""
@@ -125,26 +123,40 @@ function withArgs_triops_servers() {
     
     ignore_this sleep 1
     
-    ignore_this rm -rf "$BASH_DIR/server_log.txt"
-    ignore_this rm -rf "$BASH_DIR/svlog.txt"
-    ignore_this rm -rf "$BASH_DIR/logs/"*
+    ignore_this rm -rf "$BASH_DIR/$LOG_SERVER"
 
     ignore_this sleep 1
 
     local OPS_FIND_INPUT=$1
-    if [ ! -f "server.cfg" ]; then
-        echo "server.cfg not found!"
-        bash_end ""
-    fi
-
-    mv server.cfg server.cfg.bak
     
-    awk -v new_gamemode="$OPS_FIND_INPUT" '
-        /^gamemode0 / {$2=new_gamemode} 1' server.cfg.bak > server.cfg || \
-            sed -E "s/^(gamemode0 )[0-9]+/\1$OPS_FIND_INPUT/" server.cfg.bak > server.cfg
+    if [ $SAMP_SERVER == 1 ]; then
+        if [ ! -f "server.cfg" ]; then
+            echo "server.cfg not found!"
+            bash_end ""
+        fi
 
-    echo ":: New server.cfg created with gamemode: $OPS_FIND_INPUT"
- 
+        mv server.cfg server.cfg.bak
+        
+        awk -v new_gamemode="$OPS_FIND_INPUT" '
+            /^gamemode0 / {$2=new_gamemode} 1' server.cfg.bak > server.cfg || \
+                sed -E "s/^(gamemode0 )[0-9]+/\1$OPS_FIND_INPUT/" server.cfg.bak > server.cfg
+
+        echo ":: New server.cfg created with gamemode: $OPS_FIND_INPUT"
+    elif [ $OMP_SERVER == 1 ]; then
+        mv config.json config.json.bak
+     
+        if [ ! -f "config.json" ]; then
+            echo "config.json not found!"
+            bash_end ""
+        fi
+        
+        awk -v new_value="$OPS_FIND_INPUT" '
+            /"main_scripts": \[/ {print; getline; print "    \"" new_value "\""; next}
+            1' config.json > config.json.bak && mv config.json.bak config.json
+            
+        echo ":: New config.json created with gamemode: $OPS_FIND_INPUT"
+    fi
+    
     if [ ! -f "$BASH_DIR/$_OS_SSERVER" ]; then
         echo -e "$(bash_coltext_r "crit:") $_OS_SSERVER not found!. You can get this in \`ops -g\`"
         echo
@@ -197,12 +209,12 @@ function withArgs_triops_servers() {
             echo
             echo -e "$(bash_coltext_r "# Fail")"
             echo
-            if [ -f "server_log.txt" ]; then
+            if [ -f "$LOG_SERVER" ]; then
                 sleep 2 > /dev/null
-                cat server_log.txt
+                cat $LOG_SERVER.txt
                 echo
             else
-                echo "# server_log.txt not found."
+                echo "# $LOG_SERVER not found."
             fi
 
             echo -e "$(bash_coltext_y "# End.")"
@@ -214,7 +226,7 @@ function withArgs_triops_servers() {
             echo
 
             sleep 2 > /dev/null
-            if grep -i "error" server_log.txt > /dev/null; then
+            if grep -i "error" $LOG_SERVER > /dev/null; then
                 start_true ""
             else
                 start_false ""
@@ -233,10 +245,16 @@ function withArgs_triops_servers() {
             fi
         fi
     fi
-
-    rm -f server.cfg
-    mv server.cfg.bak server.cfg
-    echo "Original server.cfg has been restored."
+    
+    if [ $SAMP_SERVER == 1 ]; then
+        rm -f server.cfg
+        mv server.cfg.bak server.cfg
+        echo "Original server.cfg has been restored."
+    elif [ $OMP_SERVER == 1 ]; then
+        rm -f config.json
+        mv config.json.bak config.json
+        echo "Original config.json has been restored."
+    fi
 }
 export withArgs_triops_servers
 
@@ -451,7 +469,7 @@ error_cache() {
         @strain.Error
     '
     echo
-    grep -i "error" server_log.txt
+    grep -i "error" $LOG_SERVER
     echo
     check2 ""
 }
@@ -462,7 +480,7 @@ failed_cache() {
         @strain.Failed
     '
     echo
-    grep -i "failed" server_log.txt
+    grep -i "failed" $LOG_SERVER
     echo
     check3 ""
 }
@@ -473,14 +491,14 @@ invalid_cache() {
         @strain.Invalid
     '
     echo
-    grep -i "invalid" server_log.txt
+    grep -i "invalid" $LOG_SERVER
     echo
     bash_end ""
 }
 export invalid_cache
 
 check2() {
-    if grep -i "failed" server_log.txt > /dev/null; then
+    if grep -i "failed" $LOG_SERVER > /dev/null; then
         start_true2 ""
     else
         start_false2 ""
@@ -489,7 +507,7 @@ check2() {
 export check2
 
 check3() {
-    if grep -i "invalid" server_log.txt > /dev/null; then
+    if grep -i "invalid" $LOG_SERVER > /dev/null; then
         start_true3 ""
     else
         start_false3 ""
