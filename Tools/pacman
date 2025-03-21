@@ -229,7 +229,7 @@ fi
                     mkdir -p "$pacman_EXTRACT_DIR"
                     tar -xzf "$pacman_ARCHIVE_FILE" -C "$pacman_EXTRACT_DIR" --strip-components=1
                 else
-                    echo -e "$(bash_coltext_r "crit:") Downloaded file is not a valid ZIP or TAR.GZ - Please check Downloader status.."
+                    echo -e "$(bash_coltext_r "crit:") Downloaded file is not a valid ZIP or TAR.GZ.."
                     rm -rf "$pacman_ARCHIVE_FILE" "$pacman_EXTRACT_DIR"
                     continue
                 fi

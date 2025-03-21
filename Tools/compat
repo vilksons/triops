@@ -114,6 +114,7 @@ check_os() {
             pacman_PLUGIN_DIR="plugins"
         else
             echo -e "$(bash_coltext_r "crit:") server not found!. You can get this in \`gamemode\`"
+            sleep 1
         fi
     fi
 }

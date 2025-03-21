@@ -14,11 +14,13 @@ if [ -n "$missing_cmds" ]; then
         missing_cmds="${missing_cmds//tr/}"
         missing_cmds="$(echo "$missing_cmds" | xargs)"
         install_coreutils=true
+        sleep 1
     fi
 
     if [ -n "$missing_cmds" ]; then
         echo "Missing command packages: \"$missing_cmds\""
         echo "Installing..."
+        sleep 1
     fi
 
     if [[ "$OSTYPE" == "linux"* ]]; then
@@ -35,6 +37,7 @@ if [ -n "$missing_cmds" ]; then
             [[ "$install_coreutils" == true ]] && sudo pacman -Sy --noconfirm coreutils
         else
             echo "Unsupported Linux package manager. Install manually: \"$missing_cmds\""
+            sleep 1
         fi
 
     elif [[ "$OSTYPE" == "darwin"* ]]; then
@@ -44,6 +47,7 @@ if [ -n "$missing_cmds" ]; then
             [[ "$install_coreutils" == true ]] && brew install coreutils
         else
             echo "Homebrew not found. Install manually: \"$missing_cmds\""
+            sleep 1
         fi
 
     elif [[ "$OSTYPE" == "msys" || "$OSTYPE" == "cygwin" || "$OSTYPE" == "win32" ]]; then
@@ -56,10 +60,12 @@ if [ -n "$missing_cmds" ]; then
             [[ "$install_coreutils" == true ]] && choco install coreutils -y
         else
             echo "Windows package manager not found. Install manually: \"$missing_cmds\""
+            sleep 1
         fi
 
     else
         echo "Unsupported OS. Install manually: \"$missing_cmds\""
+        sleep 1
     fi
 fi
 
