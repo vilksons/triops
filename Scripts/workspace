@@ -316,7 +316,7 @@ function wait_and_cnd() {
 
         clear
 
-        if [ "$lib_name" == "liblocal" ]; then
+        if [ "$lib_name" == "compiler" ]; then
             ignore_this sleep 0.1 && cd "$BASH_DIR" && ./"$BASH_NAME"
         fi
     fi
@@ -324,14 +324,14 @@ function wait_and_cnd() {
 
     workspace_py "" && security_safe "" && compat ""
     
-wait_and_cnd "libtpm" \
-    "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Tools/libtpm" 
+wait_and_cnd "pacman" \
+    "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Tools/pacman" 
 
-wait_and_cnd "libpack" \
-    "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Tools/libpack" 
+wait_and_cnd "resource" \
+    "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Tools/resource" 
 
-wait_and_cnd "liblocal" \
-    "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Tools/liblocal" 
+wait_and_cnd "compiler" \
+    "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Tools/compiler" 
     
     ignore_this sleep 0.1 && cd "$BASH_DIR" >/dev/null 2>&1 || echo "" 
 }
@@ -770,9 +770,9 @@ bash_OPS() {
 
                             curl -L -o "security" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Tools/security"
                             curl -L -o "compat" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Tools/compat"
-                            curl -L -o "libtpm" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Tools/libtpm"
-                            curl -L -o "libpack" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Tools/libtpm"
-                            curl -L -o "liblocal" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Tools/liblocal"
+                            curl -L -o "pacman" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Tools/pacman"
+                            curl -L -o "resource" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Tools/pacman"
+                            curl -L -o "compiler" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Tools/compiler"
 
                             ignore_this sleep 1 && cd "$BASH_DIR" >/dev/null 2>&1 || echo ""
 
