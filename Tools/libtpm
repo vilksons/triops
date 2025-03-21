@@ -2,26 +2,27 @@
 
 function bash_typeof2() {
     if [ ! -f "tpm.json" ]; then
-        echo -e "$(bash_coltext_g "warn:") tpm.json not found"
-            
-        cat > tpm.json <<EOF
-{
-    "package": [
-        "github/example/user/repository",
-        "github/example/user/repository/to/files/.zip",
-        "github/example/user/repository/to/files/.tar.gz",
-        "gitlab/example/user/repository",
-        "gitlab/example/user/repository/to/files/.zip",
-        "gitlab/example/user/repository/to/files/.tar.gz",
-        "sourceforge/example/user/repository",
-        "sourceforge/example/user/repository/to/files/.zip",
-        "sourceforge/example/user/repository/to/files/.tar.gz"
-        "unknownhost/example/path/to/target"
-        "unknownhost/example/path/to/target/to/files/.zip"
-        "unknownhost/example/path/to/target/to/files/.tar.gz"
-    ]
-}
-EOF
+python3 -c 'import json, os
+if not os.path.isfile("tpm.json"):
+    data = {
+        "package": [
+            "github/example/user/repository",
+            "github/example/user/repository/to/files/.zip",
+            "github/example/user/repository/to/files/.tar.gz",
+            "gitlab/example/user/repository",
+            "gitlab/example/user/repository/to/files/.zip",
+            "gitlab/example/user/repository/to/files/.tar.gz",
+            "sourceforge/example/user/repository",
+            "sourceforge/example/user/repository/to/files/.zip",
+            "sourceforge/example/user/repository/to/files/.tar.gz",
+            "unknownhost/example/path/to/target",
+            "unknownhost/example/path/to/target/to/files/.zip",
+            "unknownhost/example/path/to/target/to/files/.tar.gz"
+        ]
+    }
+    with open("tpm.json", "w") as f:
+        json.dump(data, f, indent=4)
+' 
     fi
     
     BASH_TITLE="TPM Mode"
