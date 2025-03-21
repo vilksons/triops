@@ -2,19 +2,65 @@
 
 clear && cd "$(dirname "$(realpath "$0")")" || echo
 
-m_cmds=()
-
 for cmd in python3 grep awk sed tr; do
-    if ! command -v "$cmd" &>/dev/null; then
-        m_cmds+=("$cmd")
-    fi
+    command -v "$cmd" &>/dev/null || m_cmds+=("$cmd")
 done
 
-if [ ${#m_cmds[@]} -gt 0 ]; then
-    echo "missing commands packages: ${m_cmds[*]}"
-    echo "Please install first."
-    echo "See: https://github.com/vilksons/triops/wiki/Required-Packages"
-    bash -
+missing_cmds="${m_cmds[*]}"
+
+if [ -n "$missing_cmds" ]; then
+    if [[ "$missing_cmds" == *"tr"* ]]; then
+        echo "Command 'tr' is missing. Installing coreutils..."
+        missing_cmds="${missing_cmds//tr/}"
+        missing_cmds="$(echo "$missing_cmds" | xargs)"
+        install_coreutils=true
+    fi
+
+    if [ -n "$missing_cmds" ]; then
+        echo "Missing command packages: \"$missing_cmds\""
+        echo "Installing..."
+    fi
+
+    if [[ "$OSTYPE" == "linux"* ]]; then
+        # Linux
+        if command -v apt &>/dev/null; then
+            sudo apt update
+            [[ -n "$missing_cmds" ]] && sudo apt install -y "$missing_cmds"
+            [[ "$install_coreutils" == true ]] && sudo apt install -y coreutils
+        elif command -v dnf &>/dev/null; then
+            sudo dnf install -y "$missing_cmds"
+            [[ "$install_coreutils" == true ]] && sudo dnf install -y coreutils
+        elif command -v pacman &>/dev/null; then
+            sudo pacman -Sy --noconfirm "$missing_cmds"
+            [[ "$install_coreutils" == true ]] && sudo pacman -Sy --noconfirm coreutils
+        else
+            echo "Unsupported Linux package manager. Install manually: \"$missing_cmds\""
+        fi
+
+    elif [[ "$OSTYPE" == "darwin"* ]]; then
+        # macOS
+        if command -v brew &>/dev/null; then
+            [[ -n "$missing_cmds" ]] && brew install "$missing_cmds"
+            [[ "$install_coreutils" == true ]] && brew install coreutils
+        else
+            echo "Homebrew not found. Install manually: \"$missing_cmds\""
+        fi
+
+    elif [[ "$OSTYPE" == "msys" || "$OSTYPE" == "cygwin" || "$OSTYPE" == "win32" ]]; then
+        # Windows (Git Bash, Cygwin, MSYS2)
+        if command -v winget &>/dev/null; then
+            [[ -n "$missing_cmds" ]] && winget install -e --id "$missing_cmds"
+            [[ "$install_coreutils" == true ]] && winget install -e --id GNU.CoreUtils
+        elif command -v choco &>/dev/null; then
+            [[ -n "$missing_cmds" ]] && choco install "$missing_cmds" -y
+            [[ "$install_coreutils" == true ]] && choco install coreutils -y
+        else
+            echo "Windows package manager not found. Install manually: \"$missing_cmds\""
+        fi
+
+    else
+        echo "Unsupported OS. Install manually: \"$missing_cmds\""
+    fi
 fi
 
 if [ ! -f "triops.json" ]; then
@@ -42,6 +88,8 @@ fi
 
 MODULE_LOADED_NOTICE=0
 DO_NOT_SHOW_LNOT=0
+
+NEXT_LOCAL=0
 
 ignore_this() {
     "$@" > /dev/null 2>&1
@@ -268,6 +316,10 @@ function wait_and_cnd() {
 
         clear
     fi
+
+    if [ "$lib_name" == "liblocal" ]; then
+        NEXT_LOCAL=1
+    fi
 }
 
     workspace_py "" && security_safe "" && compat ""
@@ -279,9 +331,9 @@ wait_and_cnd "libpack" \
     "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Tools/libpack" &&
 
 wait_and_cnd "liblocal" \
-    "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Tools/liblocal"
+    "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Tools/liblocal" && 
     
-    ignore_this sleep 0.1 && cd "$BASH_DIR" >/dev/null 2>&1 || echo ""
+    ignore_this sleep 0.1 && cd "$BASH_DIR" >/dev/null 2>&1 || echo "" 
 }
 
 # shellcheck source=/dev/null
@@ -290,6 +342,11 @@ function bash_typeof() {
     : '
         @Send.Typeof
     '
+
+    if [ $NEXT_LOCAL == 1 ]; then
+        NEXT_LOCAL=0
+        ignore_this sleep 0.1 && cd "$BASH_DIR" >/dev/null 2>&1 || echo "" && bash ./"$BASH_NAME"
+    fi
         
     if [ $MODULE_LOADED_NOTICE != 1 ]; then
         loaded_all_modules ""
