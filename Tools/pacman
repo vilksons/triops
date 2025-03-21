@@ -1,5 +1,9 @@
 #!/usr/bin/bash
 
+pacman_PACKAGE_FILE="pacman.json"
+pacman_SERVER_CFG="server.cfg"
+pacman_CONFIG_FILE="config.json"
+
 function bash_typeof_pacman() {
     if [ ! -f "pacman.json" ]; then
 python3 -c 'import json, os
@@ -34,10 +38,6 @@ if not os.path.isfile("pacman.json"):
     bash_TPM ""
 }
 export bash_typeof_pacman
-
-pacman_PACKAGE_FILE="pacman.json"
-pacman_SERVER_CFG="server.cfg"
-pacman_CONFIG_FILE="config.json"
 
 function bash_TPM()
 {
@@ -184,42 +184,7 @@ function bash_TPM()
 
                 echo -e "$(bash_coltext_y "Downloading") $pacman_FILE_NAME_SAVE $pacman_VERSION_REPO"
                 
-if [ "$pacman_INSTALLER" == "wget" ]; then # wget
-    wget -q --show-progress -O "$pacman_ARCHIVE_FILE" "$pacman_archive_url"
-elif [ "$pacman_INSTALLER" == "pycurl" ]; then # pycurl
-    python3 -c "
-import pycurl
-
-with open('$pacman_ARCHIVE_FILE', 'wb') as f:
-    c = pycurl.Curl()
-    c.setopt(c.URL, '$pacman_archive_url')
-    c.setopt(c.WRITEDATA, f)
-    c.setopt(c.FOLLOWLOCATION, True)
-    c.perform()
-    c.close()
-"
-elif [ "$pacman_INSTALLER" == "urllib3" ]; then # urllib3
-    python3 -c "
-import urllib3
-
-http = urllib3.PoolManager()
-r = http.request('GET', '$pacman_archive_url', preload_content=False)
-
-with open('$pacman_ARCHIVE_FILE', 'wb') as f:
-    [f.write(chunk) for chunk in r.stream(1024)]
-
-r.release_conn()
-"
-elif [ "$pacman_INSTALLER" == "requests" ]; then # requests
-    python3 -c "
-import requests
-
-r = requests.get('$pacman_archive_url', stream=True)
-
-with open('$pacman_ARCHIVE_FILE', 'wb') as f:
-    [f.write(chunk) for chunk in r.iter_content(1024)]
-"
-fi
+                wget -q --show-progress -O "$pacman_ARCHIVE_FILE" "$pacman_archive_url"
 
                 mkdir -p "$pacman_PLUGIN_DIR"
 

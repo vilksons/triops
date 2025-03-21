@@ -79,7 +79,6 @@ data = {
         "triops_default_exclude": "pawno/include",
         "triops_allow_exclude":   "includes",
         "package_dir":            "pawno/include",
-        "package_type":           "wget",
         "chatbot_token":          "gsk_abcd",
         "chatbot_model":          "qwen-2.5-32b",
         "chatbot_biodata":        ""
