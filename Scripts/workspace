@@ -757,7 +757,7 @@ bash_OPS() {
             FIND_GITHUB_REPO="vilksons/triops"
             FIND_LATEST_COMMIT=$(curl -s "https://api.github.com/repos/$FIND_GITHUB_REPO/commits/main" | grep -o '"sha": "[^"]*' | awk -F': "' '{print $2}')
 
-            FIND_CURRENT_COMMIT=$(cat "$BASH_DIR/.curr_commits" 2>/dev/null)
+            FIND_CURRENT_COMMIT=$(cat "$BASH_DIR/.commits" 2>/dev/null)
 
             if [[ "$FIND_LATEST_COMMIT" == "$FIND_CURRENT_COMMIT" ]]; then
                 echo "warning: $BASH_NAME is up to date"
@@ -772,7 +772,7 @@ bash_OPS() {
                         [Yy])
                             echo "Updating..."
                             
-                            echo "$FIND_LATEST_COMMIT" > "$BASH_DIR/.curr_commits"
+                            echo "$FIND_LATEST_COMMIT" > "$BASH_DIR/.commits"
                             
                             cd "$BASH_DIR/.lib" >/dev/null 2>&1 || echo ""
 
@@ -790,11 +790,8 @@ bash_OPS() {
                             touch ".cach"
                             chmod +x .cach &&
                             echo "wget -q --show-progress -O \"workspace\" \"https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Scripts/workspace\"" >> ".cach"
-                            echo "echo Complete!. Re-open Now!" >> ".cach"
+                            echo "echo Complete! && sleep 2.100 && ./workspace" >> ".cach"
                             ./".cach"
-
-                            ignore_this sleep 2.999 && clear && rm ".cach"
-                            bash -
                             ;;
                         *)
                             bash_end ""
@@ -953,10 +950,10 @@ except json.JSONDecodeError:
                     esac
             done
             ;;
-        "fetch")
+        "fetch" | " ")
             fetch_now ""
             ;;
-        "pacman")
+        "pacman" | " ")
             bash_typeof_pacman ""
             bash_help2 ""
             ;;
@@ -1011,7 +1008,7 @@ except json.JSONDecodeError:
 
             bash_typeof ""
             ;;
-        "$OPS_TRIGGER")
+        "$OPS_TRIGGER" | " ")
             bash_help ""
             bash_typeof ""
             ;;

@@ -177,7 +177,7 @@ function bash_TPM()
 
                 pacman_FILE_NAME_SAVE="$pacman_FILE_NAME"
 
-                sleep 0.10
+                sleep 0.1
                 
                 pacman_FILE_NAME=$(basename "$pacman_repository_url")
                 pacman_FILE_NAME="${pacman_FILE_NAME%%-*}"
@@ -233,7 +233,7 @@ function bash_TPM()
 
             echo -e "$(bash_coltext_y "[All packages installed]")"
 
-            sleep 0.10
+            sleep 0.1
 
             FOUND_pacman_PLUGINS=false
             for ext in ".so" ".dll"; do
@@ -422,7 +422,7 @@ function bash_TPM()
             bash_help2
             bash_typeof_pacman ""
             ;;
-        "help")
+        "help" | " ")
             BASH_TITLE="help"
             bash_title "$SHUSERS:~/ $BASH_TITLE"
 
