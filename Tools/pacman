@@ -1,9 +1,5 @@
 #!/usr/bin/bash
 
-pacman_PACKAGE_FILE="pacman.json"
-pacman_SERVER_CFG="server.cfg"
-pacman_CONFIG_FILE="config.json"
-
 function bash_typeof_pacman() {
     if [ ! -f "pacman.json" ]; then
 python3 -c 'import json, os
@@ -66,7 +62,7 @@ function bash_TPM()
                 pacman_URLS=()
                     while IFS= read -r line; do
                         pacman_URLS+=("$line")
-                    done < <(process_package "$pacman_PACKAGE_FILE" || echo "error load json for : \"package\"")
+                    done < <(process_package "$pacman.json" || echo "error load json for : \"package\"")
             fi
 
             for pacman_repository_url in "${pacman_URLS[@]}"; do
@@ -265,19 +261,19 @@ function bash_TPM()
                 fi
 
                 if [[ $SAMP_SERVER == 1 || $OMP_SERVER == 1 ]]; then
-                    if [ ! -f "$pacman_SERVER_CFG" ]; then
-                        echo -e "$(bash_coltext_g "warn:") $pacman_SERVER_CFG not found!."
+                    if [ ! -f "$server.cfg" ]; then
+                        echo -e "$(bash_coltext_g "warn:") $server.cfg not found!."
                         bash_end ""
                     fi
                 fi
 
                 if [ ${#pacman_NEWPLG[@]} -gt 0 ]; then
                     if [ $SAMP_SERVER == 1 ]; then
-                        if ! grep -q "^plugins " "$pacman_SERVER_CFG"; then
-                            sed -i '1i plugins ' "$pacman_SERVER_CFG"
+                        if ! grep -q "^plugins " "$server.cfg"; then
+                            sed -i '1i plugins ' "$server.cfg"
                         fi
                         
-                        _pacman_EXTPLG=$(grep -oP '(?<=plugins ).*' "$pacman_SERVER_CFG" | tr ' ' '\n' | sort -u)
+                        _pacman_EXTPLG=$(grep -oP '(?<=plugins ).*' "$server.cfg" | tr ' ' '\n' | sort -u)
 
                         _pacman_NEWPLG=()
                         for PLUGIN in "${pacman_NEWPLG[@]}"; do
@@ -288,17 +284,17 @@ function bash_TPM()
 
                         if [ ${#_pacman_NEWPLG[@]} -gt 0 ]; then
                             pacman_UPDATED_PLUGINS=$(echo "$_pacman_EXTPLG" "${_pacman_NEWPLG[@]}" | tr '\n' ' ' | xargs -n1 | sort -u | xargs)
-                            sed -i "s/^plugins .*/plugins $pacman_UPDATED_PLUGINS/" "$pacman_SERVER_CFG"
+                            sed -i "s/^plugins .*/plugins $pacman_UPDATED_PLUGINS/" "$server.cfg"
                             echo " Added new plugins to server.cfg: ${_pacman_NEWPLG[*]}"
                         else
                             echo -e "$(bash_coltext_y "dbg:") No new plugins need to be added."
                         fi
                     elif [ $OMP_SERVER == 1 ]; then
-                        if ! grep -q '"legacy_plugins":' "$pacman_CONFIG_FILE"; then
-                            sed -i '1i "legacy_plugins": [],' "$pacman_CONFIG_FILE"
+                        if ! grep -q '"legacy_plugins":' "$config.json"; then
+                            sed -i '1i "legacy_plugins": [],' "$config.json"
                         fi
                         
-                        _pacman_EXTPLG=$(awk -F'[][]' '/"legacy_plugins":/ {gsub(/"|,/,"",$2); print $2}' "$pacman_CONFIG_FILE" | tr '\n' ' ')
+                        _pacman_EXTPLG=$(awk -F'[][]' '/"legacy_plugins":/ {gsub(/"|,/,"",$2); print $2}' "$config.json" | tr '\n' ' ')
 
                         _pacman_NEWPLG=()
                         for PLUGIN in "${pacman_NEWPLG[@]}"; do
@@ -312,7 +308,7 @@ function bash_TPM()
                             awk -v plugins="$pacman_UPDATED_PLUGINS" '
                             /"legacy_plugins":/ {print "\"legacy_plugins\": [ " plugins " ],"; next} 
                             {print}
-                            ' "$pacman_CONFIG_FILE" > temp.json && mv temp.json "$pacman_CONFIG_FILE"
+                            ' "$config.json" > temp.json && mv temp.json "$config.json"
 
                             echo "Added new plugins to legacy_plugins: ${_pacman_NEWPLG[*]}"
                         else
@@ -370,11 +366,11 @@ function bash_TPM()
                     echo -e "$(bash_coltext_y "dbg:") No matching plugins found for pattern: $pacman_REMOVE_PATTERN"
                 fi
 
-                if [[ -f "$pacman_SERVER_CFG" ]]; then
-                    if grep -q "^plugins" "$pacman_SERVER_CFG"; then
-                        sed -i "/^plugins /s/\b$pacman_REMOVE_PATTERN\(\.so\|\.dll\|\.dylib\|\)//g" "$pacman_SERVER_CFG"
-                        sed -i 's/  / /g' "$pacman_SERVER_CFG"
-                        sed -i 's/^plugins *$/plugins /' "$pacman_SERVER_CFG"
+                if [[ -f "$server.cfg" ]]; then
+                    if grep -q "^plugins" "$server.cfg"; then
+                        sed -i "/^plugins /s/\b$pacman_REMOVE_PATTERN\(\.so\|\.dll\|\.dylib\|\)//g" "$server.cfg"
+                        sed -i 's/  / /g' "$server.cfg"
+                        sed -i 's/^plugins *$/plugins /' "$server.cfg"
                         echo -e "$(bash_coltext_y "[OK] ") Removed $pacman_REMOVE_PATTERN from server.cfg"
                     else
                         echo -e "$(bash_coltext_y "dbg:") No 'plugins' entry found in server.cfg"
@@ -391,15 +387,15 @@ function bash_TPM()
                     echo -e "$(bash_coltext_y "dbg:") No matching plugins found for pattern: $pacman_REMOVE_PATTERN"
                 fi
 
-                if [[ -f "$pacman_CONFIG_FILE" ]]; then
-                    if grep -q '"legacy_plugins":' "$pacman_CONFIG_FILE"; then
+                if [[ -f "$config.json" ]]; then
+                    if grep -q '"legacy_plugins":' "$config.json"; then
                         awk -v pattern="$pacman_REMOVE_PATTERN" '
                         BEGIN { inside_array=0 }
                         /"legacy_plugins": \[/ { inside_array=1; print; next }
                         inside_array && /\]/ { inside_array=0 }
                         inside_array && $0 ~ pattern { next }
                         { print }
-                        ' "$pacman_CONFIG_FILE" > temp.json && mv temp.json "$pacman_CONFIG_FILE"
+                        ' "$config.json" > temp.json && mv temp.json "$config.json"
 
                         echo -e "$(bash_coltext_y "[OK]") Removed $pacman_REMOVE_PATTERN from config.json"
                     else

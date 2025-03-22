@@ -500,7 +500,7 @@ bash_OPS() {
                         avg_time=$((elapsed / 10))
                         
                         bash_cache_compiler ""
-                        ignore_this sleep 0.100 &&
+                        ignore_this sleep 0.1 &&
                         cat "$METADAT_FILE"
 
                         if [ -s "$AMX_O" ]; then
