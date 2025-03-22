@@ -94,11 +94,6 @@ fi
 MODULE_LOADED_NOTICE=0
 DO_NOT_SHOW_LNOT=0
 
-ignore_this() {
-    "$@" > /dev/null 2>&1
-}
-export ignore_this
-
 SERVERS_NEXT=0
 export SERVERS_NEXT
 
@@ -172,6 +167,11 @@ if [ ! -d ".lib" ]; then
     mkdir ".lib"
 fi
 
+ignore_this() {
+    "$@" > /dev/null 2>&1
+}
+export ignore_this
+
 _OS_ACCEPT=0
 export _OS_ACCEPT
 _OS_GNU_LINUX=0
@@ -234,9 +234,9 @@ security_safe() {
     : '
         @File.Security
     '
-    if [ -f "$BASH_DIR/.lib/security" ] && [ $DO_NOT_SHOW_LNOT != 1 ]; then
-        chmod +x "$BASH_DIR/.lib/security"
-        source "$BASH_DIR/.lib/security"
+    if [ -f "$BASH_DIR/.lib/security.io" ] && [ $DO_NOT_SHOW_LNOT != 1 ]; then
+        chmod +x "$BASH_DIR/.lib/security.io"
+        source "$BASH_DIR/.lib/security.io"
         echo -n "$(bash_coltext_y "process:") Processing "
         echo -e "$(bash_coltext_y "security") .. done."
         sleep 0.10
@@ -252,7 +252,7 @@ security_safe() {
 
         cd "$BASH_DIR/.lib" >/dev/null 2>&1 || echo ""
 
-        if ! wget -q --show-progress -O "security" "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Tools/security" > /dev/null; then
+        if ! wget -q --show-progress -O "security.io" "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Tools/security.io" > /dev/null; then
             echo -e "$(bash_coltext_r "Failed: Always check for updates on the official Triops repository before doing Sync.")"
         fi
 
@@ -264,9 +264,9 @@ compat() {
     : '
         @File.Compat
     '
-    if [ -f "$BASH_DIR/.lib/compat" ] && [ $DO_NOT_SHOW_LNOT != 1 ]; then
-        chmod +x "$BASH_DIR/.lib/compat"
-        source "$BASH_DIR/.lib/compat"
+    if [ -f "$BASH_DIR/.lib/compat.io" ] && [ $DO_NOT_SHOW_LNOT != 1 ]; then
+        chmod +x "$BASH_DIR/.lib/compat.io"
+        source "$BASH_DIR/.lib/compat.io"
         echo -n "$(bash_coltext_y "process:") Processing "
         echo -e "$(bash_coltext_y "compat") .. done."
         sleep 0.10
@@ -283,7 +283,7 @@ compat() {
 
         cd "$BASH_DIR/.lib" >/dev/null 2>&1 || echo ""
 
-        if ! wget -q --show-progress -O "compat" "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Tools/compat" > /dev/null; then
+        if ! wget -q --show-progress -O "compat.io" "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Tools/compat.io" > /dev/null; then
             echo -e "$(bash_coltext_r "Failed: Always check for updates on the official Triops repository before doing Sync.")"
         fi
 
@@ -329,17 +329,17 @@ function wait_and_cnd() {
 
     workspace_py "" && security_safe "" && compat ""
     
-wait_and_cnd "pacman" \
-    "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Tools/pacman" 
+wait_and_cnd "pacman.io" \
+    "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Tools/pacman.io" 
 
-wait_and_cnd "resource" \
-    "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Tools/resource" 
+wait_and_cnd "resource.io" \
+    "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Tools/resource.io" 
 
-wait_and_cnd "image" \
-    "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Tools/image" 
+wait_and_cnd "function.io" \
+    "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Tools/function.io" 
 
-wait_and_cnd "compiler" \
-    "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Tools/compiler" 
+wait_and_cnd "compiler.io" \
+    "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Tools/compiler.io" 
     
     ignore_this sleep 0.1 && cd "$BASH_DIR" >/dev/null 2>&1 || echo "" 
 }
@@ -776,12 +776,12 @@ bash_OPS() {
                             
                             cd "$BASH_DIR/.lib" >/dev/null 2>&1 || echo ""
 
-                            wget -q --show-progress -O "security" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Tools/security"
-                            wget -q --show-progress -O "compat" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Tools/compat"
-                            wget -q --show-progress -O "pacman" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Tools/pacman"
-                            wget -q --show-progress -O "resource" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Tools/pacman"
-                            wget -q --show-progress -O "image" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Tools/image"
-                            wget -q --show-progress -O "compiler" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Tools/compiler"
+                            wget -q --show-progress -O "security.io" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Tools/security.io"
+                            wget -q --show-progress -O "compat.io" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Tools/compat.io"
+                            wget -q --show-progress -O "pacman.io" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Tools/pacman.io."
+                            wget -q --show-progress -O "resource.io" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Tools/resource.io"
+                            wget -q --show-progress -O "function.io" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Tools/function.io"
+                            wget -q --show-progress -O "compiler.io" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Tools/compiler.io"
 
                             ignore_this sleep 1 && cd "$BASH_DIR" >/dev/null 2>&1 || echo ""
 
