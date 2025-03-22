@@ -4,7 +4,7 @@
 - [Licenses](https://github-wiki-see.page/m/vilksons/triops/wiki/Licenses)
 - [Compiler Option](https://github-wiki-see.page/m/vilksons/triops/wiki/Compiler-Option)
 - [VSCode Tasks](https://github-wiki-see.page/m/vilksons/triops/wik/VSCode-Tasks)
-- [Up-To-Date](ttps://github-wiki-see.page/m/vilksons/triops/wiki/Up-To-Date)
+- [Up-To-Date](https://github-wiki-see.page/m/vilksons/triops/wiki/Up-To-Date)
 - [PawnCC Installation](https://github-wiki-see.page/m/vilksons/triops/wiki/PawnCC-Installation)
 - [Required Packages](https://github-wiki-see.page/m/vilksons/triops/wiki/Required-Packages)
 - [Package Manager (TPM)](https://github-wiki-see.page/m/vilksons/triops/wiki/Package-Manager-(TPM))
