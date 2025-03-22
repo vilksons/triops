@@ -1,14 +1,14 @@
 ## Wiki Guide
-- [Downloads](https://github-wiki-see.page/m/vilksons/triops/wiki/Downloads)
-- [Development](https://github-wiki-see.page/m/vilksons/triops/wiki/Development)
-- [Licenses](https://github-wiki-see.page/m/vilksons/triops/wiki/Licenses)
-- [Compiler Option](https://github-wiki-see.page/m/vilksons/triops/wiki/Compiler-Option)
-- [VSCode Tasks](https://github-wiki-see.page/m/vilksons/triops/wik/VSCode-Tasks)
-- [Up-To-Date](https://github-wiki-see.page/m/vilksons/triops/wiki/Up-To-Date)
-- [PawnCC Installation](https://github-wiki-see.page/m/vilksons/triops/wiki/PawnCC-Installation)
-- [Required Packages](https://github-wiki-see.page/m/vilksons/triops/wiki/Required-Packages)
-- [Package Manager (TPM)](https://github-wiki-see.page/m/vilksons/triops/wiki/Package-Manager-(TPM))
-- [CODE OF CONDUCT](https://github-wiki-see.page/m/vilksons/triops/wiki/CODE-OF-CONDUCT)
+- [Downloads](https://github.com/vilksons/triops/wiki/Downloads)
+- [Development](https://github.com/vilksons/triops/wiki/Development)
+- [Licenses](https://github.com/vilksons/triops/wiki/Licenses)
+- [Compiler Option](https://github.com/vilksons/triops/wiki/Compiler-Option)
+- [VSCode Tasks](https://github.com/vilksons/triops/wiki/VSCode-Tasks)
+- [Up-To-Date](https://github.com/vilksons/triops/wiki/Up%E2%80%90To%E2%80%90Date)
+- [PawnCC Installation](https://github.com/vilksons/triops/wiki/PawnCC-Installation)
+- [Required Packages](https://github.com/vilksons/triops/wiki/Required-Packages)
+- [Package Manager (TPM)](https://github.com/vilksons/triops/wiki/Package-Manager-(TPM))
+- [CODE OF CONDUCT](https://github.com/vilksons/triops/wiki/CODE-OF-CONDUCT)
 
 **Triops Installation and Usage Guide**
 
