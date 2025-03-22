@@ -144,19 +144,4 @@ samp-server/
 /* then that is the function of "triops_allow_exclude" the contents of the folder where someFile is called,
  * for example "Includes" for the case above.
  */
-
-/// and, for example cases:
-
-// our code - whereincludes.pwn
-#include "whereincludes/someFile.inc"
-/*
-samp-server/
-├── gamemodes/
-│   ├── whereincludes/
-│   │   └── someFile.inc
-│   └── mygamemode.pwn
-│
-└── server.cfg
-*/
-/// then just ignore it :) .. it won't be an error because we've thought about it.
 ```
