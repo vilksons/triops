@@ -959,8 +959,7 @@ mode_TRIOPS() {
                     \"stream\": false,
                     \"stop\": null
                 }")
-
-: ' Custom Coltext for chatbot response '
+                
 __GREEN=$(tput setaf 2)
 __RED=$(tput setaf 1)
 __ORANGE=$(tput setaf 3)
@@ -993,11 +992,16 @@ try:
 
     for char in _chatbot_response_:
         print(char, end='', flush=True)
-        time.sleep(0.05)
+        time.sleep(0.03)
 
 except json.JSONDecodeError:
     print('Error: Invalid JSON')
+
+except KeyboardInterrupt:
+    print(' Cancelled', end='', flush=True)
+    sys.exit(0)
 "
+
             echo
             bash_end ""
             ;;

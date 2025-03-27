@@ -41,9 +41,14 @@ security_cleanup() {
     Trap cleanup function for termination signals
 
     @list security_cleanup
-        SIGINT: Signal Interrupt
         SIGTERM: Signal Terminate
         SIGQUIT: Signal Quit
         SIGHUP: Signal Hangup
 '
-trap security_cleanup SIGINT SIGTERM SIGQUIT SIGHUP
+trap security_cleanup SIGTERM SIGQUIT SIGHUP
+
+not_exit() {
+    echo ""
+}
+
+trap not_exit SIGINT
