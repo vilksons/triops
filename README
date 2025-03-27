@@ -110,6 +110,7 @@ CONFIGURATION `lang.json`
         ],
         "samp_log": "server_log.txt",
         "server_conf": "server.cfg",
+        "main_server": "main.pwn",
         "samp_executable": "samp03svr",
         "include_dir": "pawno/include",
         "plugins_dir": "plugins",
@@ -131,7 +132,9 @@ CONFIGURATION DETAILS
   o samp_log
     SA-MP server log file.                                      
   o server_conf
-    SA-MP server configuration file.                            
+    SA-MP server configuration file.     (TligPac)
+  o main_server
+    SA-MP main server file. (TligPac)           
   o samp_executable
     SA-MP server executable.                                    
   o include_dir
