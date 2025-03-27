@@ -571,30 +571,27 @@ fi
             done
 
 if [ "$__SAMP_SERVER" == "samp" ]; then
-            # Check if the $SERVER_CONF file exists
-            if [ -f "$SERVER_CONF" ]; then
-                # Check if the 'plugins' entry exists in the $SERVER_CONF file
-                if grep -q "^plugins" "$SERVER_CONF"; then
-                    # Remove occurrences of $tligpac_REMOVE_PATTERN followed by .so, .dll, or no extension
-                    # The pattern is replaced globally in the file
-                    sed -i "/^plugins /s/\b$tligpac_REMOVE_PATTERN\(\.so\|\.dll\|\)//g" "$SERVER_CONF"
-                    
-                    # Replace double spaces with single space throughout the file
-                    sed -i 's/  / /g' "$SERVER_CONF"
-                    
-                    # Ensure that the 'plugins' entry is not an empty line
-                    sed -i 's/^plugins *$/plugins /' "$SERVER_CONF"
-                    
-                    # Print a success message after the modifications
-                    echo -e "$(bash_coltext_y "[OK] ") Removed $tligpac_REMOVE_PATTERN from $SERVER_CONF"
-                else
-                    # If no 'plugins' entry is found, print a debug message
-                    echo -e "$(bash_coltext_y "dbg:") No 'plugins' entry found in $SERVER_CONF"
-                fi
-            else
-                # If the $SERVER_CONF file does not exist, print a warning message
-                echo -e "$(bash_coltext_g "warn:") $SERVER_CONF not found"
-            fi
+    # Check if the $SERVER_CONF file exists
+    if [ -f "$SERVER_CONF" ]; then
+        # Check if the 'plugins' entry exists in the $SERVER_CONF file
+        if grep -q "^plugins" "$SERVER_CONF"; then
+            # Remove occurrences of $tligpac_REMOVE_PATTERN followed by .so, .dll, or no extension
+            # This pattern is globally replaced in the file
+            sed -i "/^plugins /s/\b$tligpac_REMOVE_PATTERN\(\.so\|\.dll\|\)//g" "$SERVER_CONF"
+            # Replace double spaces with single space throughout the file
+            sed -i 's/  / /g' "$SERVER_CONF"
+            # Ensure that the 'plugins' entry is not an empty line
+            sed -i 's/^plugins *$/plugins /' "$SERVER_CONF"
+            # Print a success message after the modifications
+            echo -e "$(bash_coltext_y "[OK] ") Removed $tligpac_REMOVE_PATTERN from $SERVER_CONF"
+        else
+            # If no 'plugins' entry is found, print a debug message
+            echo -e "$(bash_coltext_y "dbg:") No 'plugins' entry found in $SERVER_CONF"
+        fi
+    else
+        # If the $SERVER_CONF file does not exist, print a warning message
+        echo -e "$(bash_coltext_g "warn:") $SERVER_CONF not found"
+    fi
 elif [ "$__SAMP_SERVER" == "omp" ]; then
             # Check if the $SERVER_CONF file exists
             if [ -f "$SERVER_CONF" ]; then
@@ -602,7 +599,6 @@ elif [ "$__SAMP_SERVER" == "omp" ]; then
                 if grep -qE '"legacy_plugins"[[:space:]]*:' "$SERVER_CONF"; then
                     # Handle array format
                     jq --arg pattern "$tligpac_REMOVE_PATTERN" 'walk(if type == "array" then map(select(. != $pattern)) else . end)' "$SERVER_CONF" > tmpfile && mv tmpfile "$SERVER_CONF"
-
                     # Print a success message after the modifications
                     echo -e "$(bash_coltext_y "[OK] ") Removed $tligpac_REMOVE_PATTERN from $SERVER_CONF"
                 else
