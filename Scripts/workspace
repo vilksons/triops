@@ -914,51 +914,51 @@ mode_TRIOPS() {
             fi
             bash
             ;;
-            "chatbot"*)
-    save_TITLE "Chatbot"
+        "chatbot"*)
+            save_TITLE "Chatbot"
 
-    local commands_ARGS="${main_commands#chatbot }"
+            local commands_ARGS="${main_commands#chatbot }"
 
-    if [[ -n "$commands_ARGS" && "$commands_ARGS" != "$main_commands" ]]; then
-        commands_INPUT="$commands_ARGS"
-    else
-        echo -e "$(bash_coltext_a ":: Enter Question:")"
-        echo " -> enter \"exit\" to exit"
-        read -r -p ">>> " commands_INPUT
+            if [[ -n "$commands_ARGS" && "$commands_ARGS" != "$main_commands" ]]; then
+                commands_INPUT="$commands_ARGS"
+            else
+                echo -e "$(bash_coltext_a ":: Enter Question:")"
+                echo " -> enter \"exit\" to exit"
+                read -r -p ">>> " commands_INPUT
 
-        echo -e "$(bash_coltext_a ":: Enter Question:")"
-        while true; do
-            read -r -p ">>> " commands_INPUT
-            [[ -n "$commands_INPUT" ]] && break
-        done
-    fi
+                echo -e "$(bash_coltext_a ":: Enter Question:")"
+                while true; do
+                    read -r -p ">>> " commands_INPUT
+                    [[ -n "$commands_INPUT" ]] && break
+                done
+            fi
 
-    if [[ "$commands_ARGS" == "exit" ]]; then
-        bash_end ""
-    fi
+            if [[ "$commands_ARGS" == "exit" ]]; then
+                bash_end ""
+            fi
 
-    _chatbot_response_=$(curl -s -X POST https://api.groq.com/openai/v1/chat/completions \
-        -H "Authorization: Bearer $CHATBOT_TOKEN" \
-        -H "Content-Type: application/json" \
-        -d "{
-            \"model\": \"$CHATBOT_MODEL\",
-            \"messages\": [
-                {
-                \"role\": \"system\",
-                \"content\": \"$CHATBOT_BIODATA\"
-                },
-                {
-                \"role\": \"user\",
-                \"content\": \"$commands_INPUT .. \
-                    do not add markdown symbols (.md)\"
-                }
-            ],
-            \"temperature\": 1,
-            \"max_tokens\": 1024,
-            \"top_p\": 1,
-            \"stream\": false,
-            \"stop\": null
-        }")
+            _chatbot_response_=$(curl -s -X POST https://api.groq.com/openai/v1/chat/completions \
+                -H "Authorization: Bearer $CHATBOT_TOKEN" \
+                -H "Content-Type: application/json" \
+                -d "{
+                    \"model\": \"$CHATBOT_MODEL\",
+                    \"messages\": [
+                        {
+                        \"role\": \"system\",
+                        \"content\": \"$CHATBOT_BIODATA\"
+                        },
+                        {
+                        \"role\": \"user\",
+                        \"content\": \"$commands_INPUT .. \
+                            do not add markdown symbols (.md)\"
+                        }
+                    ],
+                    \"temperature\": 1,
+                    \"max_tokens\": 1024,
+                    \"top_p\": 1,
+                    \"stream\": false,
+                    \"stop\": null
+                }")
 
 : ' Custom Coltext for chatbot response '
 __GREEN=$(tput setaf 2)
@@ -998,7 +998,7 @@ try:
 except json.JSONDecodeError:
     print('Error: Invalid JSON')
 "
-
+            echo
             bash_end ""
             ;;
         "nano"*)
