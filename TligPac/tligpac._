@@ -345,81 +345,81 @@ mode_TLIGPAC ""
                     echo -e "$(bash_coltext_y "Complete!.") Packages: $__tligpac_PACKAGES | $__tligpac_VERSION_REPO"
                 fi
             done
-            
-# Function to add #include <find_plugin_name> into main.pwn
-add_find_plugin_name_to_main() {
-    local plugin_name=$1
-    # Check if main.pwn exists and is not empty
-    if [[ -f "$SERVER_MAIN" ]]; then
-        # Check if #include <plugin_name> already exists
-        if ! grep -q "#include <$plugin_name>" "$SERVER_MAIN"; then
-            # Check if there are other #include statements in main.pwn
-            if grep -q "#include" "$SERVER_MAIN"; then
-                # If there are other #include statements, add #include <plugin_name> at the end
-                echo -e "$(bash_coltext_y "dbg:") Adding #include <$plugin_name> after existing #include"
-                sed -i "/#include/ s|$| #include <$plugin_name>|" "$SERVER_MAIN"
-            else
-                # If there are no #include statements, add it at the beginning of the file
-                echo -e "$(bash_coltext_y "dbg:") Adding #include <$plugin_name> at the beginning"
-                sed -i "1i #include <$plugin_name>" "$SERVER_MAIN"
-            fi
-        else
-            echo -e "$(bash_coltext_y "dbg:") #include <$plugin_name> already exists in $SERVER_MAIN"
-        fi
-    else
-        echo -e "$(bash_coltext_y "dbg:") $SERVER_MAIN not found."
-    fi
-}
 
-for __package in "$tligpac_PACKAGES" "$__tligpac_PACKAGES"; do
-    if [ -n "$__package" ]; then
-        # Using the value from tligpac_PACKAGES or __tligpac_PACKAGES to determine plugin_name
-        plugin_name="$__package"
-        
-        # Add the plugin to server.cfg and main.pwn
-        add_plugin_to_server_cfg "$plugin_name"
-        add_find_plugin_name_to_main "$plugin_name"
-    fi
-done
+            # Function to add #include <find_plugin_name> into main.pwn
+            add_find_plugin_name_to_main() {
+                local __find_plugin_name=$1
+                # Check if main.pwn exists and is not empty
+                if [[ -f "$shell_DIR/gamemodes/$SERVER_MAIN" ]]; then
+                    # Check if #include <__find_plugin_name> already exists
+                    if ! grep -q "#include <$__find_plugin_name>" "$shell_DIR/gamemodes/$SERVER_MAIN"; then
+                        # Check if there are other #include statements in main.pwn
+                        if grep -q "#include" "$shell_DIR/gamemodes/$SERVER_MAIN"; then
+                            # If there are other #include statements, add #include <__find_plugin_name> at the end
+                            echo -e "$(bash_coltext_y "dbg:") Adding #include <$__find_plugin_name> after existing #include"
+                            sed -i "/#include/ s|$|#include <$__find_plugin_name>|" "$shell_DIR/gamemodes/$SERVER_MAIN"
+
+                        else
+                            # If there are no #include statements, add it at the beginning of the file
+                            echo -e "$(bash_coltext_y "dbg:") Adding #include <$__find_plugin_name> at the beginning"
+                            sed -i "1i #include <$__find_plugin_name>" "$shell_DIR/gamemodes/$SERVER_MAIN"
+                        fi
+                    else
+                        echo -e "$(bash_coltext_y "dbg:") #include <$__find_plugin_name> already exists in $shell_DIR/gamemodes/$SERVER_MAIN"
+                    fi
+                else
+                    echo -e "$(bash_coltext_y "dbg:") $shell_DIR/gamemodes/$SERVER_MAIN not found."
+                fi
+            }
+
+            for __package in $tligpac_PACKAGES; do  # Iterate through each package in the $tligpac_PACKAGES variable
+                if [ -n "$__package" ]; then  # Check if $__package is not empty
+                    # Using the value from tligpac_PACKAGES to determine __find_plugin_name
+                    __find_plugin_name="$__package"  # Assign the value of $__package to the __find_plugin_name variable
+                    
+                    # Add the plugin to the main server
+                    add_find_plugin_name_to_main "$__find_plugin_name"  # Add the plugin to the main server using the add_find_plugin_name_to_main function
+                fi
+            done
 
             # shellcheck disable=SC2154
 if [ -f "$shell_DIR/$SERVER_CONF" ]; then
             # if exist
             if [ "$__SAMP_SERVER" == "samp" ]; then
-            # if __SAMP_SERVER is samp
-            __check_and_add() {
-                local __find_plugin_name=$1
-                local __find_so_linux="$__SAMP_PLUGIN_DIR/$__find_plugin_name.so"
-                local __find_dll_win="$__SAMP_PLUGIN_DIR/$__find_plugin_name.dll"
+                # if __SAMP_SERVER is samp
+                __check_and_add() {
+                    local __find_plugin_name=$1
+                    local __find_so_linux="$__SAMP_PLUGIN_DIR/$__find_plugin_name.so"
+                    local __find_dll_win="$__SAMP_PLUGIN_DIR/$__find_plugin_name.dll"
 
-                # Check if the plugin is already in server.cfg
-                if ! grep -q "plugins.*$__find_plugin_name" "$SERVER_CONF"; then
-                    # If both .so and .dll exist
-                    if [[ -f "$__find_so_linux" && -f "$__find_dll_win" ]]; then
-                        echo -e "$(bash_coltext_y "dbg:") Adding $__find_plugin_name.so and $__find_plugin_name.dll to the plugins"
-                        sed -i "/^plugins/ s/$/ $__find_plugin_name.dll $__find_plugin_name.so/" "$SERVER_CONF"
-                    # If only .so exists
-                    elif [[ -f "$__find_so_linux" ]]; then
-                        echo -e "$(bash_coltext_y "dbg:") Adding $__find_plugin_name.so to the plugins"
-                        sed -i "/^plugins/ s/$/ $__find_plugin_name.so/" "$SERVER_CONF"
-                    # If only .dll exists
-                    elif [[ -f "$__find_dll_win" ]]; then
-                        echo -e "$(bash_coltext_y "dbg:") Adding $__find_plugin_name.dll to the plugins"
-                        sed -i "/^plugins/ s/$/ $__find_plugin_name.dll/" "$SERVER_CONF"
+                    # Check if the plugin is already in server.cfg
+                    if ! grep -q "plugins.*$__find_plugin_name" "$SERVER_CONF"; then
+                        # If both .so and .dll exist
+                        if [[ -f "$__find_so_linux" && -f "$__find_dll_win" ]]; then
+                            echo -e "$(bash_coltext_y "dbg:") Adding $__find_plugin_name.so and $__find_plugin_name.dll to the plugins"
+                            sed -i "/^plugins/ s/$/ $__find_plugin_name.dll $__find_plugin_name.so/" "$SERVER_CONF"
+                        # If only .so exists
+                        elif [[ -f "$__find_so_linux" ]]; then
+                            echo -e "$(bash_coltext_y "dbg:") Adding $__find_plugin_name.so to the plugins"
+                            sed -i "/^plugins/ s/$/ $__find_plugin_name.so/" "$SERVER_CONF"
+                        # If only .dll exists
+                        elif [[ -f "$__find_dll_win" ]]; then
+                            echo -e "$(bash_coltext_y "dbg:") Adding $__find_plugin_name.dll to the plugins"
+                            sed -i "/^plugins/ s/$/ $__find_plugin_name.dll/" "$SERVER_CONF"
+                        fi
+                    else
+                        echo -e "$(bash_coltext_y "dbg:") Plugin $__find_plugin_name already exists, not added."
                     fi
-                else
-                    echo -e "$(bash_coltext_y "dbg:") Plugin $__find_plugin_name already exists, not added."
+                }
+                # Check if the "plugins" line exists in server.cfg
+                if ! grep -q "^plugins" "$SERVER_CONF"; then
+                    # If the plugins line doesn't exist, add it to the end of the file
+                    echo "plugins" >> "$SERVER_CONF"
+                    echo -e "$(bash_coltext_y "dbg:") The 'plugins' line has been added to server.cfg."
                 fi
-            }
-            # Check if the "plugins" line exists in server.cfg
-            if ! grep -q "^plugins" "$SERVER_CONF"; then
-                # If the plugins line doesn't exist, add it to the end of the file
-                echo "plugins" >> "$SERVER_CONF"
-                echo -e "$(bash_coltext_y "dbg:") The 'plugins' line has been added to server.cfg."
-            fi
-            # Check both tligpac_PACKAGES and __tligpac_PACKAGES variables
-            __check_and_add "$tligpac_PACKAGES"
-            __check_and_add "$__tligpac_PACKAGES"
+                # Check both tligpac_PACKAGES and __tligpac_PACKAGES variables
+                __check_and_add "$tligpac_PACKAGES"
+                __check_and_add "$__tligpac_PACKAGES"
             fi
 elif [ "$__SAMP_SERVER" == "omp" ]; then
             # if __SAMP_SERVER is open.mp ("omp")
@@ -537,6 +537,38 @@ fi
                 # If the $__SAMP_PLUGIN_DIR folder does not exist, print a warning message
                 echo -e "$(bash_coltext_g "warn:") $__SAMP_PLUGIN_DIR not found"
             fi
+
+            # Function to remove #include <find_plugin_name> from main.pwn
+            function remove_find_plugin_name_from_main() {
+                local __find_plugin_name=$1  # The first argument passed to the function is the plugin name
+                # Ensure plugin name is escaped properly to handle special characters
+                local __escaped_plugin_name
+                __escaped_plugin_name=$(echo "$__find_plugin_name" | sed 's/[&/\]/\\&/g')  # Escape special characters in the plugin name
+
+                if [[ -f "$shell_DIR/gamemodes/$SERVER_MAIN" ]]; then  # Check if the main server file exists
+                    if grep -q "#include <$__escaped_plugin_name>" "$shell_DIR/gamemodes/$SERVER_MAIN"; then  # Check if the plugin is already included
+                        echo -e "$(bash_coltext_y "dbg:") Removing #include <$__escaped_plugin_name> from $shell_DIR/gamemodes/$SERVER_MAIN"
+                        # Remove the #include line for the plugin from the main server file
+                        sed -i "/#include <$__escaped_plugin_name>/d" "$shell_DIR/gamemodes/$SERVER_MAIN"
+                    else
+                        echo -e "$(bash_coltext_y "dbg:") #include <$__escaped_plugin_name> not found in $shell_DIR/gamemodes/$SERVER_MAIN"
+                    fi
+                else
+                    echo -e "$(bash_coltext_y "dbg:") $shell_DIR/gamemodes/$SERVER_MAIN not found."
+                fi
+            }
+
+            # Loop to remove plugins from main.pwn
+            local __package
+            for __package in $tligpac_REMOVE_PATTERN; do  # Iterate through each pattern in the tligpac_REMOVE_PATTERN variable
+                if [ -n "$__package" ]; then  # Check if the package name is not empty
+                    # Using the value from tligpac_REMOVE_PATTERN to determine __find_plugin_name
+                    __find_plugin_name="$__package"  # Assign the pattern value to the __find_plugin_name variable
+                    
+                    # Remove the plugin from the main server file
+                    remove_find_plugin_name_from_main "$__find_plugin_name"  # Call the function to remove the plugin from the main server file
+                fi
+            done
 
 if [ "$__SAMP_SERVER" == "samp" ]; then
             # Check if the $SERVER_CONF file exists
