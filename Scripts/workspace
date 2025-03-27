@@ -1,0 +1,1190 @@
+#!/usr/bin/bash
+
+clear && cd "$(dirname "$(realpath "$0")")" || echo
+
+__OS_STATUS=0
+export __OS_STATUS
+
+##################
+###  "nul"     ###
+###  "linux"   ###
+###  "windows" ###
+###  "darwin"  ###
+##################
+__OPERATING_SYSTEM="nul"
+export __OPERATING_SYSTEM
+
+__SAMP_EXEC="nul"
+export __SAMP_EXEC
+__PAWNCC="nul"
+export __PAWNCC
+__DIS_GNU_NANO=""
+export __DIS_GNU_NANO
+__SAMP_NEXT_QUERY=0
+export __SAMP_NEXT_QUERY
+__SAMP_SERVER=""
+export __SAMP_SERVER
+
+MODULE_LOADED_NOTICE=0
+export MODULE_LOADED_NOTICE
+DO_NOT_SHOW_LNOT=0
+export DO_NOT_SHOW_LNOT
+
+SERVERS_NEXT=0
+export SERVERS_NEXT
+
+__cache_save=""
+export __cache_save
+
+shell_TITLE=""
+export shell_TITLE
+shell_DIR="$(dirname "$(realpath "$0")")"
+export shell_DIR
+shell_NAME="$(basename "$0")"
+export shell_NAME
+LICENSES="GPL v2.0 or MIT Licenses"
+export LICENSES
+
+compiler_MODE="nul"
+export compiler_MODE
+COMPILER_PAWNCC=""
+export COMPILER_PAWNCC
+COMPILER_NEXT=0
+export COMPILER_NEXT
+
+function bash_title() {
+    echo -ne "\033]0;$1\007"
+}
+
+function bash_coltext_y() {
+# Color Text {Yellow}
+# ' echo "$(bash_coltext_y "label")" content '
+COLOR_Y="\e[33m"
+    local color="$COLOR_Y"
+    local label="$1"
+    echo -e "${color}${label}\e[0m"
+}
+export bash_coltext_y
+
+function bash_coltext_g() {
+# Color Text {Green}
+# ' echo "$(bash_coltext_g "label")" content '
+COLOR_G="\e[32m"
+    local color="$COLOR_G"
+    local label="$1"
+    echo -e "${color}${label}\e[0m"
+}
+export bash_coltext_g
+
+function bash_coltext_r() {
+# Color Text {Red}
+# ' echo "$(bash_coltext_r "label")" content '
+COLOR_R="\e[91m"
+    local color="$COLOR_R"
+    local label="$1"
+    echo -e "${color}${label}\e[0m" 
+}
+export bash_coltext_r
+
+function bash_coltext_a() {
+# Color Text {Gray}
+# ' echo "$(bash_coltext_a "label")" content '
+COLOR_A="\e[97m"
+    local color="$COLOR_A"
+    local label="$1"
+    echo -e "${color}${label}\e[0m"
+}
+export bash_coltext_a
+
+function save_TITLE()
+{
+# Tile Functions
+# ' save_TITLE "title" '
+    local title=$1
+    shell_TITLE="$title"
+    bash_title "user:~/ $shell_TITLE"
+}
+export save_TITLE
+
+: ' compiler option '
+_valid_AMX_OPTION_=(
+    "-A" "-a" "-C+" "-C-" "-c" "-D" "-d0" "-d1" "-d2" "-d3" "-e" "-H" 
+    "-i" "-l" "-O" "-p" "-R+" "-R-" "-r" "-S" "-s" "-t" "-v0" "-v1" "-v2"
+    "-W" "-X" "-XD" "-Z+" "-Z-" "-E+" "-E-" "-^" "-;+" "-;-" "-(+" "-(-" "sym=" "sym=val"
+)
+export _valid_AMX_OPTION_
+
+ignore_this() {
+    "$@" > /dev/null 2>&1
+}
+export ignore_this
+
+if [ ! -d ".lib" ]; then
+    mkdir ".lib"
+fi
+
+# shellcheck source=/dev/null
+
+function load_module() {
+    local __missing=()
+    local __cmd
+
+    # List of required commands
+    for __cmd in python3 wget curl grep awk sed tr; do
+        command -v "$__cmd" &>/dev/null || __missing+=("$__cmd")
+    done
+
+    # If missing packages exist, check OS and install
+    if ((${#__missing[@]} > 0)); then
+        echo "Missing packages: ${__missing[*]}"
+        read -r -p "Install now? [y/n] " INSTALL_NOW
+
+        while true; do
+            case "$INSTALL_NOW" in
+                [Yy])
+                    if [[ -f /etc/os-release ]]; then
+                        source /etc/os-release
+                        for i in "${!__missing[@]}"; do
+                            if [[ "${__missing[i]}" == "tr" ]]; then
+                                : ' if missing is "tr", send for install coreutils '
+                                __missing[i]="coreutils"
+                            fi
+                        done
+                        case "$ID" in
+                            fedora|rhel|centos)
+                                : ' fedora / rhel / centos '
+                                sudo dnf install -y "${__missing[@]}"
+                                ;;
+                            debian|ubuntu|linuxmint|pop)
+                                : ' debian / ubuntu / linuxmint / pop '
+                                sudo apt update && sudo apt install -y "${__missing[@]}"
+                                ;;
+                            arch|manjaro)
+                                : ' arch / manjaro '
+                                sudo pacman -Sy --noconfirm "${__missing[@]}"
+                                ;;
+                            *)
+                                : ' if distro is not found '
+                                echo "info: Unrecognized distro, please install manually!"
+                                bash
+                                ;;
+                        esac
+                    else
+                        : ' if /etc/os-release is not found '
+                        echo "/etc/os-release not found. Install packages manually."
+                        bash
+                    fi
+                    ;;
+                [Nn])
+                    bash
+                    ;;
+                *)
+                    : ' return '
+                    read -r -p "Install now? [y/n] " INSTALL_NOW
+                    ;;
+            esac
+        done
+    fi
+    
+    local module_name=$1
+    local module_path="$shell_DIR/$module_name"
+    local module_url=$2
+    local special_param=$3
+    
+    if [ -f "$module_path" ] && [ "$DO_NOT_SHOW_LNOT" != 1 ]; then
+        chmod +x "$module_path"
+        if [ "$module_name" == ".workspace.py" ]; then
+            source <(python3 .workspace.py 2>/dev/null) >/dev/null 2>&1 || echo
+        else
+            source "$module_path" || sleep 1.0
+        fi
+        
+        clear
+
+        if [ "$special_param" == "compat" ]; then 
+            __handleOS ""
+        fi
+    else
+        DO_NOT_SHOW_LNOT=1
+        bash_title "Waiting resources.."
+
+        mkdir -p "$shell_DIR"
+
+        if [ "$special_param" != "ignore" ]; then
+            wget -q -O "$module_path" "$module_url" &>/dev/null
+        else
+            # download in background - efficiency
+            wget -q -O "$module_path" "$module_url" &>/dev/null &
+        fi
+
+        clear
+    fi
+}
+
+LOAD_ALL_MODULES()
+{
+    # Recheck Sync
+    if [ -f ".__update" ]; then
+        : ' If there is a problem with creating the ".__updates" file, the module will be automatically reinstalled because the ".lib" folder is deleted. '
+        rm .__update
+        if [ -d "$shell_DIR/.lib" ]; then
+            rm -rf ".lib"
+        fi
+        sleep 0.10
+    fi
+
+    load_module ".workspace.py" "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Scripts/workspace.py" "" 
+    load_module ".lib/security._" "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Security/security._" "ignore" 
+    load_module ".lib/compat._" "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Compat/compat._" "compat" 
+    load_module ".lib/compiler._" "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Compiler/compiler._" "ignore" 
+    load_module ".lib/tligpac._" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/TligPac/tligpac._" "ignore" 
+    load_module ".lib/samp._" "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Package/samp._" "ignore" 
+    load_module ".lib/pawncc._" "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Package/pawncc._" "ignore" 
+    load_module ".lib/misc._" "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Misc/misc._" "ignore" 
+    load_module ".lib/server._" "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Server/server._" "ignore"
+}
+
+resetVariable() {
+    # Reset Variables #
+
+    : ' Checking before unset '
+    [ -n "${compiler_MODE+x}" ] && unset compiler_MODE
+    [ -n "${COMPILER_PAWNCC+x}" ] && unset COMPILER_PAWNCC
+    [ -n "${COMPILER_NEXT+x}" ] && unset COMPILER_NEXT
+    [ -n "${SERVERS_NEXT+x}" ] && unset SERVERS_NEXT
+    [ -n "${__SAMP_NEXT_QUERY+x}" ] && unset __SAMP_NEXT_QUERY
+
+    compiler_MODE="nul"
+    COMPILER_PAWNCC=""
+    COMPILER_NEXT=0
+    SERVERS_NEXT=0
+    __SAMP_NEXT_QUERY=0
+}
+
+function bash_typeof() {
+    #
+    #   @mode.Typeof
+    #
+    
+    if [ $MODULE_LOADED_NOTICE != 1 ]; then
+        LOAD_ALL_MODULES ""
+        MODULE_LOADED_NOTICE=1
+    fi
+
+    #
+    #   @Send.Permissions.Typing
+    #
+
+    if [ ! -d ".cache" ]; then
+        mkdir ".cache"
+    fi
+    __cache_save=".cache/compiler.log"
+    export __cache_save
+    
+    if ! command -v jq &> /dev/null; then
+        echo -e "$(bash_coltext_g "warn:") jq not found."
+        sleep 0.5
+    fi
+    if ! command -v aria2c &> /dev/null; then
+        echo -e "$(bash_coltext_g "warn:") aria2c not found."
+        sleep 0.5
+    fi
+
+    cd "$shell_DIR" >/dev/null 2>&1 || echo ""
+
+    # find sa-mp server / open.mp server
+    OMP_FOUND=$(find . -maxdepth 1 -type f \( -name "omp-server" -o -name "omp-server.exe" \) | head -n 1)
+    SAMP_FOUND=$(find . -maxdepth 1 -type f \( -name "samp-server" -o -name "samp-server.exe" \) | head -n 1)
+
+    if [[ -n "$SAMP_FOUND" ]] && [[ -n "$OMP_FOUND" ]]; then
+        __SAMP_SERVER="samp"
+    elif [[ -n "$SAMP_FOUND" ]]; then
+        __SAMP_SERVER="samp"
+    elif [[ -n "$OMP_FOUND" ]]; then
+        __SAMP_SERVER="omp"
+    else
+        __SAMP_SERVER="samp"
+    fi
+
+if [ ! -f "lang.json" ]; then
+    if [ "$__SAMP_SERVER" == "samp" ]; then
+    cat > lang.json <<EOF
+{
+    "amx_flags": [
+        "-;+",
+        "-(+",
+        "-d3"
+    ],
+    "include_paths": "pawno/include",
+    "exclude_paths": [
+        "includes",
+        "includes2",
+        "includes3"
+    ],
+    "samp_log": "server_log.txt",
+    "server_conf": "server.cfg",
+    "samp_executable": "samp03svr",
+    "include_dir": "pawno/include",
+    "plugins_dir": "plugins",
+    "bot_token": "gsk_abcd",
+    "bot_model": "qwen-2.5-32b",
+    "bot_profile": "",
+    "remcache_auto": "true",
+    "repository": "stable"
+}
+EOF
+ignore_this sleep 0.100
+chmod +x "$shell_NAME"
+exec bash ./"$shell_NAME"
+    elif [ "$__SAMP_SERVER" == "omp" ]; then
+        cat > lang.json <<EOF
+{
+    "amx_flags": [
+        "-;+",
+        "-(+",
+        "-d3"
+    ],
+    "include_paths": "qawno/include",
+    "exclude_paths": [
+        "includes",
+        "includes2",
+        "includes3"
+    ],
+    "samp_log": "log.txt",
+    "server_conf": "config.json",
+    "samp_executable": "omp-server",
+    "include_dir": "qawno/include",
+    "plugins_dir": "components",
+    "bot_token": "gsk_abcd",
+    "bot_model": "qwen-2.5-32b",
+    "bot_profile": "",
+    "remcache_auto": "true",
+    "repository": "stable"
+}
+EOF
+ignore_this sleep 0.1
+chmod +x "$shell_NAME"
+exec bash ./"$shell_NAME"
+    fi
+fi
+    save_TITLE "OPS Mode | Use \`kill\` for refresh."
+ 
+    resetVariable ""
+
+    read -e -r -p "user:~$ " main_commands
+    mode_TRIOPS "$main_commands"
+}
+export bash_typeof
+
+mode_TRIOPS() {
+    #
+    #   @Send.OPS-Mode
+    #
+    #
+    #   always remember to end use 'bash_end' or 'bash_typeof' so it doesn't crash or exit triops
+    #
+    
+    local commands_TRIGGER="ops"
+
+    case "$main_commands" in
+        "compile"*)
+            save_TITLE "Compiler"
+
+            if [ "$__OPERATING_SYSTEM" == "darwin" ]; then
+                ignore_this docker stop $__SAMP_EXEC
+            elif [ "$__OPERATING_SYSTEM" == "linux" ] || [ "$__OPERATING_SYSTEM" == "windows" ]; then 
+                # shellcheck disable=SC2154
+                if [ -f "$save_LOCK_NAME_SERVER" ]; then
+                    PID=$(cat "$save_LOCK_NAME_SERVER")
+                    ignore_this kill -9 "$PID"
+                    cd "$shell_DIR" >/dev/null 2>&1 || echo "" 
+                    ignore_this rm "$save_LOCK_NAME_SERVER"
+                fi
+            fi
+            
+            local commands_ARGS="${main_commands#compile }"
+            local commands_INPUT=""
+            local commands_OPAMX=()
+
+            for arg in $commands_ARGS; do
+                if [ -z "$commands_INPUT" ]; then
+                    commands_INPUT="$arg"
+                else
+                    commands_OPAMX+=("$arg")
+                fi
+            done
+
+            local amx_valid=false
+
+            if [[ "$main_commands" == "compile" ]]; then
+                compiler_MODE="true"
+                triops_compilers ""
+            else
+                if [[ -n "$commands_INPUT" ]]; then
+                    if [[ "$commands_INPUT" == "." ]]; then
+                        compiler_MODE="true"
+                        triops_compilers ""
+                    else
+                        if [[ ${#commands_OPAMX[@]} -eq 0 ]]; then
+                            COMPILER_NEXT=1
+                        else
+                            local amx_valid=true
+
+                            for option in "${commands_OPAMX[@]}"; do
+                                # option checking
+                                if [[ " ${_valid_AMX_OPTION_[*]} " != *" $option "* ]]; then
+                                    # not valid
+                                    echo -e "$(bash_coltext_r "crit:") compiler option \`$option\` not found!"
+                                    echo -e "$(bash_coltext_y "info:") please see: github.com/vilksons/triops/wiki/Compiler-Option"
+                                    amx_valid=false
+                                    bash_end ""
+                                fi
+                            done
+
+                            if $amx_valid; then
+                                COMPILER_NEXT=2
+                            fi
+                        fi
+                    fi
+                fi
+
+                while IFS= read -r -d '' pawncc; do
+                if [ -f "$pawncc" ]; then
+                    COMPILER_PAWNCC="$pawncc"
+                    break
+                fi
+                done < <(find "$shell_DIR" -type f -iname "$__PAWNCC" -print0)
+
+                if [ -z "$COMPILER_PAWNCC" ]; then
+                    echo -e "$(bash_coltext_r "crit:") $__PAWNCC not found!. You can get this in \`pawncc\`"
+                    echo
+                    read -r -p "install now? [y/n] " INSTALL_NOW
+
+                    while true; do
+                        case "$INSTALL_NOW" in
+                            [Yy])
+                                what_is_choice_pawncc ""
+                                ;;
+                            [Nn])
+                                bash_typeof ""
+                                ;;
+                            *)
+                                what_is_choice_pawncc ""
+                                ;;
+                        esac
+                    done
+                fi
+
+                if ! find "$shell_DIR" -type f -name "$commands_INPUT" | grep -q .; then
+                    echo -e "$(bash_coltext_r "crit:") $commands_INPUT not found!."
+                    bash_typeof ""
+                fi
+
+                : '
+                    @Map
+                '
+                local __files=()
+                local __LOOP_COMPILES_FILE
+                while IFS= read -r -d '' __LOOP_COMPILES_FILE; do
+                    __files+=("$__LOOP_COMPILES_FILE")
+                done < <(find "$shell_DIR" -name "$commands_INPUT" -type f -print0)
+
+                for __LOOP_COMPILES_FILE in "${__files[@]}"; do
+                    if [ -f "$__LOOP_COMPILES_FILE" ] && [[ "$__LOOP_COMPILES_FILE" != *.amx ]]; then
+                        bash_title "$__LOOP_COMPILES_FILE"
+
+                        local AMX_O
+                        AMX_O="$(dirname "$__LOOP_COMPILES_FILE")/$(basename "${__LOOP_COMPILES_FILE%.*}.amx")"
+
+                        echo -e "$(bash_coltext_y "dbg:") Processing: $__LOOP_COMPILES_FILE"
+
+                        : '
+                            @PawnCC.Compile
+                        '
+                        
+                        # allow any subfolder that is inside the gamemodes folder.
+                        local __SPECIAL_INCLUDE_DIR
+                        __SPECIAL_INCLUDE_DIR=$(find "gamemodes" -type d | tr '\n' ':')
+                        __SPECIAL_INCLUDE_DIR=${INCLUDE_DIRS%:}
+                    
+                        # time milisec checking compiler
+                        local start_time
+                        start_time=$(date +%s%3N)
+
+                            for _ in {1..10}; do
+                                if [ $COMPILER_NEXT == 1 ]; then
+                                    "$COMPILER_PAWNCC" -i"$DEF_INCLUDE" "$DEF_EXCLUDE" -i"$__SPECIAL_INCLUDE_DIR" "$__LOOP_COMPILES_FILE" -o"$AMX_O" "$AMX_OPT_F" > "$__cache_save" 2>&1
+                                elif [ $COMPILER_NEXT == 2 ]; then
+                                    "$COMPILER_PAWNCC" -i"$DEF_INCLUDE" "$DEF_EXCLUDE" -i"$__SPECIAL_INCLUDE_DIR" "$__LOOP_COMPILES_FILE" -o"$AMX_O" "$AMX_OPT_F" "${commands_OPAMX[@]}" > "$__cache_save" 2>&1
+                                fi
+                            done
+                        
+                        # end of process
+                        local end_time
+                        end_time=$(date +%s%3N)
+
+                        local elapsed=$((end_time - start_time))
+                        local avg_time=$((elapsed / 10))
+                        
+                        bash_cache_compiler ""
+                        ignore_this sleep 0.1 &&
+                        cat "$__cache_save"
+
+                        if [ -s "$AMX_O" ]; then
+                            echo
+                            echo "~ $AMX_O"
+                            if [ "$compiler_MODE" == "true" ]; then
+                                shell_TITLE="compilers"
+                                bash_title "user:~/ $shell_TITLE"
+                            elif [ "$compiler_MODE" == "false" ]; then
+                                shell_TITLE="compiler - running"
+                                bash_title "user:~/ $shell_TITLE"
+                            fi
+                            echo
+                            echo "total size: $(stat -c%s "$AMX_O") bytes"
+                            if [ $COMPILER_NEXT == 2 ]; then
+                                echo -n "with +option compiler: "
+                                echo "${commands_OPAMX[@]}"
+                            fi
+                            echo "Total execution time: ${elapsed} ms"
+                            echo "Average time per iteration: ${avg_time} ms"
+                        fi
+                    fi
+                done
+            fi
+
+            bash_end ""
+            ;;
+        "running"*)
+            save_TITLE "Running"
+
+            if [ "$__OPERATING_SYSTEM" == "darwin" ]; then
+                ignore_this docker stop $__SAMP_EXEC
+            elif [ "$__OPERATING_SYSTEM" == "linux" ] || [ "$__OPERATING_SYSTEM" == "windows" ]; then 
+                if [ -f "$save_LOCK_NAME_SERVER" ]; then
+                    PID=$(cat "$save_LOCK_NAME_SERVER")
+                    ignore_this kill -9 "$PID"
+                    cd "$shell_DIR" >/dev/null 2>&1 || echo "" 
+                    ignore_this rm "$save_LOCK_NAME_SERVER"
+                fi
+            fi
+            
+            local commands_ARGS="${main_commands#running }"
+            
+            if [[ -n "$commands_ARGS" && "$commands_ARGS" != "$main_commands" ]]; then
+                commands_INPUT="$commands_ARGS"
+            else
+                space_servers ""
+            fi
+
+            SERVERS_NEXT=1
+
+            if [ "$commands_INPUT" == "." ]; then
+                space_servers ""
+            else
+                space_wargs_servers "$commands_INPUT"
+            fi
+            bash_end ""
+            ;;
+        "irunn")
+            save_TITLE "Compile & Running"
+
+            if [ "$__OPERATING_SYSTEM" == "darwin" ]; then
+                ignore_this docker stop $__SAMP_EXEC
+            elif [ "$__OPERATING_SYSTEM" == "linux" ] || [ "$__OPERATING_SYSTEM" == "windows" ]; then 
+                if [ -f "$save_LOCK_NAME_SERVER" ]; then
+                    PID=$(cat "$save_LOCK_NAME_SERVER")
+                    ignore_this kill -9 "$PID"
+                    cd "$shell_DIR" >/dev/null 2>&1 || echo "" 
+                    ignore_this rm "$save_LOCK_NAME_SERVER"
+                fi
+            fi
+
+            compiler_MODE="false"
+            triops_compilers ""
+
+            space_servers ""
+            ;;
+        "debug"*)
+            save_TITLE "Debugging"
+
+            if [ "$__OPERATING_SYSTEM" == "darwin" ]; then
+                ignore_this docker stop $__SAMP_EXEC
+            elif [ "$__OPERATING_SYSTEM" == "linux" ] || [ "$__OPERATING_SYSTEM" == "windows" ]; then 
+                if [ -f "$save_LOCK_NAME_SERVER" ]; then
+                    PID=$(cat "$save_LOCK_NAME_SERVER")
+                    ignore_this kill -9 "$PID"
+                    cd "$shell_DIR" >/dev/null 2>&1 || echo "" 
+                    ignore_this rm "$save_LOCK_NAME_SERVER"
+                fi
+            fi
+
+            local commands_ARGS="${main_commands#debug }"
+            
+            if [[ -n "$commands_ARGS" && "$commands_ARGS" != "$main_commands" ]]; then
+                commands_INPUT="$commands_ARGS"
+            else
+                echo -e "$(bash_coltext_a ":: Enter GM Name:")"
+                read -r -p ">>> " commands_INPUT
+
+                echo -e "$(bash_coltext_a ":: Enter GM Name:")"
+                while true; do
+                    read -r -p ">>> " commands_INPUT
+                    [[ -n "$commands_INPUT" ]] && break
+                done
+            fi
+
+            SERVERS_NEXT=2
+            
+            if [ "$commands_INPUT" == "." ]; then
+                space_servers ""
+            else
+                space_wargs_servers "$commands_INPUT"
+            fi
+            bash_end ""
+            ;;
+        "stop")
+            save_TITLE "Stop"
+
+            if [ "$__OPERATING_SYSTEM" == "darwin" ]; then
+                ignore_this docker stop $__SAMP_EXEC
+            elif [ "$__OPERATING_SYSTEM" == "linux" ] || [ "$__OPERATING_SYSTEM" == "windows" ]; then 
+                if [ -f "$save_LOCK_NAME_SERVER" ]; then
+                    PID=$(cat "$save_LOCK_NAME_SERVER")
+                    ignore_this kill -9 "$PID"
+                    cd "$shell_DIR" >/dev/null 2>&1 || echo "" 
+                    ignore_this rm "$save_LOCK_NAME_SERVER"
+                fi
+            fi
+            bash_end ""
+            ;;
+        "restart")
+            save_TITLE "Restart"
+
+            if [ "$__OPERATING_SYSTEM" == "darwin" ]; then
+                if docker ps --filter "$__SAMP_EXEC" | grep -q "$__SAMP_EXEC"; then
+                    ignore_this docker stop $__SAMP_EXEC
+
+                    ignore_this sleep 2
+                    space_servers ""
+                else
+                    echo "error: No progress Server running."
+                fi
+            elif [ "$__OPERATING_SYSTEM" == "linux" ] || [ "$__OPERATING_SYSTEM" == "windows" ]; then 
+                if [ -f "$save_LOCK_NAME_SERVER" ]; then
+                    PID=$(cat "$save_LOCK_NAME_SERVER")
+                    ignore_this kill -9 "$PID"
+                    cd "$shell_DIR" >/dev/null 2>&1 || echo "" 
+                    ignore_this rm "$save_LOCK_NAME_SERVER"
+
+                    ignore_this sleep 2
+                    space_servers ""
+                else
+                    echo "error: No progress Server running."
+                fi
+            fi
+
+            bash_end ""
+            ;;
+        "gamemode")
+            save_TITLE "Downloads | GameMode"
+
+            what_is_choice_samp ""
+
+            bash_end ""
+            ;;
+        "pawncc")
+            save_TITLE "Downloads | PawnCC"
+
+            what_is_choice_pawncc ""
+
+            bash_end ""
+            ;;
+        "clear")
+            clear; echo -ne "\033[3J"
+            bash_typeof ""
+            ;;
+        "fcheck")
+            save_TITLE "Folder check"
+
+            bash_check_dir "filterscripts"
+            bash_check_dir "gamemodes"
+            bash_check_dir "scriptfiles"
+
+            bash_end ""
+            ;;
+        "cat"*)
+            save_TITLE "Cat"
+
+            local commands_ARGS="${main_commands#cat }"
+            
+            if [[ -n "$commands_ARGS" && "$commands_ARGS" != "$main_commands" ]]; then
+                commands_INPUT="$commands_ARGS"
+            else
+                echo -e "$(bash_coltext_a ":: Enter File Name:")"
+                read -r -p ">>> " commands_INPUT
+
+                echo -e "$(bash_coltext_a ":: Enter File Name:")"
+                while true; do
+                    read -r -p ">>> " commands_INPUT
+                    [[ -n "$commands_INPUT" ]] && break
+                done
+            fi
+
+            cat "$commands_INPUT"
+            echo
+            bash_end ""
+            ;;
+        "directory"*)
+            save_TITLE "Directory - $shell_DIR"
+
+            local commands_ARGS="${main_commands#directory }"
+            
+            if [[ -n "$commands_ARGS" && "$commands_ARGS" != "$main_commands" ]]; then
+                commands_INPUT="$commands_ARGS"
+            else
+                ls -a
+                bash_end ""
+            fi
+
+            ignore_this cd "$commands_INPUT" && ls -a && shell_TITLE="directory - $shell_DIR" && bash_title "user:~/ $shell_TITLE" || echo
+            bash_typeof ""
+            ;;
+        "ls")
+            ls -a
+            bash_typeof ""
+            ;;
+        "kill")
+            save_TITLE "Kill"
+
+            MODULE_LOADED_NOTICE=0
+
+            if [ -f "$shell_DIR/lang.json" ]; then
+                read -r -p "rebuild \`lang.json\`? [y/n] " REBUILD_LANG
+
+                while true; do
+                    case "$REBUILD_LANG" in
+                        [Yy])
+                            mv lang.json lang.json.old.txt
+                            clear
+                            ignore_this sleep 0.10
+                            chmod +x "$shell_NAME"
+                            exec bash ./"$shell_NAME"
+                            ;;
+                        *)
+                            clear
+                            ignore_this sleep 0.10
+                            chmod +x "$shell_NAME"
+                            exec bash ./"$shell_NAME"
+                            ;;
+                    esac
+                done
+            fi
+            ;;
+        "sync" | "syncc")
+            if [ "$main_commands" == "sync" ]; then
+                save_TITLE "Sync"
+            elif [ "$main_commands" == "syncc" ]; then
+                save_TITLE "Syncc"
+            fi
+
+            local __lat
+            __lat=$(curl -s "https://api.github.com/repos/vilksons/triops/commits/main" | grep -o '"sha": "[^"]*' | awk -F': "' '{print $2}')
+
+            local __cur
+            __cur=$(cat "$shell_DIR/.commits" 2>/dev/null)
+
+            if [[ "$__lat" == "$__cur" ]]; then
+                echo "warning: $shell_NAME is up to date, Nothing to do."
+                bash_end ""
+            else
+                echo -e "$(bash_coltext_a ":: There is an update!. Commits: (SHA1): ")"
+                echo "$__lat"
+                
+                read -r -n1 -p ":: Do you want to continue Sync Triops? [y/n] " PERMISSION_NEED_S
+
+                echo
+                [[ -z "$PERMISSION_NEED_S" ]] && PERMISSION_NEED_S="Y"
+
+                while true; do
+                    case "$PERMISSION_NEED_S" in
+                        [Yy])
+                            if [ -d "$shell_DIR/.lib" ]; then
+                                rm -rf ".lib" && sleep 0.1 && mkdir ".lib"
+                            fi
+
+                            if [ "$main_commands" == "syncc" ]; then
+                                if [ -f "lang.json" ]; then
+                                    mv lang.json lang.json.old.txt
+                                fi
+                            fi
+
+                            echo "Updating..."
+                            
+                            echo "$__lat" > "$shell_DIR/.commits"
+                            
+                            cd "$shell_DIR/.lib" >/dev/null 2>&1 || echo ""
+
+                            if [ "$__REAL_REPOS" == "stable" ]; then
+                                wget -q --show-progress -O "security._" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Security/security._" || { cd "$shell_DIR" >/dev/null && touch ".__update"; } && cd "$shell_DIR/.lib" >/dev/null 2>&1 || echo ""
+                                wget -q --show-progress -O "compat._" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Compat/compat._" || { cd "$shell_DIR" >/dev/null && touch ".__update"; } && cd "$shell_DIR/.lib" >/dev/null 2>&1 || echo ""
+                                wget -q --show-progress -O "tligpac._" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/TligPac/tligpac._" || { cd "$shell_DIR" >/dev/null && touch ".__update"; } && cd "$shell_DIR/.lib" >/dev/null 2>&1 || echo ""
+                                wget -q --show-progress -O "samp._" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Package/samp._" || { cd "$shell_DIR" >/dev/null && touch ".__update"; } && cd "$shell_DIR/.lib" >/dev/null 2>&1 || echo ""
+                                wget -q --show-progress -O "pawncc._" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Package/pawncc._" || { cd "$shell_DIR" >/dev/null && touch ".__update"; } && cd "$shell_DIR/.lib" >/dev/null 2>&1 || echo ""
+                                wget -q --show-progress -O "server._" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Server/server._" || { cd "$shell_DIR" >/dev/null && touch ".__update"; } && cd "$shell_DIR/.lib" >/dev/null 2>&1 || echo ""
+                                wget -q --show-progress -O "misc._" "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Misc/misc._" || { cd "$shell_DIR" >/dev/null && touch ".__update"; } && cd "$shell_DIR/.lib" >/dev/null 2>&1 || echo ""
+                                wget -q --show-progress -O "compiler._" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Compiler/compiler._" || { cd "$shell_DIR" >/dev/null && touch ".__update"; } && cd "$shell_DIR/.lib" >/dev/null 2>&1 || echo ""
+
+                                ignore_this sleep 1 && cd "$shell_DIR" >/dev/null 2>&1 || echo ""
+
+                                if [ "$main_commands" == "syncc" ]; then
+                                    wget -q --show-progress -O ".workspace.py" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Scripts/workspace.py"
+                                    wget -q --show-progress -O "workspace" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Scripts/workspace"
+                                fi
+                            elif [ "$__REAL_REPOS" == "testing" ]; then
+                                wget -q --show-progress -O "security._" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/testing/Security/security._" || { cd "$shell_DIR" >/dev/null && touch ".__update"; } && cd "$shell_DIR/.lib" >/dev/null 2>&1 || echo ""
+                                wget -q --show-progress -O "compat._" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/testing/Compat/compat._" || { cd "$shell_DIR" >/dev/null && touch ".__update"; } && cd "$shell_DIR/.lib" >/dev/null 2>&1 || echo ""
+                                wget -q --show-progress -O "tligpac._" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/testing/TligPac/tligpac._" || { cd "$shell_DIR" >/dev/null && touch ".__update"; } && cd "$shell_DIR/.lib" >/dev/null 2>&1 || echo ""
+                                wget -q --show-progress -O "samp._" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/testing/Package/samp._" || { cd "$shell_DIR" >/dev/null && touch ".__update"; } && cd "$shell_DIR/.lib" >/dev/null 2>&1 || echo ""
+                                wget -q --show-progress -O "pawncc._" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/testing/Package/pawncc._" || { cd "$shell_DIR" >/dev/null && touch ".__update"; } && cd "$shell_DIR/.lib" >/dev/null 2>&1 || echo ""
+                                wget -q --show-progress -O "server._" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/testing/Server/server._" || { cd "$shell_DIR" >/dev/null && touch ".__update"; } && cd "$shell_DIR/.lib" >/dev/null 2>&1 || echo ""
+                                wget -q --show-progress -O "misc._" "https://raw.githubusercontent.com/vilksons/triops/refs/heads/testing/Misc/misc._" || { cd "$shell_DIR" >/dev/null && touch ".__update"; } && cd "$shell_DIR/.lib" >/dev/null 2>&1 || echo ""
+                                wget -q --show-progress -O "compiler._" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/testing/Compiler/compiler._" || { cd "$shell_DIR" >/dev/null && touch ".__update"; } && cd "$shell_DIR/.lib" >/dev/null 2>&1 || echo ""
+
+                                ignore_this sleep 1 && cd "$shell_DIR" >/dev/null 2>&1 || echo ""
+
+                                if [ "$main_commands" == "syncc" ]; then
+                                    wget -q --show-progress -O ".workspace.py" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/testing/Scripts/workspace.py"
+                                    wget -q --show-progress -O "workspace" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/testing/Scripts/workspace"
+                                fi
+                            fi
+
+                            echo "$__lat" > "$shell_DIR/.commits"
+
+                            sleep 1 && bash ./workspace
+                            ;;
+                        *)
+                            bash_end ""
+                            break
+                            ;;
+                    esac
+                done
+            fi
+            ;;
+        "checksums"*)
+            save_TITLE "Checksums"
+
+            local commands_ARGS="${main_commands#checksums }"
+
+            ignore_this cd "$shell_DIR" || echo ""
+
+            if [[ -n "$commands_ARGS" && "$commands_ARGS" != "$main_commands" ]]; then
+                commands_INPUT="$commands_ARGS"
+            else
+                echo "sha1:" && sha1sum "$shell_NAME" && echo "sha256:" && sha256sum "$shell_NAME" && echo "md5:" && md5sum "$shell_NAME"
+                bash_end ""
+            fi
+
+            for algo in $commands_INPUT; do
+                if [[ "$algo" == "sha1" ]]; then
+                    echo "sha1:" && sha1sum "$shell_NAME"
+                elif [[ "$algo" == "sha256" ]]; then
+                    echo "sha256:" && sha256sum "$shell_NAME"
+                elif [[ "$algo" == "md5" ]]; then
+                    echo "md5:" && md5sum "$shell_NAME"
+                else
+                    echo "Invalid option: $algo (use sha1, sha256, md5)"
+                fi
+            done
+
+            bash_end ""
+            ;;
+        "exit"*)
+            save_TITLE "Exit"
+
+            local commands_ARGS="${main_commands#exit }"
+
+            if [[ -n "$commands_ARGS" && "$commands_ARGS" != "$main_commands" ]]; then
+                commands_INPUT="$commands_ARGS"
+            else
+                ignore_this sleep 0.100 &&
+                bash
+            fi
+            bash
+            ;;
+        "chatbot"*)
+            save_TITLE "Chatbot"
+
+            local commands_ARGS="${main_commands#chatbot }"
+
+            if [[ -n "$commands_ARGS" && "$commands_ARGS" != "$main_commands" ]]; then
+                commands_INPUT="$commands_ARGS"
+            else
+               	echo -e "$(bash_coltext_a ":: Enter Question:")"
+                echo " -> enter \"exit\" to exit"
+                read -r -p ">>> " commands_INPUT
+
+                echo -e "$(bash_coltext_a ":: Enter Question:")"
+                while true; do
+                    read -r -p ">>> " commands_INPUT
+                    [[ -n "$commands_INPUT" ]] && break
+                done
+            fi
+
+            if [[ "$commands_ARGS" == "exit" ]]; then
+                bash_end ""
+            fi
+
+            _chatbot_response_=$(curl -s -X POST https://api.groq.com/openai/v1/chat/completions \
+                -H "Authorization: Bearer $CHATBOT_TOKEN" \
+                -H "Content-Type: application/json" \
+                -d "{
+                    \"model\": \"$CHATBOT_MODEL\",
+                    \"messages\": [
+                        {
+                        \"role\": \"system\",
+                        \"content\": \"$CHATBOT_BIODATA\"
+                        },
+                        {
+                        \"role\": \"user\",
+                        \"content\": \"$commands_INPUT .. \
+                            do not add markdown symbols (.md)\"
+                        }
+                    ],
+                    \"temperature\": 1,
+                    \"max_tokens\": 1024,
+                    \"top_p\": 1,
+                    \"stream\": false,
+                    \"stop\": null
+                    }")
+
+: ' Custom Coltext for chatbot response '
+__GREEN=$(tput setaf 2)
+__RED=$(tput setaf 1)
+__ORANGE=$(tput setaf 3)
+__RESET=$(tput sgr0)
+
+echo "$_chatbot_response_" | python3 -c "
+import sys, json, re
+
+COLORS = {
+    'true': '${__GREEN}', 'false': '${__RED}',
+    'string': '${__GREEN}', 'int': '${__GREEN}', 'float': '${__GREEN}', 'bool': '${__GREEN}', 
+    'double': '${__GREEN}', 'char': '${__GREEN}', 'return': '${__RED}', 'if': '${__GREEN}', 
+    'else': '${__GREEN}', 'while': '${__GREEN}', 'for': '${__GREEN}', 'do': '${__GREEN}', 
+    'try': '${__ORANGE}', 'catch': '${__ORANGE}', 'finally': '${__ORANGE}', 'throw': '${__RED}', 
+    'goto': '${__ORANGE}', 'switch': '${__GREEN}', 'case': '${__GREEN}', 'break': '${__RED}', 
+    'continue': '${__RED}', 'class': '${__GREEN}', 'void': '${__GREEN}', 'inline': '${__GREEN}',
+    'main': '${__ORANGE}', 'foo': '${__RED}', 'include': '${__GREEN}'
+}
+
+try:
+    data = json.loads(sys.stdin.read())
+    _chatbot_response_ = data.get('choices', [{}])[0].get('message', {}).get('content', 'Error: Response API Failed/not found.')
+
+    def colorize(match):
+        word = match.group(0).lower()
+        return f'{COLORS.get(word, '')}{word}${__RESET}'
+
+    _chatbot_response_ = re.sub(r'\b(?:' + '|'.join(COLORS.keys()) + r')\b', colorize, _chatbot_response_, flags=re.IGNORECASE)
+
+    print(_chatbot_response_)
+except json.JSONDecodeError:
+    print('Error: Invalid JSON')
+"
+
+            echo "----------------------------------"
+            bash_end ""
+            ;;
+        "nano"*)
+            if [ "$__DIS_GNU_NANO" == "false" ]; then
+                if ! command -v nano &> /dev/null; then
+                    echo "nano not found!, install first."
+                    bash_end ""
+                fi
+                
+                save_TITLE "GNU/Nano"
+                
+                local commands_ARGS="${main_commands#nano }"
+
+                if [[ -n "$commands_ARGS" && "$commands_ARGS" != "$main_commands" ]]; then
+                    commands_INPUT="$commands_ARGS"
+                else
+                    echo -e "$(bash_coltext_a ":: Enter File Name:")"
+                    read -r -p ">>> " commands_INPUT
+
+                    echo -e "$(bash_coltext_a ":: Enter File Name:")"
+                    while true; do
+                        read -r -p ">>> " commands_INPUT
+                        [[ -n "$commands_INPUT" ]] && break
+                    done
+                fi
+
+                nano "$commands_INPUT"
+                bash_end ""
+            else
+                echo "error: $main_commands: command not found"
+                bash_end ""
+            fi
+            ;;
+        "remcac")
+            save_TITLE "Remove Cache"
+
+            if [ "$compiler_MODE" != "nul" ]; then
+                # err compiler is running
+                echo -e "$(bash_coltext_r "crit:") can't remove cache!."
+                bash_end ""
+            fi
+
+            echo -e "$(bash_coltext_a ":: Cache Dir: $shell_DIR/.cache")"
+            read -r -p ":: Do you want to remove ALL files from cache? [y/n] " PERMISSION_NEED_RC
+
+            echo
+            [[ -z "$PERMISSION_NEED_RC" ]] && PERMISSION_NEED_RC="Y"
+
+            while true; do
+                case "$PERMISSION_NEED_RC" in
+                    [Yy])
+                        ignore_this cd "$shell_DIR" || echo ""
+                        ignore_this rm ".cache" && ignore_this sleep 1
+
+                        if [ ! -d ".cache" ]; then
+                            mkdir ".cache"
+                        fi
+
+                        ignore_this sleep 0.100 &&
+                        bash_end ""
+                        break
+                        ;;
+                    *)
+                        bash_end ""
+                esac
+            done
+            ;;
+        "fetch")
+            fetch_now ""
+            ;;
+        "tligpac")
+            mode_TLIGPAC ""
+            bash_help2 ""
+            ;;
+        "help"* | "$commands_TRIGGER -h"* | "$commands_TRIGGER --h"*)
+            local commands_ARGS="${main_commands#"$commands_TRIGGER -h "}"
+            local commands_ARGS="${commands_ARGS#help }"
+            local commands_ARGS="${commands_ARGS#"$commands_TRIGGER --h "}"
+
+            declare -A descriptions=(
+                ["compile"]=":: Compile a project - Usage: compile | (+) [<args>] [target]"
+                ["running"]=":: Running a project - Usage: running | (+) [<args>] [target]"
+                ["irunn"]=":: Compile & Running a project - Usage: irunn"
+                ["debug"]=":: Debug a project - Usage: debug | (+) [<args>] [target]"
+                ["stop"]=":: stop all running server progress - Usage: stop"
+                ["restart"]=":: Restart all Server - Usage: restart"
+                ["gamemode"]=":: Download GameModes SA-MP with Selection - Usage: gamemode"
+                ["pawncc"]=":: Download PawnCC SA-MP with Selection - Usage: pawncc"
+                ["clear"]=":: Clear Screen Terminal - Usage: clear"
+                ["checksums"]=":: Checksums of Triops - Usage: checksums"
+                ["fcheck"]=":: Checks Directory of SA-MP - Usage: fcheck"
+                ["cat"]=":: Display a files to Triops Terminal - Usage: cat"
+                ["kill"]=":: Kill a Triops Terminal - Usage: kill"
+                ["exit"]=":: Exit/End Triops Terminal - Usage: exit | (+) [<args>] \"all\" to kill all tasks"
+                ["directory"]=":: Display or Change Terminal Directory - Usage: directory | ls"
+                ["update"]=":: Update/Upgrade/Sync Triops Shell up-to-date - Usage: sync"
+                ["remcac"]=":: Remove cache \".cache\" Triops - Usage: remcac"
+                ["chatbot"]=":: Chatbot Terminal - Usage: chatbot"
+                ["nano"]=":: GNU/Nano Editor - Usage: nano"
+                ["tligpac"]=":: Triops Mode to TligPac Mode - Usage: tligpac"\
+                ["sync"]=":: Sync Normal - Usage: sync"
+                ["syncc"]=":: Sync Full - Usage: syncc"
+                ["fetch"]=":: Fetch Triops -> Usage: fetch"
+            )
+            
+            if [[ -n "$commands_ARGS" && "$commands_ARGS" != "$main_commands" ]]; then
+                if [[ -n "${descriptions[$commands_ARGS]}" ]]; then
+                    if [[ "$commands_ARGS" == "nano" && "$__DIS_GNU_NANO" == "true" ]]; then
+                        bash_help "invalid"
+                    else
+                        if [ "$commands_ARGS" == "compile" ]; then
+                            echo "${descriptions[$commands_ARGS]}"
+                            echo " Example: compile bare.pwn +option_amx"
+                            echo " For Option. Please See: github.com/vilksons/triops/wiki/Compiler-Option"
+                        else
+                            echo "${descriptions[$commands_ARGS]}"
+                        fi
+                    fi
+                else
+                    bash_help "invalid"
+                fi
+            else
+                bash_help ""
+            fi
+
+            bash_typeof ""
+            ;;
+        "$commands_TRIGGER")
+            bash_help ""
+            bash_typeof ""
+            ;;
+        "")
+            bash_help ""
+            bash_typeof ""
+            ;;
+        *)
+            not_found ""
+            ;;
+    esac
+}
+export mode_TRIOPS
+
+function not_found()
+{
+    echo "error: $main_commands: command not found"
+    bash_help ""
+    bash_typeof ""
+}
+
+function bash_help()
+{
+    : '
+        @Send.Help
+    '
+    local check_param=$1
+
+    if [ "$check_param" == "invalid" ]; then
+        echo "Invalid!.. Please Use:"
+    fi
+
+    echo "Usage: ops <command> | help | -h | --h | [<commands>]"
+    echo "Commands:"
+    echo " compile, running, irunn (compile-run), debug (debugger)"
+    echo " stop (stopped server), restart (restart server)"
+    echo " gamemode, pawncc, clear (clear-screen), checksums"
+    echo " fcheck (folder-checks), cat, tligpac, kill, directory"
+    echo " sync (update/upgrade), syncc (update/upgrade full)"
+
+    if [ "$__DIS_GNU_NANO" == "true" ]; then
+        echo " exit, remcac, chatbot, fetch"
+    else
+        echo " exit, remcac, chatbot, nano, fetch"
+    fi
+}
+
+function bash_help2()
+{
+    echo "Usage: ops <command> [<args>]"
+    echo "Commands:"
+    echo " install - Install/Reinstall Packages"
+    echo " remove  - Remove Packages"
+    echo " exit    - Exit TligPac Mode"
+}
+
+function bash_end() {
+    echo -e "$(bash_coltext_y "# Press any key to return.")"
+    read -r -n 1 -s
+    bash_typeof ""
+}
+
+: '
+    @summary: Main
+'
+bash_typeof ""

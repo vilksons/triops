@@ -1,0 +1,84 @@
+#!/bin/bash
+
+function what_is_choice_samp()
+{
+    while true; do
+        echo "# Select: [L]inux for Linux Files [W]indows for Windows Files"
+        read -r -p ">> " SEL_CO
+        case "$SEL_CO" in
+            [Ll])
+                send_samp_linux "" && break ;;
+            [Ww])
+                send_samp_win "" && break ;;
+            *)
+                echo -e "$(bash_coltext_r "err:") Invalid selection. Please enter L or W." ;;
+        esac
+    done
+}
+export what_is_choice_samp
+
+function what_is_choice_pawncc()
+{
+    while true; do
+        echo "# Select: [L]inux for Linux Files [W]indows for Windows Files"
+        read -r -p ">> " SEL_CO
+        case "$SEL_CO" in
+            [Ll])
+                send_compilers_linux "" && break ;;
+            [Ww])
+                send_compilers_win "" && break ;;
+            *)
+                echo -e "$(bash_coltext_r "err:") Invalid selection. Please enter L or W." ;;
+        esac
+    done
+}
+export what_is_choice_pawncc
+
+function fetch_now()
+{
+    local __lat=""
+    local __cur=""
+    # shellcheck disable=SC2154
+    if [ -f "$shell_DIR/.commits" ]; then
+        __cur=$(cat "$shell_DIR/.commits" 2>/dev/null)
+    else
+        __cur=""
+    fi
+    
+    __lat=$(curl -s "https://api.github.com/repos/vilksons/triops/commits/main" | grep -o '"sha": "[^"]*' | awk -F': "' '{print $2}')
+    
+    echo
+    echo "ooooooooooooo           o8o"
+    echo "8'   888   \`8           \`\"'"
+    echo "     888      oooo d8b oooo   .ooooo.  oo.ooooo.   .oooo.o"
+    echo "     888      \`888\"\"8P \`888  d88' \`88b  888' \`88b d88(  \"8"
+    echo "     888       888      888  888   888  888   888 \`\"Y88b."
+    echo "     888       888      888  888   888  888   888 o.  )88b"
+    echo "    o888o     d888b    o888o \`Y8bod8P'  888bod8P' 8\"\"888P'"
+    echo "                                        888"
+    echo "                                       o888o"
+
+    if [[ "$__lat" == "$__cur" ]]; then
+        echo "Triops is up-to-date."
+    else
+        echo "Triops is behind the times"
+    fi
+    
+    echo "Triops Licenses: $LICENSES"
+
+    find_PLATFORM=""
+    # shellcheck disable=SC2086
+    if [ "$__OPERATING_SYSTEM" == "linux" ]; then find_PLATFORM="Linux"; fi
+    # shellcheck disable=SC2086
+    if [ "$__OPERATING_SYSTEM" == "windows" ]; then find_PLATFORM="${find_PLATFORM:+$find_PLATFORM & }Windows"; fi
+    # shellcheck disable=SC2086
+    if [ "$__OPERATING_SYSTEM" == "darwin" ]; then find_PLATFORM="${find_PLATFORM:+$find_PLATFORM & }Darwin / MacOS"; fi
+
+    if [ -n "$find_PLATFORM" ]; then
+        echo "Triops Platform: $find_PLATFORM"
+    else
+        echo "Triops Platform: Unknown"
+    fi
+    bash_end ""
+}
+export fetch_now

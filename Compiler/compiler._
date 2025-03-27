@@ -1,0 +1,166 @@
+#!/usr/bin/bash
+
+function triops_compilers() {
+    local SHFILE="false"
+# shellcheck disable=SC2154
+    while IFS= read -r -d '' pawncc; do
+        if [ -f "$pawncc" ]; then
+            COMPILER_PAWNCC="$pawncc"
+            break
+        fi
+    done < <(find "$shell_DIR" -type f -iname "$__PAWNCC" -print0)
+
+    if [ -z "$COMPILER_PAWNCC" ]; then
+        echo -e "$(bash_coltext_r "crit:") $__PAWNCC not found!. You can get this in \`pawncc\`"
+        echo
+        read -r -p "install now? [y/n] " INSTALL_NOW
+
+        while true; do
+            case "$INSTALL_NOW" in
+                [Yy])
+                    what_is_choice_pawncc ""
+                    ;;
+                [Nn])
+                    bash_typeof ""
+                    ;;
+                *)
+                    what_is_choice_pawncc ""
+                    ;;
+            esac
+        done
+    fi
+
+    : '
+        @Map
+    '
+    local __files=()
+    local __LOOP_COMPILES_FILE
+    while IFS= read -r -d '' __LOOP_COMPILES_FILE; do
+        __files+=("$__LOOP_COMPILES_FILE")
+    done < <(find "$shell_DIR" -name "*.io*" -type f -print0)
+
+    for __LOOP_COMPILES_FILE in "${__files[@]}"; do
+        if [ -f "$__LOOP_COMPILES_FILE" ] && [[ "$__LOOP_COMPILES_FILE" != *.amx ]]; then
+            SHFILE="true"
+            bash_title "$__LOOP_COMPILES_FILE"
+
+            local AMX_O
+            AMX_O="$(dirname "$__LOOP_COMPILES_FILE")/$(basename "${__LOOP_COMPILES_FILE%.io*}.amx")"
+
+            echo -e "$(bash_coltext_y "dbg:") Processing: $__LOOP_COMPILES_FILE"
+
+            : '
+                @PawnCC.Compile
+            '
+# shellcheck disable=SC2154
+            for option in $AMX_OPT_F; do
+                # option checking
+                if [[ " ${_valid_AMX_OPTION_[*]} " != *" $option "* ]]; then
+                    # not valid
+                    echo -e "$(bash_coltext_r "crit:") compiler option \`$option\` not found!"
+                    echo -e "$(bash_coltext_y "info:") please see: github.com/vilksons/triops/wiki/Compiler-Option"
+                    continue
+                fi
+            done
+
+            # allow any subfolder that is inside the gamemodes folder.
+            local __SPECIAL_INCLUDE_DIR
+            __SPECIAL_INCLUDE_DIR=$(find "gamemodes" -type d | tr '\n' ':')
+            __SPECIAL_INCLUDE_DIR=${INCLUDE_DIRS%:}
+            
+            # time milisec checking compiler
+            local start_time
+            start_time=$(date +%s%3N)
+
+# shellcheck disable=SC2154
+                for _ in {1..10}; do
+                    "$COMPILER_PAWNCC" -i"$DEF_INCLUDE" "$DEF_EXCLUDE" -i"$__SPECIAL_INCLUDE_DIR" "$__LOOP_COMPILES_FILE" -o"$AMX_O" "$AMX_OPT_F" > "$__cache_save" 2>&1
+                done
+
+            # end of process
+            local end_time
+            end_time=$(date +%s%3N)
+
+            local elapsed=$((end_time - start_time))
+            local avg_time=$((elapsed / 10))
+
+            bash_cache_compiler ""
+            sleep 0.1 > /dev/null &&
+            cat "$__cache_save"
+
+            if [ -s "$AMX_O" ]; then
+                echo
+                echo "~ $AMX_O"
+                # shellcheck disable=SC2154
+                if [ "$compiler_MODE" == "true" ]; then
+                    shell_TITLE="compilers"
+                    bash_title "$SHUSERS:~/ $shell_TITLE"
+                elif [ "$compiler_MODE" == "false" ]; then
+                    shell_TITLE="compiler - running"
+                    bash_title "$SHUSERS:~/ $shell_TITLE"
+                fi
+                echo
+                echo "total size: $(stat -c%s "$AMX_O") bytes"
+                echo "Total execution time: ${elapsed} ms"
+                echo "Average time per iteration: ${avg_time} ms"
+            fi
+        fi
+    done
+
+    if [ "$SHFILE" == "false" ]; then
+        echo -e "$(bash_coltext_r "..io not found!")"
+        echo
+        bash_end ""
+    fi
+    if [[ "$compiler_MODE" == "true" || "$compiler_MODE" == "nul" || "$compiler_MODE" == "" ]]; then
+        bash_end ""
+    elif [ "$compiler_MODE" == "false" ]; then
+        space_servers ""
+    fi
+}
+export triops_compilers
+
+function bash_cache_compiler() {
+    cache_compiler=".cache/compiler.log"
+    _cache_compiler=".cache/.compiler.log"
+    if [ -f "$_cache_compiler" ]; then
+        rm "$_cache_compiler"
+    fi
+    while IFS= read -r line; do
+        echo "~" >> "$_cache_compiler"
+        echo "$line" >> "$_cache_compiler"
+    done < "$cache_compiler"
+    mv "$_cache_compiler" "$cache_compiler" > /dev/null
+}
+export bash_cache_compiler
+
+function bash_check_dir() {
+    local folder=$1
+    if [ -d "$folder" ]; then
+        echo
+        echo "# $folder is .. Ok .."
+        echo " [A subdirectory or file $folder already exists.]"
+        echo "-"
+
+        sleep 0.100 > /dev/null &&
+        return
+    else
+        mkdir -p "$folder"
+        echo ":: Create? '$shell_DIR/$folder'...: [yes]"
+        
+        sleep 0.200 > /dev/null
+
+        if [ "$folder" == "gamemodes" ]; then
+            cat <<EOF > gamemodes/main.io.pwn
+#include <a_samp>
+
+main() {
+    print("Hello, World!");
+}
+EOF
+        fi
+
+        return
+    fi
+}
+export bash_check_dir

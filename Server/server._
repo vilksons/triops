@@ -1,0 +1,404 @@
+#!/bin/bash
+
+function space_servers() {
+    # shellcheck disable=SC2086
+    if [ "$__OPERATING_SYSTEM" == "darwin" ]; then
+        ignore_this docker stop $__SAMP_EXEC
+    elif [ "$__OPERATING_SYSTEM" == "linux" ] || [ "$__OPERATING_SYSTEM" == "windows" ]; then
+        # shellcheck disable=SC2154
+        if [ -f "$save_LOCK_NAME_SERVER" ]; then
+            PID=$(cat "$save_LOCK_NAME_SERVER")
+            ignore_this kill -9 "$PID"
+            rm "$save_LOCK_NAME_SERVER"
+        fi
+    fi
+
+    # shellcheck disable=SC2154
+    if [ -f "$__SAMP_LOG" ]; then
+        ignore_this rm "$shell_DIR/$__SAMP_LOG"
+    fi
+
+    ignore_this sleep 0.1
+
+    if [ ! -f "$shell_DIR/$__SAMP_EXEC" ]; then
+        echo -e "$(bash_coltext_r "crit:") $__SAMP_EXEC not found!. You can get this in \`gamemode\`"
+        echo
+        read -r -p "install now? [y/n] " INSTALL_NOW
+
+        while true; do
+            case "$INSTALL_NOW" in
+                [Yy])
+                    what_is_choice_samp ""
+                    ;;
+                [Nn])
+                    bash_typeof ""
+                    ;;
+                *)
+                    what_is_choice_samp ""
+                    ;;
+            esac
+        done
+    fi
+
+    cd "$shell_DIR" || echo
+
+    if [ ! -f "$save_LOCK_NAME_SERVER" ]; then
+        : ' Create Lock File '
+        touch "$save_LOCK_NAME_SERVER"
+        echo "$SERVER_DOUBLE_SHA256" > "$save_LOCK_NAME_SERVER"
+    fi
+
+    chmod 777 "$__SAMP_EXEC"
+    
+    ( 
+        if [ "$__OPERATING_SYSTEM" == "darwin" ]; then
+            docker run --rm -v "$(pwd)":/app ubuntu /app/"$__SAMP_EXEC"
+        elif [ "$__OPERATING_SYSTEM" == "linux" ] || [ "$__OPERATING_SYSTEM" == "windows" ]; then 
+            ignore_this exec -a "$SERVER_DOUBLE_SHA256" ./"$__SAMP_EXEC"
+        fi
+    ) &
+    local pid=$!
+
+    echo "Starting.."
+    sleep 2 > /dev/null
+
+    local status=0
+
+    if ! kill -0 $pid 2>/dev/null; then
+        status=1
+    fi
+
+    if [ $status -ne 0 ]; then
+        shell_TITLE="running - failed"
+        bash_title "$SHUSERS:~/ $shell_TITLE"
+
+        echo
+        echo -e "$(bash_coltext_r "# Fail")"
+        echo
+        if [ -f "$__SAMP_LOG" ]; then
+            sleep 2 > /dev/null
+            # shellcheck disable=SC2086
+            cat $__SAMP_LOG
+            echo
+        else
+            echo "# $__SAMP_LOG not found."
+        fi
+
+        echo -e "$(bash_coltext_y "# End.")"
+        echo
+        bash_typeof ""
+    else
+        echo
+        echo -e "$(bash_coltext_y "# Success")"
+        echo
+
+        sleep 2 > /dev/null
+        # shellcheck disable=SC2086
+        if grep -i "error" $__SAMP_LOG > /dev/null; then
+            start_true ""
+        else
+            start_false ""
+        fi
+        # shellcheck disable=SC2086
+        if [ $SERVERS_NEXT == 2 ]; then
+            if [ "$__OPERATING_SYSTEM" == "darwin" ]; then
+                ignore_this docker stop $__SAMP_EXEC
+            elif [ "$__OPERATING_SYSTEM" == "linux" ] || [ "$__OPERATING_SYSTEM" == "windows" ]; then 
+                if [ -f "$save_LOCK_NAME_SERVER" ]; then
+                    PID=$(cat "$save_LOCK_NAME_SERVER")
+                    ignore_this kill -9 "$PID"
+                    rm "$save_LOCK_NAME_SERVER"
+                fi
+            fi
+        fi
+    fi
+}
+export space_servers
+
+function space_wargs_servers() {
+    __SAMP_NEXT_QUERY=1
+    # shellcheck disable=SC2086
+    if [ "$__OPERATING_SYSTEM" == "darwin" ]; then
+        ignore_this docker stop $__SAMP_EXEC
+    elif [ "$__OPERATING_SYSTEM" == "linux" ] || [ "$__OPERATING_SYSTEM" == "windows" ]; then 
+        if [ -f "$save_LOCK_NAME_SERVER" ]; then
+            PID=$(cat "$save_LOCK_NAME_SERVER")
+            ignore_this kill -9 "$PID"
+            rm "$save_LOCK_NAME_SERVER"
+        fi
+    fi
+    
+    if [ -f "$__SAMP_LOG" ]; then
+        ignore_this rm "$shell_DIR/$__SAMP_LOG"
+    fi
+
+    ignore_this sleep 0.1
+
+    local commands_INPUT=$1
+    
+    if [ ! -f "$SERVER_CONF" ]; then
+        echo "$SERVER_CONF not found!"
+        bash_end ""
+    fi
+
+    # shellcheck disable=SC2086
+    mv $SERVER_CONF $SERVER_CONF.bak
+
+    if [ "$SERVER_CONF" == "config.json" ]; then
+        # shellcheck disable=SC2086
+        cat $SERVER_CONF.bak > $SERVER_CONF &&
+        python -c '
+import json
+f = "config.json"
+with open(f) as file:
+    data = json.load(file)
+data["main_scripts"] = ["'"$commands_INPUT"'"]
+with open(f, "w") as file:
+    json.dump(data, file, indent=2)
+        '
+    elif [ "$SERVER_CONF" == "server.cfg" ]; then
+        # shellcheck disable=SC2086
+        awk -v new_gamemode="$commands_INPUT" '
+            /^gamemode0 / {$2=new_gamemode} 1' $SERVER_CONF.bak > $SERVER_CONF || \
+                sed -E "s/^(gamemode0 )[0-9]+/\1$commands_INPUT/" $SERVER_CONF.bak > $SERVER_CONF
+    fi
+
+    echo ":: New $SERVER_CONF created with gamemode: $commands_INPUT"
+    
+    if [ ! -f "$shell_DIR/$__SAMP_EXEC" ]; then
+        echo -e "$(bash_coltext_r "crit:") $__SAMP_EXEC not found!. You can get this in \`gamemode\`"
+        echo
+        read -r -p "install now? [y/n] " INSTALL_NOW
+
+        while true; do
+            case "$INSTALL_NOW" in
+                [Yy])
+                    what_is_choice_samp ""
+                    ;;
+                [Nn])
+                    bash_typeof ""
+                    ;;
+                *)
+                    what_is_choice_samp ""
+                    ;;
+            esac
+        done
+    else
+        if [ ! -f "$save_LOCK_NAME_SERVER" ]; then
+            : ' Create Lock File '
+            touch "$save_LOCK_NAME_SERVER"
+            echo "$SERVER_DOUBLE_SHA256" > "$save_LOCK_NAME_SERVER"
+        fi
+
+        chmod 777 "$__SAMP_EXEC"
+
+        ( 
+            if [ "$__OPERATING_SYSTEM" == "darwin" ]; then
+                docker run --rm -v "$(pwd)":/app ubuntu /app/"$__SAMP_EXEC"
+            elif [ "$__OPERATING_SYSTEM" == "linux" ] || [ "$__OPERATING_SYSTEM" == "windows" ]; then 
+                ignore_this exec -a "$SERVER_DOUBLE_SHA256" ./"$__SAMP_EXEC"
+            fi
+        ) &
+        local pid=$!
+
+        echo "Starting.."
+        sleep 2 > /dev/null
+
+        local status=0
+        
+        if ! kill -0 $pid 2>/dev/null; then
+            status=1
+        fi
+
+        if [ $status -ne 0 ]; then
+            shell_TITLE="running - failed"
+            bash_title "$SHUSERS:~/ $shell_TITLE"
+
+            echo
+            echo -e "$(bash_coltext_r "# Fail")"
+            echo
+            if [ -f "$__SAMP_LOG" ]; then
+                sleep 2 > /dev/null
+                # shellcheck disable=SC2086
+                cat $__SAMP_LOG
+                echo
+            else
+                echo "# $__SAMP_LOG not found."
+            fi
+
+            echo -e "$(bash_coltext_y "# End.")"
+            echo
+            bash_typeof ""
+        else
+            echo
+            echo -e "$(bash_coltext_y "# Success")"
+            echo
+
+            sleep 2 > /dev/null
+            # shellcheck disable=SC2086
+            if grep -i "error" $__SAMP_LOG > /dev/null; then
+                start_true ""
+            else
+                start_false ""
+            fi
+        fi
+
+        # shellcheck disable=SC2086
+        if [ $SERVERS_NEXT == 2 ]; then
+            if [ "$__OPERATING_SYSTEM" == "darwin" ]; then
+                ignore_this docker stop $__SAMP_EXEC
+            elif [ "$__OPERATING_SYSTEM" == "linux" ] || [ "$__OPERATING_SYSTEM" == "windows" ]; then 
+                if [ -f "$save_LOCK_NAME_SERVER" ]; then
+                    PID=$(cat "$save_LOCK_NAME_SERVER")
+                    ignore_this kill -9 "$PID"
+                    rm "$save_LOCK_NAME_SERVER"
+                fi
+            fi
+        fi
+    fi
+}
+export space_wargs_servers
+
+start_true() {
+    : '
+        @strain.True
+    '
+    echo -e "$(bash_coltext_r "~")"
+    echo "    ; \"error\"   .. Yes .. True"
+    error_cache ""
+}
+export start_true
+
+start_false() {
+    : '
+        @strain.False
+    '
+    echo -e "$(bash_coltext_y "~")"
+    echo "    ; \"error\"   .. No .. False"
+    check2 ""
+}
+export start_false
+
+start_true2() {
+    : '
+        @strain.True2
+    '
+    echo -e "$(bash_coltext_r "~")"
+    echo "    ; \"failed\"  .. Yes .. True"
+    failed_cache ""
+}
+export start_true2
+
+start_false2() {
+    : '
+        @strain.False2
+    '
+    echo -e "$(bash_coltext_y "~")"
+    echo "    ; \"failed\"  .. No .. False"
+    check3 ""
+}
+export start_false2
+
+start_true3() {
+    : '
+        @strain.True3
+    '
+    echo -e "$(bash_coltext_r "~")"
+    echo "    ; \"invalid\" .. Yes .. True"
+    invalid_cache ""
+
+# shellcheck disable=SC2086
+if [ $__SAMP_NEXT_QUERY == 1 ]; then
+    if [ -f "$SERVER_CONF" ]; then
+        rm $SERVER_CONF
+        mv $SERVER_CONF.bak $SERVER_CONF
+        echo "Original $SERVER_CONF has been restored."
+    fi
+fi
+}
+export start_true3
+
+start_false3() {
+    : '
+        @strain.False3
+    '
+    echo -e "$(bash_coltext_y "~")"
+    echo "    ; \"invalid\" .. No .. False"
+    echo
+
+# shellcheck disable=SC2086
+if [ $__SAMP_NEXT_QUERY == 1 ]; then
+    if [ -f "$SERVER_CONF" ]; then
+        rm $SERVER_CONF
+        mv $SERVER_CONF.bak $SERVER_CONF
+        echo "Original $SERVER_CONF has been restored."
+    fi
+fi
+}
+export start_false3
+
+error_cache() {
+    : '
+        @strain.Error
+    '
+    echo
+    # shellcheck disable=SC2086
+    grep -i "error" $__SAMP_LOG
+    echo
+    check2 ""
+}
+export error_cache
+
+failed_cache() {
+    : '
+        @strain.Failed
+    '
+    echo
+    # shellcheck disable=SC2086
+    grep -i "failed" $__SAMP_LOG
+    echo
+    check3 ""
+}
+export failed_cache
+
+invalid_cache() {
+    : '
+        @strain.Invalid
+    '
+    echo
+    # shellcheck disable=SC2086
+    grep -i "invalid" $__SAMP_LOG
+    echo
+}
+export invalid_cache
+
+check2() {
+    # shellcheck disable=SC2086
+    if grep -i "failed" $__SAMP_LOG > /dev/null; then
+        start_true2 ""
+    else
+        start_false2 ""
+    fi
+}
+export check2
+
+check3() {
+    # shellcheck disable=SC2086
+    if grep -i "invalid" $__SAMP_LOG > /dev/null; then
+        start_true3 ""
+    else
+        start_false3 ""
+    fi
+}
+export check3
+
+ok_next() {
+    : '
+        @Func.OK_Next
+    '
+    echo -e "$(bash_coltext_y "Press any key to running.")"
+    echo
+    read -r -n 1 -s
+    space_servers ""
+}
+export ok_next
