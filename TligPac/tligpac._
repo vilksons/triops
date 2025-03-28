@@ -29,26 +29,34 @@ function bash_TligPac()
 
     case "$tligpac_OPTION_FLAGS" in
         "autoinstall")
+            # Disable shellcheck warning SC2154 (variable may not be set)
+            # Check if the cache file does not exist
+            
             # shellcheck disable=SC2154
             if [ ! -f "$shell_DIR/.cache/tligpac" ]; then
-               echo -e "$(bash_coltext_r "crit:") no downloads history in cache found!"
-               mode_TLIGPAC ""
+               echo -e "$(bash_coltext_r "crit:") no downloads history in cache found!"  # Print error message if no cache found
+               mode_TLIGPAC ""  # Call the mode_TLIGPAC function with an empty argument
             fi
 
-            local __find_urls
+            local __find_urls  # Declare a local variable to store found URLs
+            # Extract URLs from the cache file and store them in __find_urls
             __find_urls=$(grep -o 'https://[^ ]*' "$shell_DIR/.cache/tligpac")
 
+            # Split the URLs into an array
             mapfile -t __url_of_arrays <<< "$__find_urls"
 
-            local __urls
+            local __urls  # Declare a local variable to loop through each URL
+            # Loop through each URL in the array
             for __urls in "${__url_of_arrays[@]}"; do
+                # If the URL does not start with "https://", print a warning
                 if [[ ! "$__urls" =~ ^https:// ]]; then
                     echo -e "$(bash_coltext_r "crit:") history not allowed for: $__urls"
                 fi
 
+                # Print debug message showing the found URL
                 echo -e "$(bash_coltext_y "dbg:") found history for: $__urls"
-                tligpac_OPTION_FLAGS="install $__find_urls"
-                bash_TligPac "$tligpac_OPTION_FLAGS"
+                tligpac_OPTION_FLAGS="install $__find_urls"  # Set install option flag with found URLs
+                bash_TligPac "$tligpac_OPTION_FLAGS"  # Call the bash_TligPac function with the flags
             done
             ;;
         "install"*)

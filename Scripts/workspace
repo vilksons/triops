@@ -1045,30 +1045,52 @@ except KeyboardInterrupt:
                 bash_end ""
             fi
 
-            echo -e "$(bash_coltext_a ":: Cache Dir: $shell_DIR/.cache")"
-            read -r -p ":: Do you want to remove ALL files from cache? [y/n] " PERMISSION_NEED_RC
+            if [ -f "$shell_DIR/.cache/tligpac" ]; then
+                echo -e "$(bash_coltext_a ":: Cache Dir: $shell_DIR/.cache/tligpac")"
+                read -r -p ":: Do you want to remove ALL files from $shell_DIR/.cache/tligpac? [y/n] " PERMISSION_NEED_RC
 
-            echo
-            [[ -z "$PERMISSION_NEED_RC" ]] && PERMISSION_NEED_RC="Y"
+                echo
+                [[ -z "$PERMISSION_NEED_RC" ]] && PERMISSION_NEED_RC="Y"
 
-            while true; do
-                case "$PERMISSION_NEED_RC" in
-                    [Yy])
-                        ignore_this cd "$shell_DIR" || echo ""
-                        ignore_this rm ".cache" && ignore_this sleep 1
+                while true; do
+                    case "$PERMISSION_NEED_RC" in
+                        [Yy])
+                            ignore_this cd "$shell_DIR" || echo ""
+                            ignore_this rm ".cache/tligpac" && ignore_this sleep 1
 
-                        if [ ! -d ".cache" ]; then
-                            mkdir ".cache"
-                        fi
+                            ignore_this sleep 0.100 &&
+                            bash_end ""
+                            break
+                            ;;
+                        *)
+                            bash_end ""
+                    esac
+                done
+            fi
 
-                        ignore_this sleep 0.100 &&
-                        bash_end ""
-                        break
-                        ;;
-                    *)
-                        bash_end ""
-                esac
-            done
+            if [ -f "$shell_DIR/.cache/compiler.log" ]; then
+                echo -e "$(bash_coltext_a ":: Cache Dir: $shell_DIR/.cache/compiler.log")"
+                read -r -p ":: Do you want to remove ALL files from $shell_DIR/.cache/compiler.log? [y/n] " PERMISSION_NEED_RC
+
+                echo
+                [[ -z "$PERMISSION_NEED_RC" ]] && PERMISSION_NEED_RC="Y"
+
+                while true; do
+                    case "$PERMISSION_NEED_RC" in
+                        [Yy])
+                            ignore_this cd "$shell_DIR" || echo ""
+                            ignore_this rm ".cache/compiler.log" && ignore_this sleep 1
+
+                            ignore_this sleep 0.100 &&
+                            bash_end ""
+                            break
+                            ;;
+                        *)
+                            bash_end ""
+                    esac
+                done
+            fi
+            
             ;;
         "fetch")
             fetch_now ""
