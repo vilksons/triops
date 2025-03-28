@@ -384,38 +384,38 @@ mode_TLIGPAC ""
             done
 
             # Function to add #include <find_plugin_name> into main.pwn
-            function add_find_include_to_main() {
+            function __add_include_t_main() {
                 # Get the first argument as the include name
                 local __find_include_name=$1
                 # Define the main file path
-                local main_file="$shell_DIR/gamemodes/$SERVER_MAIN"
+                local __main_file__="$shell_DIR/gamemodes/$SERVER_MAIN"
 
                 # Check if the main file exists
-                if [[ -f "$main_file" ]]; then
+                if [[ -f "$__main_file__" ]]; then
                     # Check if the include already exists in the file
-                    if ! grep -qxF "#include <$__find_include_name>" "$main_file"; then
+                    if ! grep -qxF "#include <$__find_include_name>" "$__main_file__"; then
                         # Check if a_samp or open.mp includes are present
-                        if grep -Eq "^#include <(a_samp|open\.mp)>" "$main_file"; then
+                        if grep -Eq "^#include <(a_samp|open\.mp)>" "$__main_file__"; then
                             # Debug message
                             echo -e "$(bash_coltext_y "dbg:") Adding #include <$__find_include_name> after #include <a_samp> or #include <open.mp>"
                             # Insert the include after a_samp or open.mp
                             awk -v inc="#include <$__find_include_name>" '
                                 /^#include <(a_samp|open\.mp)>/ { print; print inc; next }
                                 { print }
-                            ' "$main_file" > "$main_file.tmp" && mv "$main_file.tmp" "$main_file"
+                            ' "$__main_file__" > "$__main_file__.tmp" && mv "$__main_file__.tmp" "$__main_file__"
                         else
                             # Debug message if no a_samp or open.mp found
                             echo -e "$(bash_coltext_y "dbg:") No #include <a_samp> or #include <open.mp> found, adding at the beginning"
                             # Add the include at the beginning of the file
-                            sed -i "1i#include <$__find_include_name>" "$main_file"
+                            sed -i "1i#include <$__find_include_name>" "$__main_file__"
                         fi
                     else
                         # Debug message if the include already exists
-                        echo -e "$(bash_coltext_y "dbg:") #include <$__find_include_name> already exists in $main_file"
+                        echo -e "$(bash_coltext_y "dbg:") #include <$__find_include_name> already exists in $__main_file__"
                     fi
                 else
                     # Debug message if the file is not found
-                    echo -e "$(bash_coltext_y "dbg:") $main_file not found."
+                    echo -e "$(bash_coltext_y "dbg:") $__main_file__ not found."
                 fi
             }
 
@@ -426,7 +426,7 @@ mode_TLIGPAC ""
                     # Assign the package name to the __find_include_name variable
                     __find_include_name="$__package"
                     # Call the function to add the include directive to main.pwn
-                    add_find_include_to_main "$__find_include_name"
+                    __add_include_t_main "$__find_include_name"
                 fi
             done
 
@@ -437,7 +437,7 @@ if [ -f "$shell_DIR/$SERVER_CONF" ]; then
             if [ "$__SAMP_SERVER" == "samp" ]; then
                 
                 # Function to check and add the plugin if it's not already in server.cfg
-                __check_and_add() {
+                function __check_and_add() {
                     local __find_plugin_name=$1
                     local __find_so_linux="$__SAMP_PLUGIN_DIR/$__find_plugin_name.so"
                     local __find_dll_win="$__SAMP_PLUGIN_DIR/$__find_plugin_name.dll"
@@ -475,7 +475,7 @@ if [ -f "$shell_DIR/$SERVER_CONF" ]; then
             fi
 elif [ "$__SAMP_SERVER" == "omp" ]; then
             # if __SAMP_SERVER is open.mp ("omp")
-            __add_plugin_to_json() {
+            function __add_plugin_to_json() {
                 local __find_plugin_name=$1
                 local __find_so_linux="$__SAMP_PLUGIN_DIR/$__find_plugin_name.so"
                 local __find_dll_win="$__SAMP_PLUGIN_DIR/$__find_plugin_name.dll"
@@ -546,7 +546,7 @@ fi
 
             # Function to filter and remove files based on a pattern
             # Takes one argument, a pattern, which will be used to match file names
-            tligpac_FILTER_REMOVE_FILES() {
+            function tligpac_FILTER_REMOVE_FILES() {
                 local _pattern_="$1"  # Store the pattern in a local variable
 
                 # Read each line (file path) passed to the function
@@ -591,11 +591,11 @@ fi
             fi
 
             # Function to remove #include <find_plugin_name> from main.pwn
-            function remove_find_plugin_name_from_main() {
-                local __find_plugin_name=$1  # The first argument passed to the function is the plugin name
+            function __rm_include_f_main() {
+                local __find_include_name=$1  # The first argument passed to the function is the plugin name
                 # Ensure plugin name is escaped properly to handle special characters
                 local __escaped_plugin_name
-                __escaped_plugin_name=$(echo "$__find_plugin_name" | sed 's/[&/\]/\\&/g')  # Escape special characters in the plugin name
+                __escaped_plugin_name=$(echo "$__find_include_name" | sed 's/[&/\]/\\&/g')  # Escape special characters in the plugin name
 
                 if [[ -f "$shell_DIR/gamemodes/$SERVER_MAIN" ]]; then  # Check if the main server file exists
                     if grep -q "#include <$__escaped_plugin_name>" "$shell_DIR/gamemodes/$SERVER_MAIN"; then  # Check if the plugin is already included
@@ -614,11 +614,11 @@ fi
             local __package
             for __package in $tligpac_REMOVE_PATTERN; do  # Iterate through each pattern in the tligpac_REMOVE_PATTERN variable
                 if [ -n "$__package" ]; then  # Check if the package name is not empty
-                    # Using the value from tligpac_REMOVE_PATTERN to determine __find_plugin_name
-                    __find_plugin_name="$__package"  # Assign the pattern value to the __find_plugin_name variable
+                    # Using the value from tligpac_REMOVE_PATTERN to determine __find_include_name
+                    __find_include_name="$__package"  # Assign the pattern value to the __find_include_name variable
                     
                     # Remove the plugin from the main server file
-                    remove_find_plugin_name_from_main "$__find_plugin_name"  # Call the function to remove the plugin from the main server file
+                    __rm_include_f_main "$__find_include_name"  # Call the function to remove the plugin from the main server file
                 fi
             done
 
