@@ -63,8 +63,9 @@ Supported Platforms:
   - UserLAnd: https://play.google.com/store/apps/details?id=tech.ula&hl=id&pli=1
   - Linux Deploy: https://github.com/meefik/linuxdeploy
 
-Docker Usage - (Mac/Windows)
+Docker Usage
 ------------------
+  (Mac/Windows)
   * docker run -it ubuntu
     - docker run -v ~/Downloads:/mnt/downloads -it ubuntu
     ^ allowed downloads directory
