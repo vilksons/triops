@@ -1082,14 +1082,14 @@ except KeyboardInterrupt:
 
                             ignore_this sleep 0.100 &&
                             break
+
+                            bash_end ""
                             ;;
                         *)
                             bash_end ""
                     esac
                 done
             fi
-
-            bash_end ""
             
             ;;
         "fetch")
