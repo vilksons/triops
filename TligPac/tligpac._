@@ -392,12 +392,12 @@ mode_TLIGPAC ""
                             echo -e "$(bash_coltext_y "dbg:") Adding #include <$__find_include_name> after #include <a_samp> or #include <open.mp>"
                             # Insert the include after a_samp or open.mp
                             awk -v inc="#include <$__find_include_name>" '
-                                /^#include <(a_samp|open\.mp)>/ { print; print inc; next }
+                                /^#include (<|")?(a_samp|a_samp.inc|open\.mp)(>|")?/ { print; print inc; next }
                                 { print }
                             ' "$__main_file__" > "$__main_file__.tmp" && mv "$__main_file__.tmp" "$__main_file__"
                         else
                             # Debug message if no a_samp or open.mp found
-                            echo -e "$(bash_coltext_y "dbg:") No #include <a_samp> or #include <open.mp> found, adding at the beginning"
+                            echo -e "$(bash_coltext_y "dbg:") No #include <a_samp> | <a_samp.inc> | \"a_samp\" | \"a_samp.inc\" or #include <open.mp> | \"open.mp\" found, adding at the beginning"
                             # Add the include at the beginning of the file
                             sed -i "1i#include <$__find_include_name>" "$__main_file__"
                         fi
