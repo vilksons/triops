@@ -118,42 +118,6 @@ STARTING & DEBUGGING
 
 CONFIGURATION `lang.json`
 ---------------------------
-    "amx_flags": [
-        "-;+",
-        "-(+",
-        "-d3"
-    ],
--
-    "include_paths": "pawno/include",
--
-    "exclude_paths": [
-        "includes",
-        "includes2",
-        "includes3"
-    ],
--
-    "samp_log": "server_log.txt",
--
-    "server_conf": "server.cfg",
--
-    "main_server": "main.pwn",
--
-    "samp_executable": "samp03svr",
--
-    "include_dir": "pawno/include",
--
-    "plugins_dir": "plugins",
--
-    "bot_token": "gsk_abcd",
--
-    "bot_model": "qwen-2.5-32b",
--
-    "bot_profile": "",
--
-    "remcache_auto": "true",
--
-    "repository": "stable"
-
 CONFIGURATION DETAILS
 ------------------------------
   o amx_flags
