@@ -64,7 +64,7 @@ function bash_TligPac()
 
             # shellcheck disable=SC2154
             # shellcheck disable=SC2086
-            if [ $__TLIGPAC_AUTTOIN != 1 ]; then
+            if [ "$__TLIGPAC_AUTTOIN" != 1 ]; then
                 echo "$tligpac_input_args" >> "$shell_DIR/.cache/tligpac"
             fi
 
@@ -95,7 +95,7 @@ function bash_TligPac()
     ]
 }
 EOF
-                    if [ "$__DIS_GNU_NANO" != "true" ]; then
+                    if [ "$__DIS_GNU_NANO" == "false" ]; then
                         # shellcheck disable=SC2154
                         nano "$shell_DIR/tligpac.json"
                     fi
@@ -150,9 +150,9 @@ mode_TLIGPAC ""
                         continue
                     fi
                 
-                    if [ $__tligpac_unknown_host__ == 1 ]; then
+                    if [ "$__tligpac_unknown_host__" == 1 ]; then
                         [[ -z "$tligpac_archive_url" ]] && tligpac_archive_url=$(curl -s "$tligpac_input_args" | grep "browser_download_url" | grep -E ".zip|.tar.gz" | awk -F '"' '{print $4}' | head -n 1)
-                    elif [ $__tligpac_unknown_host__ == 0 ]; then
+                    elif [ "$__tligpac_unknown_host__" == 0 ]; then
                         [[ -z "$tligpac_archive_url" ]] && tligpac_archive_url=$(curl -s "$tligpac_API_URL" | grep "browser_download_url" | grep -E ".zip|.tar.gz" | awk -F '"' '{print $4}' | head -n 1)
                     fi
                 else
@@ -175,9 +175,9 @@ mode_TLIGPAC ""
                         continue
                     fi
 
-                    if [ $__tligpac_unknown_host__ == 1 ]; then
+                    if [ "$__tligpac_unknown_host__" == 1 ]; then
                         [[ -z "$tligpac_archive_url" ]] && tligpac_archive_url=$(curl -s "$tligpac_input_args" | grep "browser_download_url" | grep -E ".zip|.tar.gz" | awk -F '"' '{print $4}' | head -n 1)
-                    elif [ $__tligpac_unknown_host__ == 0 ]; then
+                    elif [ "$__tligpac_unknown_host__" == 0 ]; then
                         [[ -z "$tligpac_archive_url" ]] && tligpac_archive_url=$(curl -s "$tligpac_API_URL" | grep "browser_download_url" | grep -E ".zip|.tar.gz" | awk -F '"' '{print $4}' | head -n 1)
                     fi
                 fi

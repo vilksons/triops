@@ -68,7 +68,7 @@ function space_servers() {
         status=1
     fi
 
-    if [ $status -ne 0 ]; then
+    if [ "$status" -ne 0 ]; then
         shell_TITLE="running - failed"
         bash_title "$SHUSERS:~/ $shell_TITLE"
 
@@ -100,7 +100,7 @@ function space_servers() {
             start_false ""
         fi
         # shellcheck disable=SC2086
-        if [ $SERVERS_NEXT == 2 ]; then
+        if [ "$SERVERS_NEXT" == 2 ]; then
             if [ "$__OPERATING_SYSTEM" == "darwin" ]; then
                 ignore_this docker stop $__SAMP_EXEC
             elif [ "$__OPERATING_SYSTEM" == "linux" ] || [ "$__OPERATING_SYSTEM" == "windows" ]; then 
@@ -210,7 +210,7 @@ with open(f, "w") as file:
             status=1
         fi
 
-        if [ $status -ne 0 ]; then
+        if [ "$status" -ne 0 ]; then
             shell_TITLE="running - failed"
             bash_title "$SHUSERS:~/ $shell_TITLE"
 
@@ -244,7 +244,7 @@ with open(f, "w") as file:
         fi
 
         # shellcheck disable=SC2086
-        if [ $SERVERS_NEXT == 2 ]; then
+        if [ "$SERVERS_NEXT" == 2 ]; then
             if [ "$__OPERATING_SYSTEM" == "darwin" ]; then
                 ignore_this docker stop $__SAMP_EXEC
             elif [ "$__OPERATING_SYSTEM" == "linux" ] || [ "$__OPERATING_SYSTEM" == "windows" ]; then 
@@ -308,7 +308,7 @@ start_true3() {
     invalid_cache ""
 
 # shellcheck disable=SC2086
-if [ $__SAMP_NEXT_QUERY == 1 ]; then
+if [ "$__SAMP_NEXT_QUERY" == 1 ]; then
     if [ -f "$SERVER_CONF" ]; then
         rm $SERVER_CONF
         mv $SERVER_CONF.bak $SERVER_CONF
@@ -327,7 +327,7 @@ start_false3() {
     echo
 
 # shellcheck disable=SC2086
-if [ $__SAMP_NEXT_QUERY == 1 ]; then
+if [ "$__SAMP_NEXT_QUERY" == 1 ]; then
     if [ -f "$SERVER_CONF" ]; then
         rm $SERVER_CONF
         mv $SERVER_CONF.bak $SERVER_CONF
