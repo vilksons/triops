@@ -122,8 +122,8 @@ ignore_this() {
 }
 export ignore_this
 
-if [ ! -d ".lib" ]; then
-    mkdir ".lib"
+if [ ! -d ".triops" ]; then
+    mkdir ".triops"
 fi
 
 function load_module() {
@@ -226,23 +226,23 @@ LOAD_ALL_MODULES()
 {
     # Recheck Sync
     if [ -f ".__update" ]; then
-        : ' If there is a problem with creating the ".__updates" file, the module will be automatically reinstalled because the ".lib" folder is deleted. '
+        : ' If there is a problem with creating the ".__updates" file, the module will be automatically reinstalled because the ".triops" folder is deleted. '
         rm .__update
-        if [ -d "$shell_DIR/.lib" ]; then
-            rm -rf ".lib"
+        if [ -d "$shell_DIR/.triops" ]; then
+            rm -rf ".triops"
         fi
         sleep 0.10
     fi
 
     load_module ".workspace.py" "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Scripts/workspace.py" "" 
-    load_module ".lib/security._" "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Security/security._" "ignore" 
-    load_module ".lib/compat._" "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Compat/compat._" "compat" 
-    load_module ".lib/compiler._" "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Compiler/compiler._" "ignore" 
-    load_module ".lib/tligpac._" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/TligPac/tligpac._" "ignore" 
-    load_module ".lib/samp._" "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Package/samp._" "ignore" 
-    load_module ".lib/pawncc._" "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Package/pawncc._" "ignore" 
-    load_module ".lib/misc._" "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Misc/misc._" "ignore" 
-    load_module ".lib/server._" "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Server/server._" "ignore"
+    load_module ".triops/security._" "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Security/security._" "ignore" 
+    load_module ".triops/compat._" "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Compat/compat._" "compat" 
+    load_module ".triops/compiler._" "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Compiler/compiler._" "ignore" 
+    load_module ".triops/tligpac._" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/TligPac/tligpac._" "ignore" 
+    load_module ".triops/samp._" "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Package/samp._" "ignore" 
+    load_module ".triops/pawncc._" "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Package/pawncc._" "ignore" 
+    load_module ".triops/misc._" "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Misc/misc._" "ignore" 
+    load_module ".triops/server._" "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Server/server._" "ignore"
 }
 
 resetVariable() {
@@ -288,7 +288,7 @@ function bash_typeof() {
         sleep 0.5
     fi
     if ! command -v tomlq &> /dev/null; then
-        echo -e "$(bash_coltext_g "warn:") aria2c not found."
+        echo -e "$(bash_coltext_g "warn:") tomlq not found."
         sleep 0.5
     fi
     if ! command -v aria2c &> /dev/null; then
@@ -810,8 +810,8 @@ mode_TRIOPS() {
                 while true; do
                     case "$PERMISSION_NEED_S" in
                         [Yy])
-                            if [ -d "$shell_DIR/.lib" ]; then
-                                rm -rf ".lib" && sleep 0.1 && mkdir ".lib"
+                            if [ -d "$shell_DIR/.triops" ]; then
+                                rm -rf ".triops" && sleep 0.1 && mkdir ".triops"
                             fi
 
                             if [ "$main_commands" == "syncc" ]; then
@@ -824,17 +824,17 @@ mode_TRIOPS() {
                             
                             echo "$__lat" > "$shell_DIR/.commits"
                             
-                            cd "$shell_DIR/.lib" >/dev/null 2>&1 || echo ""
+                            cd "$shell_DIR/.triops" >/dev/null 2>&1 || echo ""
 
                             if [ "$__REAL_REPOS" == "stable" ]; then
-                                wget -q --show-progress -O "security._" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Security/security._" || { cd "$shell_DIR" >/dev/null && touch ".__update"; } && cd "$shell_DIR/.lib" >/dev/null 2>&1 || echo ""
-                                wget -q --show-progress -O "compat._" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Compat/compat._" || { cd "$shell_DIR" >/dev/null && touch ".__update"; } && cd "$shell_DIR/.lib" >/dev/null 2>&1 || echo ""
-                                wget -q --show-progress -O "tligpac._" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/TligPac/tligpac._" || { cd "$shell_DIR" >/dev/null && touch ".__update"; } && cd "$shell_DIR/.lib" >/dev/null 2>&1 || echo ""
-                                wget -q --show-progress -O "samp._" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Package/samp._" || { cd "$shell_DIR" >/dev/null && touch ".__update"; } && cd "$shell_DIR/.lib" >/dev/null 2>&1 || echo ""
-                                wget -q --show-progress -O "pawncc._" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Package/pawncc._" || { cd "$shell_DIR" >/dev/null && touch ".__update"; } && cd "$shell_DIR/.lib" >/dev/null 2>&1 || echo ""
-                                wget -q --show-progress -O "server._" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Server/server._" || { cd "$shell_DIR" >/dev/null && touch ".__update"; } && cd "$shell_DIR/.lib" >/dev/null 2>&1 || echo ""
-                                wget -q --show-progress -O "misc._" "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Misc/misc._" || { cd "$shell_DIR" >/dev/null && touch ".__update"; } && cd "$shell_DIR/.lib" >/dev/null 2>&1 || echo ""
-                                wget -q --show-progress -O "compiler._" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Compiler/compiler._" || { cd "$shell_DIR" >/dev/null && touch ".__update"; } && cd "$shell_DIR/.lib" >/dev/null 2>&1 || echo ""
+                                wget -q --show-progress -O "security._" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Security/security._" || { cd "$shell_DIR" >/dev/null && touch ".__update"; } && cd "$shell_DIR/.triops" >/dev/null 2>&1 || echo ""
+                                wget -q --show-progress -O "compat._" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Compat/compat._" || { cd "$shell_DIR" >/dev/null && touch ".__update"; } && cd "$shell_DIR/.triops" >/dev/null 2>&1 || echo ""
+                                wget -q --show-progress -O "tligpac._" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/TligPac/tligpac._" || { cd "$shell_DIR" >/dev/null && touch ".__update"; } && cd "$shell_DIR/.triops" >/dev/null 2>&1 || echo ""
+                                wget -q --show-progress -O "samp._" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Package/samp._" || { cd "$shell_DIR" >/dev/null && touch ".__update"; } && cd "$shell_DIR/.triops" >/dev/null 2>&1 || echo ""
+                                wget -q --show-progress -O "pawncc._" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Package/pawncc._" || { cd "$shell_DIR" >/dev/null && touch ".__update"; } && cd "$shell_DIR/.triops" >/dev/null 2>&1 || echo ""
+                                wget -q --show-progress -O "server._" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Server/server._" || { cd "$shell_DIR" >/dev/null && touch ".__update"; } && cd "$shell_DIR/.triops" >/dev/null 2>&1 || echo ""
+                                wget -q --show-progress -O "misc._" "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Misc/misc._" || { cd "$shell_DIR" >/dev/null && touch ".__update"; } && cd "$shell_DIR/.triops" >/dev/null 2>&1 || echo ""
+                                wget -q --show-progress -O "compiler._" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Compiler/compiler._" || { cd "$shell_DIR" >/dev/null && touch ".__update"; } && cd "$shell_DIR/.triops" >/dev/null 2>&1 || echo ""
 
                                 ignore_this sleep 1 && cd "$shell_DIR" >/dev/null 2>&1 || echo ""
 
@@ -843,14 +843,14 @@ mode_TRIOPS() {
                                     wget -q --show-progress -O "workspace" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Scripts/workspace"
                                 fi
                             elif [ "$__REAL_REPOS" == "testing" ]; then
-                                wget -q --show-progress -O "security._" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/testing/Security/security._" || { cd "$shell_DIR" >/dev/null && touch ".__update"; } && cd "$shell_DIR/.lib" >/dev/null 2>&1 || echo ""
-                                wget -q --show-progress -O "compat._" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/testing/Compat/compat._" || { cd "$shell_DIR" >/dev/null && touch ".__update"; } && cd "$shell_DIR/.lib" >/dev/null 2>&1 || echo ""
-                                wget -q --show-progress -O "tligpac._" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/testing/TligPac/tligpac._" || { cd "$shell_DIR" >/dev/null && touch ".__update"; } && cd "$shell_DIR/.lib" >/dev/null 2>&1 || echo ""
-                                wget -q --show-progress -O "samp._" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/testing/Package/samp._" || { cd "$shell_DIR" >/dev/null && touch ".__update"; } && cd "$shell_DIR/.lib" >/dev/null 2>&1 || echo ""
-                                wget -q --show-progress -O "pawncc._" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/testing/Package/pawncc._" || { cd "$shell_DIR" >/dev/null && touch ".__update"; } && cd "$shell_DIR/.lib" >/dev/null 2>&1 || echo ""
-                                wget -q --show-progress -O "server._" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/testing/Server/server._" || { cd "$shell_DIR" >/dev/null && touch ".__update"; } && cd "$shell_DIR/.lib" >/dev/null 2>&1 || echo ""
-                                wget -q --show-progress -O "misc._" "https://raw.githubusercontent.com/vilksons/triops/refs/heads/testing/Misc/misc._" || { cd "$shell_DIR" >/dev/null && touch ".__update"; } && cd "$shell_DIR/.lib" >/dev/null 2>&1 || echo ""
-                                wget -q --show-progress -O "compiler._" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/testing/Compiler/compiler._" || { cd "$shell_DIR" >/dev/null && touch ".__update"; } && cd "$shell_DIR/.lib" >/dev/null 2>&1 || echo ""
+                                wget -q --show-progress -O "security._" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/testing/Security/security._" || { cd "$shell_DIR" >/dev/null && touch ".__update"; } && cd "$shell_DIR/.triops" >/dev/null 2>&1 || echo ""
+                                wget -q --show-progress -O "compat._" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/testing/Compat/compat._" || { cd "$shell_DIR" >/dev/null && touch ".__update"; } && cd "$shell_DIR/.triops" >/dev/null 2>&1 || echo ""
+                                wget -q --show-progress -O "tligpac._" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/testing/TligPac/tligpac._" || { cd "$shell_DIR" >/dev/null && touch ".__update"; } && cd "$shell_DIR/.triops" >/dev/null 2>&1 || echo ""
+                                wget -q --show-progress -O "samp._" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/testing/Package/samp._" || { cd "$shell_DIR" >/dev/null && touch ".__update"; } && cd "$shell_DIR/.triops" >/dev/null 2>&1 || echo ""
+                                wget -q --show-progress -O "pawncc._" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/testing/Package/pawncc._" || { cd "$shell_DIR" >/dev/null && touch ".__update"; } && cd "$shell_DIR/.triops" >/dev/null 2>&1 || echo ""
+                                wget -q --show-progress -O "server._" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/testing/Server/server._" || { cd "$shell_DIR" >/dev/null && touch ".__update"; } && cd "$shell_DIR/.triops" >/dev/null 2>&1 || echo ""
+                                wget -q --show-progress -O "misc._" "https://raw.githubusercontent.com/vilksons/triops/refs/heads/testing/Misc/misc._" || { cd "$shell_DIR" >/dev/null && touch ".__update"; } && cd "$shell_DIR/.triops" >/dev/null 2>&1 || echo ""
+                                wget -q --show-progress -O "compiler._" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/testing/Compiler/compiler._" || { cd "$shell_DIR" >/dev/null && touch ".__update"; } && cd "$shell_DIR/.triops" >/dev/null 2>&1 || echo ""
 
                                 ignore_this sleep 1 && cd "$shell_DIR" >/dev/null 2>&1 || echo ""
 
