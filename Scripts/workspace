@@ -1045,24 +1045,29 @@ except KeyboardInterrupt:
                 bash_end ""
             fi
 
+            if [ ! -f "$shell_DIR/.cache/tligpac" ] && [ ! -f "$shell_DIR/.cache/compiler.log" ]; then
+                echo "no cache found."
+                bash_end ""
+            fi
+
             if [ -f "$shell_DIR/.cache/tligpac" ]; then
                 echo -e "$(bash_coltext_a ":: Cache Dir: $shell_DIR/.cache/tligpac")"
                 read -r -p ":: Do you want to remove ALL files from $shell_DIR/.cache/tligpac? [y/n] " PERMISSION_NEED_RC
-
                 echo
                 [[ -z "$PERMISSION_NEED_RC" ]] && PERMISSION_NEED_RC="Y"
 
                 while true; do
                     case "$PERMISSION_NEED_RC" in
                         [Yy])
-                            ignore_this cd "$shell_DIR" || echo ""
-                            ignore_this rm ".cache/tligpac" && ignore_this sleep 1
-
-                            ignore_this sleep 0.100 &&
+                            cd "$shell_DIR" || echo "Failed to change directory"
+                            rm -rf ".cache/tligpac" && echo "Files removed successfully"
+                            sleep 1
                             break
                             ;;
                         *)
-                            bash_end ""
+                            echo "Operation cancelled"
+                            break
+                            ;;
                     esac
                 done
             fi
@@ -1070,27 +1075,27 @@ except KeyboardInterrupt:
             if [ -f "$shell_DIR/.cache/compiler.log" ]; then
                 echo -e "$(bash_coltext_a ":: Cache Dir: $shell_DIR/.cache/compiler.log")"
                 read -r -p ":: Do you want to remove ALL files from $shell_DIR/.cache/compiler.log? [y/n] " PERMISSION_NEED_RC
-
                 echo
                 [[ -z "$PERMISSION_NEED_RC" ]] && PERMISSION_NEED_RC="Y"
 
                 while true; do
                     case "$PERMISSION_NEED_RC" in
                         [Yy])
-                            ignore_this cd "$shell_DIR" || echo ""
-                            ignore_this rm ".cache/compiler.log" && ignore_this sleep 1
-
-                            ignore_this sleep 0.100 &&
-                            break
-
+                            cd "$shell_DIR" || echo "Failed to change directory"
+                            rm -rf ".cache/compiler.log" && echo "Files removed successfully"
+                            sleep 1
                             bash_end ""
                             ;;
                         *)
-                            bash_end ""
+                            echo "Operation cancelled"
+                            break
+                            ;;
                     esac
                 done
+            else
+                bash_end ""
             fi
-            
+        
             ;;
         "fetch")
             fetch_now ""
