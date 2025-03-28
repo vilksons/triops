@@ -1,36 +1,36 @@
 #!/usr/bin/bash
 
 __handleOS() {
-    if [ "$__OS_STATUS" != 1 ]; then
+    if [ "$__OS_NOTICE__" != 1 ]; then
         local OS_TYPE
         OS_TYPE=$(uname)
 
         if [[ "$OS_TYPE" == "Linux" ]] || { [ -d "$HOME/bin" ] && [ -d "$PREFIX" ]; }; then
             cat /etc/os-release &>/dev/null
-            __OPERATING_SYSTEM="linux"
-            __PAWNCC="pawncc"
-            __OS_STATUS=1
-            __DIS_GNU_NANO="false"
+            __OS__="linux"
+            __PAWNCC__="pawncc"
+            __OS_NOTICE__=1
+            __DISABLE_NANO__="false"
         elif [[ "$OS_TYPE" == "Darwin" ]]; then
-            __OPERATING_SYSTEM="darwin"
-            __PAWNCC="pawncc"
-            __DIS_GNU_NANO="true"
-            __OS_STATUS=1
+            __OS__="darwin"
+            __PAWNCC__="pawncc"
+            __DISABLE_NANO__="true"
+            __OS_NOTICE__=1
 
             if ! command -v docker &>/dev/null; then
                 echo -e "$(bash_coltext_r "crit:") Docker not found!.."
                 echo "Install first!. See: https://github.com/vilksons/triops/wiki/Get-Started"
             fi
         elif [ -d "/c/Windows/System32" ] || [ -d "/mnt/c/Windows/System32" ] || [ -d "/Windows/System32" ]; then
-            __OPERATING_SYSTEM="windows"
-            __PAWNCC="pawncc.exe"
-            __DIS_GNU_NANO="true"
-            __OS_STATUS=1
+            __OS__="windows"
+            __PAWNCC__="pawncc.exe"
+            __DISABLE_NANO__="true"
+            __OS_NOTICE__=1
         fi
 
-        if { [ "$__OPERATING_SYSTEM" == "windows" ] && [ "$__OPERATING_SYSTEM" == "linux" ]; } || 
-           [ "$__OPERATING_SYSTEM" == "darwin" ] || 
-           { [ "$__OPERATING_SYSTEM" == "linux" ] && [ "$__OPERATING_SYSTEM" == "darwin" ]; }; then
+        if { [ "$__OS__" == "windows" ] && [ "$__OS__" == "linux" ]; } || 
+           [ "$__OS__" == "darwin" ] || 
+           { [ "$__OS__" == "linux" ] && [ "$__OS__" == "darwin" ]; }; then
             
             echo -e "$(bash_coltext_a ":: System detected both Windows and Linux / MacOS (Darwin). Which one will you choose?")"
             read -r -p "Choose OS for Triops Y) Windows, B) GNU/Linux, X) Darwin (Mac): " PERMISSION_NEED_OS
@@ -38,24 +38,24 @@ __handleOS() {
             while true; do
                 case "$PERMISSION_NEED_OS" in
                     [Yy]) 
-                        __PAWNCC="pawncc.exe"
-                        __DIS_GNU_NANO="true"
-                        __OPERATING_SYSTEM="windows"
-                        __OS_STATUS=1
+                        __PAWNCC__="pawncc.exe"
+                        __DISABLE_NANO__="true"
+                        __OS__="windows"
+                        __OS_NOTICE__=1
                         break 
                         ;;
                     [Bb]) 
-                        __PAWNCC="pawncc"
-                        __DIS_GNU_NANO="false"
-                        __OPERATING_SYSTEM="linux"
-                        __OS_STATUS=1
+                        __PAWNCC__="pawncc"
+                        __DISABLE_NANO__="false"
+                        __OS__="linux"
+                        __OS_NOTICE__=1
                         break 
                         ;;
                     [Xx]) 
-                        __PAWNCC="pawncc"
-                        __DIS_GNU_NANO="true"
-                        __OPERATING_SYSTEM="darwin"
-                        __OS_STATUS=1
+                        __PAWNCC__="pawncc"
+                        __DISABLE_NANO__="true"
+                        __OS__="darwin"
+                        __OS_NOTICE__=1
                         break 
                         ;;
                     *) 

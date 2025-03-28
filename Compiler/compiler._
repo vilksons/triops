@@ -7,10 +7,10 @@ function triops_compilers() {
             COMPILER_PAWNCC="$pawncc"
             break
         fi
-    done < <(find "$shell_DIR" -type f -iname "$__PAWNCC" -print0)
+    done < <(find "$shell_DIR" -type f -iname "$__PAWNCC__" -print0)
 
     if [ -z "$COMPILER_PAWNCC" ]; then
-        echo -e "$(bash_coltext_r "crit:") $__PAWNCC not found!. You can get this in \`pawncc\`"
+        echo -e "$(bash_coltext_r "crit:") $__PAWNCC__ not found!. You can get this in \`pawncc\`"
         echo
         read -r -p "install now? [y/n] " INSTALL_NOW
 
@@ -46,7 +46,7 @@ function triops_compilers() {
             local AMX_O
             AMX_O="$(dirname "$__LOOP_COMPILES_FILE")/$(basename "${__LOOP_COMPILES_FILE%.io*}.amx")"
 
-            echo -e "$(bash_coltext_y "dbg:") Processing: $__LOOP_COMPILES_FILE"
+            echo -e "$(bash_coltext_lg " Compiling: $__LOOP_COMPILES_FILE")"
 
             : '
                 @PawnCC.Compile
@@ -87,7 +87,7 @@ function triops_compilers() {
 
             if [ -s "$AMX_O" ]; then
                 echo
-                echo "~ $AMX_O"
+                echo -e "$(bash_coltext_lg " Finished: $AMX_O")"
                 if [ "$compiler_MODE" == "true" ]; then
                     shell_TITLE="compilers"
                     bash_title "$SHUSERS:~/ $shell_TITLE"

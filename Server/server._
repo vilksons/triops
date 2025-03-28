@@ -1,9 +1,9 @@
 #!/bin/bash
 
 function space_servers() {
-    if [ "$__OPERATING_SYSTEM" == "darwin" ]; then
+    if [ "$__OS__" == "darwin" ]; then
         ignore_this docker stop $__SAMP_EXEC
-    elif [ "$__OPERATING_SYSTEM" == "linux" ] || [ "$__OPERATING_SYSTEM" == "windows" ]; then
+    elif [ "$__OS__" == "linux" ] || [ "$__OS__" == "windows" ]; then
         if [ -f "$save_LOCK_NAME_SERVER" ]; then
             PID=$(cat "$save_LOCK_NAME_SERVER")
             ignore_this kill -9 "$PID"
@@ -48,9 +48,9 @@ function space_servers() {
     chmod 777 "$__SAMP_EXEC"
     
     ( 
-        if [ "$__OPERATING_SYSTEM" == "darwin" ]; then
+        if [ "$__OS__" == "darwin" ]; then
             docker run --rm -v "$(pwd)":/app ubuntu /app/"$__SAMP_EXEC"
-        elif [ "$__OPERATING_SYSTEM" == "linux" ] || [ "$__OPERATING_SYSTEM" == "windows" ]; then 
+        elif [ "$__OS__" == "linux" ] || [ "$__OS__" == "windows" ]; then 
             ignore_this exec -a "$SERVER_DOUBLE_SHA256" ./"$__SAMP_EXEC"
         fi
     ) &
@@ -95,9 +95,9 @@ function space_servers() {
             start_false ""
         fi
         if [ "$SERVERS_NEXT" == 2 ]; then
-            if [ "$__OPERATING_SYSTEM" == "darwin" ]; then
+            if [ "$__OS__" == "darwin" ]; then
                 ignore_this docker stop $__SAMP_EXEC
-            elif [ "$__OPERATING_SYSTEM" == "linux" ] || [ "$__OPERATING_SYSTEM" == "windows" ]; then 
+            elif [ "$__OS__" == "linux" ] || [ "$__OS__" == "windows" ]; then 
                 if [ -f "$save_LOCK_NAME_SERVER" ]; then
                     PID=$(cat "$save_LOCK_NAME_SERVER")
                     ignore_this kill -9 "$PID"
@@ -111,9 +111,9 @@ export space_servers
 
 function space_wargs_servers() {
     __SAMP_NEXT_QUERY=1
-    if [ "$__OPERATING_SYSTEM" == "darwin" ]; then
+    if [ "$__OS__" == "darwin" ]; then
         ignore_this docker stop $__SAMP_EXEC
-    elif [ "$__OPERATING_SYSTEM" == "linux" ] || [ "$__OPERATING_SYSTEM" == "windows" ]; then 
+    elif [ "$__OS__" == "linux" ] || [ "$__OS__" == "windows" ]; then 
         if [ -f "$save_LOCK_NAME_SERVER" ]; then
             PID=$(cat "$save_LOCK_NAME_SERVER")
             ignore_this kill -9 "$PID"
@@ -183,9 +183,9 @@ with open(f, "w") as file:
         chmod 777 "$__SAMP_EXEC"
 
         ( 
-            if [ "$__OPERATING_SYSTEM" == "darwin" ]; then
+            if [ "$__OS__" == "darwin" ]; then
                 docker run --rm -v "$(pwd)":/app ubuntu /app/"$__SAMP_EXEC"
-            elif [ "$__OPERATING_SYSTEM" == "linux" ] || [ "$__OPERATING_SYSTEM" == "windows" ]; then 
+            elif [ "$__OS__" == "linux" ] || [ "$__OS__" == "windows" ]; then 
                 ignore_this exec -a "$SERVER_DOUBLE_SHA256" ./"$__SAMP_EXEC"
             fi
         ) &
@@ -232,9 +232,9 @@ with open(f, "w") as file:
         fi
 
         if [ "$SERVERS_NEXT" == 2 ]; then
-            if [ "$__OPERATING_SYSTEM" == "darwin" ]; then
+            if [ "$__OS__" == "darwin" ]; then
                 ignore_this docker stop $__SAMP_EXEC
-            elif [ "$__OPERATING_SYSTEM" == "linux" ] || [ "$__OPERATING_SYSTEM" == "windows" ]; then 
+            elif [ "$__OS__" == "linux" ] || [ "$__OS__" == "windows" ]; then 
                 if [ -f "$save_LOCK_NAME_SERVER" ]; then
                     PID=$(cat "$save_LOCK_NAME_SERVER")
                     ignore_this kill -9 "$PID"

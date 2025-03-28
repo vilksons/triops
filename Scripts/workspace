@@ -2,8 +2,8 @@
 
 clear && cd "$(dirname "$(realpath "$0")")" || echo
 
-__OS_STATUS=0
-export __OS_STATUS
+__OS_NOTICE__=0
+export __OS_NOTICE__
 
 ##################
 ###  "nul"     ###
@@ -11,15 +11,15 @@ export __OS_STATUS
 ###  "windows" ###
 ###  "darwin"  ###
 ##################
-__OPERATING_SYSTEM="nul"
-export __OPERATING_SYSTEM
+__OS__="nul"
+export __OS__
 
 __SAMP_EXEC="nul"
 export __SAMP_EXEC
-__PAWNCC="nul"
-export __PAWNCC
-__DIS_GNU_NANO=""
-export __DIS_GNU_NANO
+__PAWNCC__="nul"
+export __PAWNCC__
+__DISABLE_NANO__=""
+export __DISABLE_NANO__
 __SAMP_NEXT_QUERY=0
 export __SAMP_NEXT_QUERY
 __SAMP_SERVER=""
@@ -101,6 +101,15 @@ COLOR_A="\e[97m"
     echo -e "${color}${label}\e[0m"
 }
 export bash_coltext_a
+
+function bash_coltext_lg() {
+# Color Text (Light Green)
+# ' echo "$(bash_coltext_lg "label")" content '
+COLOR_LG="\e[92m"
+    local color="$COLOR_LG"
+    local label="$!"
+    echo -e "${color}${label}\e[0m"
+}
 
 function save_TITLE()
 {
@@ -292,11 +301,7 @@ function bash_typeof() {
             sleep 0.5
             clear
         fi
-        if ! command -v tomlq &> /dev/null; then
-            echo -e "$(bash_coltext_g "warn:") tomlq not found."
-            sleep 0.5
-            clear
-        fi
+        
         if ! command -v aria2c &> /dev/null; then
             echo -e "$(bash_coltext_g "warn:") aria2c not found."
             sleep 0.5
@@ -408,9 +413,9 @@ mode_TRIOPS() {
         "compile"*)
             save_TITLE "Compiler"
 
-            if [ "$__OPERATING_SYSTEM" == "darwin" ]; then
+            if [ "$__OS__" == "darwin" ]; then
                 ignore_this docker stop $__SAMP_EXEC
-            elif [ "$__OPERATING_SYSTEM" == "linux" ] || [ "$__OPERATING_SYSTEM" == "windows" ]; then
+            elif [ "$__OS__" == "linux" ] || [ "$__OS__" == "windows" ]; then
                 if [ -f "$save_LOCK_NAME_SERVER" ]; then
                     PID=$(cat "$save_LOCK_NAME_SERVER")
                     ignore_this kill -9 "$PID"
@@ -470,10 +475,10 @@ mode_TRIOPS() {
                     COMPILER_PAWNCC="$pawncc"
                     break
                 fi
-                done < <(find "$shell_DIR" -type f -iname "$__PAWNCC" -print0)
+                done < <(find "$shell_DIR" -type f -iname "$__PAWNCC__" -print0)
 
                 if [ -z "$COMPILER_PAWNCC" ]; then
-                    echo -e "$(bash_coltext_r "crit:") $__PAWNCC not found!. You can get this in \`pawncc\`"
+                    echo -e "$(bash_coltext_r "crit:") $__PAWNCC__ not found!. You can get this in \`pawncc\`"
                     echo
                     read -r -p "install now? [y/n] " INSTALL_NOW
 
@@ -513,7 +518,7 @@ mode_TRIOPS() {
                         local AMX_O
                         AMX_O="$(dirname "$__LOOP_COMPILES_FILE")/$(basename "${__LOOP_COMPILES_FILE%.*}.amx")"
 
-                        echo -e "$(bash_coltext_y "dbg:") Processing: $__LOOP_COMPILES_FILE"
+                        echo -e "$(bash_coltext_lg " Compiling: $__LOOP_COMPILES_FILE")"
 
                         : '
                             @PawnCC.Compile
@@ -549,7 +554,7 @@ mode_TRIOPS() {
 
                         if [ -s "$AMX_O" ]; then
                             echo
-                            echo "~ $AMX_O"
+                            echo -e "$(bash_coltext_lg " Finished: $AMX_O")"
                             if [ "$compiler_MODE" == "true" ]; then
                                 shell_TITLE="compilers"
                                 bash_title "user:~/ $shell_TITLE"
@@ -575,9 +580,9 @@ mode_TRIOPS() {
         "running"*)
             save_TITLE "Running"
 
-            if [ "$__OPERATING_SYSTEM" == "darwin" ]; then
+            if [ "$__OS__" == "darwin" ]; then
                 ignore_this docker stop $__SAMP_EXEC
-            elif [ "$__OPERATING_SYSTEM" == "linux" ] || [ "$__OPERATING_SYSTEM" == "windows" ]; then 
+            elif [ "$__OS__" == "linux" ] || [ "$__OS__" == "windows" ]; then 
                 if [ -f "$save_LOCK_NAME_SERVER" ]; then
                     PID=$(cat "$save_LOCK_NAME_SERVER")
                     ignore_this kill -9 "$PID"
@@ -606,9 +611,9 @@ mode_TRIOPS() {
         "irunn")
             save_TITLE "Compile & Running"
 
-            if [ "$__OPERATING_SYSTEM" == "darwin" ]; then
+            if [ "$__OS__" == "darwin" ]; then
                 ignore_this docker stop $__SAMP_EXEC
-            elif [ "$__OPERATING_SYSTEM" == "linux" ] || [ "$__OPERATING_SYSTEM" == "windows" ]; then 
+            elif [ "$__OS__" == "linux" ] || [ "$__OS__" == "windows" ]; then 
                 if [ -f "$save_LOCK_NAME_SERVER" ]; then
                     PID=$(cat "$save_LOCK_NAME_SERVER")
                     ignore_this kill -9 "$PID"
@@ -625,9 +630,9 @@ mode_TRIOPS() {
         "debug"*)
             save_TITLE "Debugging"
 
-            if [ "$__OPERATING_SYSTEM" == "darwin" ]; then
+            if [ "$__OS__" == "darwin" ]; then
                 ignore_this docker stop $__SAMP_EXEC
-            elif [ "$__OPERATING_SYSTEM" == "linux" ] || [ "$__OPERATING_SYSTEM" == "windows" ]; then 
+            elif [ "$__OS__" == "linux" ] || [ "$__OS__" == "windows" ]; then 
                 if [ -f "$save_LOCK_NAME_SERVER" ]; then
                     PID=$(cat "$save_LOCK_NAME_SERVER")
                     ignore_this kill -9 "$PID"
@@ -660,9 +665,9 @@ mode_TRIOPS() {
         "stop")
             save_TITLE "Stop"
 
-            if [ "$__OPERATING_SYSTEM" == "darwin" ]; then
+            if [ "$__OS__" == "darwin" ]; then
                 ignore_this docker stop $__SAMP_EXEC
-            elif [ "$__OPERATING_SYSTEM" == "linux" ] || [ "$__OPERATING_SYSTEM" == "windows" ]; then 
+            elif [ "$__OS__" == "linux" ] || [ "$__OS__" == "windows" ]; then 
                 if [ -f "$save_LOCK_NAME_SERVER" ]; then
                     PID=$(cat "$save_LOCK_NAME_SERVER")
                     ignore_this kill -9 "$PID"
@@ -675,7 +680,7 @@ mode_TRIOPS() {
         "restart")
             save_TITLE "Restart"
 
-            if [ "$__OPERATING_SYSTEM" == "darwin" ]; then
+            if [ "$__OS__" == "darwin" ]; then
                 if docker ps --filter "$__SAMP_EXEC" | grep -q "$__SAMP_EXEC"; then
                     ignore_this docker stop $__SAMP_EXEC
 
@@ -684,7 +689,7 @@ mode_TRIOPS() {
                 else
                     echo "error: No progress Server running."
                 fi
-            elif [ "$__OPERATING_SYSTEM" == "linux" ] || [ "$__OPERATING_SYSTEM" == "windows" ]; then 
+            elif [ "$__OS__" == "linux" ] || [ "$__OS__" == "windows" ]; then 
                 if [ -f "$save_LOCK_NAME_SERVER" ]; then
                     PID=$(cat "$save_LOCK_NAME_SERVER")
                     ignore_this kill -9 "$PID"
@@ -1019,7 +1024,7 @@ except KeyboardInterrupt:
             echo
             ;;
         "nano"*)
-            if [ "$__DIS_GNU_NANO" == "false" ]; then
+            if [ "$__DISABLE_NANO__" == "false" ]; then
                 if ! command -v nano &> /dev/null; then
                     echo "nano not found!, install first."
                     bash_end ""
@@ -1147,7 +1152,7 @@ except KeyboardInterrupt:
             
             if [[ -n "$commands_ARGS" && "$commands_ARGS" != "$main_commands" ]]; then
                 if [[ -n "${descriptions[$commands_ARGS]}" ]]; then
-                    if [[ "$commands_ARGS" == "nano" && "$__DIS_GNU_NANO" == "true" ]]; then
+                    if [[ "$commands_ARGS" == "nano" && "$__DISABLE_NANO__" == "true" ]]; then
                         bash_help "invalid"
                     else
                         if [ "$commands_ARGS" == "compile" ]; then
@@ -1208,7 +1213,7 @@ function bash_help()
     echo " fcheck (folder-checks), cat, tligpac, kill, directory"
     echo " sync (update/upgrade), syncc (update/upgrade full)"
 
-    if [ "$__DIS_GNU_NANO" == "true" ]; then
+    if [ "$__DISABLE_NANO__" == "true" ]; then
         echo " exit, remcac, chatbot, fetch"
     else
         echo " exit, remcac, chatbot, nano, fetch"

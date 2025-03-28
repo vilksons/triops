@@ -89,7 +89,7 @@ function bash_TligPac()
     ]
 }
 EOF
-                    if [ "$__DIS_GNU_NANO" == "false" ]; then
+                    if [ "$__DISABLE_NANO__" == "false" ]; then
                         nano "$shell_DIR/tligpac.json"
                     fi
 mode_TLIGPAC ""
