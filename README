@@ -30,25 +30,16 @@ PREREQUISITES
 Before starting, ensure you have the following:
 
 1. INSTALL `triops/workspace` SCRIPT
-  - (Stable)
-   Download via GNU/Wget:
-       wget -q --show-progress -O workspace https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Scripts/workspace
-
-   With auto-execution:
-       wget -q --show-progress -O workspace https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Scripts/workspace && \
-       chmod +x workspace && bash ./workspace
-
-  - (Testing)
-   Download via GNU/Wget:
-       wget -q --show-progress -O workspace https://raw.githubusercontent.com/vilksons/triops/refs/heads/testing/Scripts/workspace
-
-   With auto-execution:
-       wget -q --show-progress -O workspace https://raw.githubusercontent.com/vilksons/triops/refs/heads/testing/Scripts/workspace && \
-       chmod +x workspace && bash ./workspace
+  (Stable)
+  - Download via GNU/Wget:
+      wget -q --show-progress -O workspace https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Scripts/workspace
+  (Testing)
+  - Download via GNU/Wget:
+      wget -q --show-progress -O workspace https://raw.githubusercontent.com/vilksons/triops/refs/heads/testing/Scripts/workspace
 
 2. INSTALL REQUIRED PACKAGES
    Full list available at:
-   https://github.com/vilksons/triops/wiki/Required-Packages
+    https://github.com/vilksons/triops/wiki/Required-Packages
 
 INSTALLATION
 ------------
@@ -62,6 +53,14 @@ Supported Platforms:
   - Termux: https://termux.dev/en/
   - UserLAnd: https://play.google.com/store/apps/details?id=tech.ula&hl=id&pli=1
   - Linux Deploy: https://github.com/meefik/linuxdeploy
+
+INSTALLATION STEPS
+------------------
+1. Open the terminal.
+2. Make the `workspace` script executable:
+       chmod +x workspace
+3. Run the script:
+       bash ./workspace
 
 Docker Usage
 ------------------
@@ -91,19 +90,11 @@ Docker Usage
   * chmod +x workspace
   * ./workspace
 
-INSTALLATION STEPS
-------------------
-1. Open the terminal.
-2. Make the `workspace` script executable:
-       chmod +x workspace
-3. Run the script:
-       bash ./workspace
-
 USAGE
 -----
 FILE RENAMING
 -------------
-Rename `yourmode.pwn` files to a project-appropriate format (e.g., `yourmode.io.pwn`) for consistency.
+You can rename `yourmode.pwn` files to a project-appropriate format (e.g., `yourmode.io.pwn`) for consistency.
 
 COMPILATION
 -----------
