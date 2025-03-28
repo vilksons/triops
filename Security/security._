@@ -15,7 +15,6 @@ export save_LOCK_NAME_SERVER
 security_file_rm()
 {
     : ' Remove File Logs '
-    # shellcheck disable=SC2154
     cd "$shell_DIR" >/dev/null 2>&1 || echo "" &&
 
     if [ "$__REMCACHE" == "true" ]; then

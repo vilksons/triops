@@ -1,11 +1,9 @@
 #!/bin/bash
 
 function space_servers() {
-    # shellcheck disable=SC2086
     if [ "$__OPERATING_SYSTEM" == "darwin" ]; then
         ignore_this docker stop $__SAMP_EXEC
     elif [ "$__OPERATING_SYSTEM" == "linux" ] || [ "$__OPERATING_SYSTEM" == "windows" ]; then
-        # shellcheck disable=SC2154
         if [ -f "$save_LOCK_NAME_SERVER" ]; then
             PID=$(cat "$save_LOCK_NAME_SERVER")
             ignore_this kill -9 "$PID"
@@ -13,7 +11,6 @@ function space_servers() {
         fi
     fi
 
-    # shellcheck disable=SC2154
     if [ -f "$__SAMP_LOG" ]; then
         ignore_this rm "$shell_DIR/$__SAMP_LOG"
     fi
@@ -77,7 +74,6 @@ function space_servers() {
         echo
         if [ -f "$__SAMP_LOG" ]; then
             sleep 2 > /dev/null
-            # shellcheck disable=SC2086
             cat $__SAMP_LOG
             echo
         else
@@ -93,13 +89,11 @@ function space_servers() {
         echo
 
         sleep 2 > /dev/null
-        # shellcheck disable=SC2086
         if grep -i "error" $__SAMP_LOG > /dev/null; then
             start_true ""
         else
             start_false ""
         fi
-        # shellcheck disable=SC2086
         if [ "$SERVERS_NEXT" == 2 ]; then
             if [ "$__OPERATING_SYSTEM" == "darwin" ]; then
                 ignore_this docker stop $__SAMP_EXEC
@@ -117,7 +111,6 @@ export space_servers
 
 function space_wargs_servers() {
     __SAMP_NEXT_QUERY=1
-    # shellcheck disable=SC2086
     if [ "$__OPERATING_SYSTEM" == "darwin" ]; then
         ignore_this docker stop $__SAMP_EXEC
     elif [ "$__OPERATING_SYSTEM" == "linux" ] || [ "$__OPERATING_SYSTEM" == "windows" ]; then 
@@ -141,11 +134,9 @@ function space_wargs_servers() {
         bash_end ""
     fi
 
-    # shellcheck disable=SC2086
     mv $SERVER_CONF $SERVER_CONF.bak
 
     if [ "$SERVER_CONF" == "config.json" ]; then
-        # shellcheck disable=SC2086
         cat $SERVER_CONF.bak > $SERVER_CONF &&
         python -c '
 import json
@@ -157,7 +148,6 @@ with open(f, "w") as file:
     json.dump(data, file, indent=2)
         '
     elif [ "$SERVER_CONF" == "server.cfg" ]; then
-        # shellcheck disable=SC2086
         awk -v new_gamemode="$commands_INPUT" '
             /^gamemode0 / {$2=new_gamemode} 1' $SERVER_CONF.bak > $SERVER_CONF || \
                 sed -E "s/^(gamemode0 )[0-9]+/\1$commands_INPUT/" $SERVER_CONF.bak > $SERVER_CONF
@@ -219,7 +209,6 @@ with open(f, "w") as file:
             echo
             if [ -f "$__SAMP_LOG" ]; then
                 sleep 2 > /dev/null
-                # shellcheck disable=SC2086
                 cat $__SAMP_LOG
                 echo
             else
@@ -235,7 +224,6 @@ with open(f, "w") as file:
             echo
 
             sleep 2 > /dev/null
-            # shellcheck disable=SC2086
             if grep -i "error" $__SAMP_LOG > /dev/null; then
                 start_true ""
             else
@@ -243,7 +231,6 @@ with open(f, "w") as file:
             fi
         fi
 
-        # shellcheck disable=SC2086
         if [ "$SERVERS_NEXT" == 2 ]; then
             if [ "$__OPERATING_SYSTEM" == "darwin" ]; then
                 ignore_this docker stop $__SAMP_EXEC
@@ -307,7 +294,6 @@ start_true3() {
     echo "    ; \"invalid\" .. Yes .. True"
     invalid_cache ""
 
-# shellcheck disable=SC2086
 if [ "$__SAMP_NEXT_QUERY" == 1 ]; then
     if [ -f "$SERVER_CONF" ]; then
         rm $SERVER_CONF
@@ -326,7 +312,6 @@ start_false3() {
     echo "    ; \"invalid\" .. No .. False"
     echo
 
-# shellcheck disable=SC2086
 if [ "$__SAMP_NEXT_QUERY" == 1 ]; then
     if [ -f "$SERVER_CONF" ]; then
         rm $SERVER_CONF
@@ -342,7 +327,6 @@ error_cache() {
         @strain.Error
     '
     echo
-    # shellcheck disable=SC2086
     grep -i "error" $__SAMP_LOG
     echo
     check2 ""
@@ -354,7 +338,6 @@ failed_cache() {
         @strain.Failed
     '
     echo
-    # shellcheck disable=SC2086
     grep -i "failed" $__SAMP_LOG
     echo
     check3 ""
@@ -366,14 +349,12 @@ invalid_cache() {
         @strain.Invalid
     '
     echo
-    # shellcheck disable=SC2086
     grep -i "invalid" $__SAMP_LOG
     echo
 }
 export invalid_cache
 
 check2() {
-    # shellcheck disable=SC2086
     if grep -i "failed" $__SAMP_LOG > /dev/null; then
         start_true2 ""
     else
@@ -383,7 +364,6 @@ check2() {
 export check2
 
 check3() {
-    # shellcheck disable=SC2086
     if grep -i "invalid" $__SAMP_LOG > /dev/null; then
         start_true3 ""
     else

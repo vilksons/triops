@@ -38,7 +38,6 @@ function fetch_now()
 {
     local __lat=""
     local __cur=""
-    # shellcheck disable=SC2154
     if [ -f "$shell_DIR/.commits" ]; then
         __cur=$(cat "$shell_DIR/.commits" 2>/dev/null)
     else
@@ -67,11 +66,8 @@ function fetch_now()
     echo "Triops Licenses: $LICENSES"
 
     find_PLATFORM=""
-    # shellcheck disable=SC2086
     if [ "$__OPERATING_SYSTEM" == "linux" ]; then find_PLATFORM="Linux"; fi
-    # shellcheck disable=SC2086
     if [ "$__OPERATING_SYSTEM" == "windows" ]; then find_PLATFORM="${find_PLATFORM:+$find_PLATFORM & }Windows"; fi
-    # shellcheck disable=SC2086
     if [ "$__OPERATING_SYSTEM" == "darwin" ]; then find_PLATFORM="${find_PLATFORM:+$find_PLATFORM & }Darwin / MacOS"; fi
 
     if [ -n "$find_PLATFORM" ]; then

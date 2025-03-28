@@ -29,10 +29,6 @@ function bash_TligPac()
 
     case "$tligpac_OPTION_FLAGS" in
         "autoinstall")
-            # Disable shellcheck warning SC2154 (variable may not be set)
-            # Check if the cache file does not exist
-            
-            # shellcheck disable=SC2154
             if [ ! -f "$shell_DIR/.cache/tligpac" ]; then
                 echo -e "$(bash_coltext_r "crit:") no downloads history in cache found!"  # Print error message if no cache found
                 mode_TLIGPAC ""  # Call the mode_TLIGPAC function with an empty argument
@@ -62,8 +58,6 @@ function bash_TligPac()
 
             local tligpac_input_args="${tligpac_OPTION_FLAGS#"install "}"
 
-            # shellcheck disable=SC2154
-            # shellcheck disable=SC2086
             if [ "$__TLIGPAC_AUTTOIN" != 1 ]; then
                 echo "$tligpac_input_args" >> "$shell_DIR/.cache/tligpac"
             fi
@@ -96,7 +90,6 @@ function bash_TligPac()
 }
 EOF
                     if [ "$__DIS_GNU_NANO" == "false" ]; then
-                        # shellcheck disable=SC2154
                         nano "$shell_DIR/tligpac.json"
                     fi
 mode_TLIGPAC ""
@@ -347,7 +340,6 @@ mode_TLIGPAC ""
                     # Check if both "components" and "plugins" directories exist
                     # If they do, move them both to shell_DIR
                     if [ -d "$tligpac_EXTRACT_DIR/components" ] && [ -d "$tligpac_EXTRACT_DIR/plugins" ]; then
-                        # shellcheck disable=SC2154
                         mkdir -p "$shell_DIR/components" "$shell_DIR/plugins"
                         echo -e "$(bash_coltext_y "Detected & Moving") plugins & components to $shell_DIR"
                         cp -r "$tligpac_EXTRACT_DIR/components/"* "$shell_DIR/components/"
@@ -430,7 +422,6 @@ mode_TLIGPAC ""
                 fi
             done
 
-            # shellcheck disable=SC2154
 if [ -f "$shell_DIR/$SERVER_CONF" ]; then
             # if exist
             # Check if the SAMP server type is "samp"

@@ -2,7 +2,6 @@
 
 function triops_compilers() {
     local SHFILE="false"
-# shellcheck disable=SC2154
     while IFS= read -r -d '' pawncc; do
         if [ -f "$pawncc" ]; then
             COMPILER_PAWNCC="$pawncc"
@@ -52,7 +51,6 @@ function triops_compilers() {
             : '
                 @PawnCC.Compile
             '
-# shellcheck disable=SC2154
             for option in $AMX_OPT_F; do
                 # option checking
                 if [[ " ${_valid_AMX_OPTION_[*]} " != *" $option "* ]]; then
@@ -72,7 +70,6 @@ function triops_compilers() {
             local start_time
             start_time=$(date +%s%3N)
 
-# shellcheck disable=SC2154
                 for _ in {1..10}; do
                     "$COMPILER_PAWNCC" -i"$DEF_INCLUDE" "$DEF_EXCLUDE" -i"$__SPECIAL_INCLUDE_DIR" "$__LOOP_COMPILES_FILE" -o"$AMX_O" "$AMX_OPT_F" > "$__cache_save_compile" 2>&1
                 done
@@ -91,7 +88,6 @@ function triops_compilers() {
             if [ -s "$AMX_O" ]; then
                 echo
                 echo "~ $AMX_O"
-                # shellcheck disable=SC2154
                 if [ "$compiler_MODE" == "true" ]; then
                     shell_TITLE="compilers"
                     bash_title "$SHUSERS:~/ $shell_TITLE"

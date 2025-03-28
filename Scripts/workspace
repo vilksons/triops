@@ -126,8 +126,6 @@ if [ ! -d ".lib" ]; then
     mkdir ".lib"
 fi
 
-# shellcheck source=/dev/null
-
 function load_module() {
     local __missing=()
     local __cmd
@@ -402,8 +400,7 @@ mode_TRIOPS() {
 
             if [ "$__OPERATING_SYSTEM" == "darwin" ]; then
                 ignore_this docker stop $__SAMP_EXEC
-            elif [ "$__OPERATING_SYSTEM" == "linux" ] || [ "$__OPERATING_SYSTEM" == "windows" ]; then 
-                # shellcheck disable=SC2154
+            elif [ "$__OPERATING_SYSTEM" == "linux" ] || [ "$__OPERATING_SYSTEM" == "windows" ]; then
                 if [ -f "$save_LOCK_NAME_SERVER" ]; then
                     PID=$(cat "$save_LOCK_NAME_SERVER")
                     ignore_this kill -9 "$PID"
