@@ -1059,7 +1059,6 @@ except KeyboardInterrupt:
                             ignore_this rm ".cache/tligpac" && ignore_this sleep 1
 
                             ignore_this sleep 0.100 &&
-                            bash_end ""
                             break
                             ;;
                         *)
@@ -1082,7 +1081,6 @@ except KeyboardInterrupt:
                             ignore_this rm ".cache/compiler.log" && ignore_this sleep 1
 
                             ignore_this sleep 0.100 &&
-                            bash_end ""
                             break
                             ;;
                         *)
@@ -1090,6 +1088,8 @@ except KeyboardInterrupt:
                     esac
                 done
             fi
+
+            bash_end ""
             
             ;;
         "fetch")
