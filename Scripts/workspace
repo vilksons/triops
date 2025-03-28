@@ -33,6 +33,9 @@ export MODULE_LOADED_NOTICE
 DO_NOT_SHOW_LNOT=0
 export DO_NOT_SHOW_LNOT
 
+MESSAGE_WARN_PACN=0
+export MESSAGE_WARN_PACN
+
 SERVERS_NEXT=0
 export SERVERS_NEXT
 
@@ -282,18 +285,25 @@ function bash_typeof() {
     fi
     __cache_save_compile=".cache/compiler.log"
     export __cache_save_compile
-    
-    if ! command -v jq &> /dev/null; then
-        echo -e "$(bash_coltext_g "warn:") jq not found."
-        sleep 0.5
-    fi
-    if ! command -v tomlq &> /dev/null; then
-        echo -e "$(bash_coltext_g "warn:") tomlq not found."
-        sleep 0.5
-    fi
-    if ! command -v aria2c &> /dev/null; then
-        echo -e "$(bash_coltext_g "warn:") aria2c not found."
-        sleep 0.5
+
+    if [ "$MESSAGE_WARN_PACN" != 1 ]; then
+        if ! command -v jq &> /dev/null; then
+            echo -e "$(bash_coltext_g "warn:") jq not found."
+            sleep 0.5
+            clear
+        fi
+        if ! command -v tomlq &> /dev/null; then
+            echo -e "$(bash_coltext_g "warn:") tomlq not found."
+            sleep 0.5
+            clear
+        fi
+        if ! command -v aria2c &> /dev/null; then
+            echo -e "$(bash_coltext_g "warn:") aria2c not found."
+            sleep 0.5
+            clear
+        fi
+
+        MESSAGE_WARN_PACN=1
     fi
 
     cd "$shell_DIR" >/dev/null 2>&1 || echo ""
