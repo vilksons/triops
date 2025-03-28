@@ -47,8 +47,4 @@ security_cleanup() {
 '
 trap security_cleanup SIGTERM SIGQUIT SIGHUP
 
-not_exit() {
-    echo ""
-}
-
-trap not_exit SIGINT
+trap bash_end SIGINT

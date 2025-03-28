@@ -25,6 +25,9 @@ export __SAMP_NEXT_QUERY
 __SAMP_SERVER=""
 export __SAMP_SERVER
 
+__TLIGPAC_AUTTOIN=0
+export __TLIGPAC_AUTTOIN
+
 MODULE_LOADED_NOTICE=0
 export MODULE_LOADED_NOTICE
 DO_NOT_SHOW_LNOT=0
@@ -259,6 +262,7 @@ resetVariable() {
     COMPILER_NEXT=0
     SERVERS_NEXT=0
     __SAMP_NEXT_QUERY=0
+    __TLIGPAC_AUTTOIN=0
 }
 
 function bash_typeof() {
@@ -283,6 +287,10 @@ function bash_typeof() {
     
     if ! command -v jq &> /dev/null; then
         echo -e "$(bash_coltext_g "warn:") jq not found."
+        sleep 0.5
+    fi
+    if ! command -v tomlq &> /dev/null; then
+        echo -e "$(bash_coltext_g "warn:") aria2c not found."
         sleep 0.5
     fi
     if ! command -v aria2c &> /dev/null; then
@@ -627,9 +635,6 @@ mode_TRIOPS() {
                 commands_INPUT="$commands_ARGS"
             else
                 echo -e "$(bash_coltext_a ":: Enter GM Name:")"
-                read -r -p ">>> " commands_INPUT
-
-                echo -e "$(bash_coltext_a ":: Enter GM Name:")"
                 while true; do
                     read -r -p ">>> " commands_INPUT
                     [[ -n "$commands_INPUT" ]] && break
@@ -723,9 +728,6 @@ mode_TRIOPS() {
             if [[ -n "$commands_ARGS" && "$commands_ARGS" != "$main_commands" ]]; then
                 commands_INPUT="$commands_ARGS"
             else
-                echo -e "$(bash_coltext_a ":: Enter File Name:")"
-                read -r -p ">>> " commands_INPUT
-
                 echo -e "$(bash_coltext_a ":: Enter File Name:")"
                 while true; do
                     read -r -p ">>> " commands_INPUT
@@ -922,11 +924,7 @@ mode_TRIOPS() {
             if [[ -n "$commands_ARGS" && "$commands_ARGS" != "$main_commands" ]]; then
                 commands_INPUT="$commands_ARGS"
             else
-                echo -e "$(bash_coltext_a ":: Enter Question:")"
-                echo " -> enter \"exit\" to exit"
-                read -r -p ">>> " commands_INPUT
-
-                echo -e "$(bash_coltext_a ":: Enter Question:")"
+                echo -e "$(bash_coltext_a ":: Enter Question Name:")"
                 while true; do
                     read -r -p ">>> " commands_INPUT
                     [[ -n "$commands_INPUT" ]] && break
@@ -980,13 +978,16 @@ COLORS = {
     'main': '${__ORANGE}', 'foo': '${__RED}', 'include': '${__GREEN}'
 }
 
+def colorize(match):
+    word = match.group(0).lower()
+    return f'{COLORS.get(word, '')}{word}${__RESET}'
+
 try:
     data = json.loads(sys.stdin.read())
-    _chatbot_response_ = data.get('choices', [{}])[0].get('message', {}).get('content', 'Error: Response API Failed/not found.')
+    _chatbot_response_ = data.get('choices', [{}])[0].get('message', {}).get('content')
 
-    def colorize(match):
-        word = match.group(0).lower()
-        return f'{COLORS.get(word, '')}{word}${__RESET}'
+    if not _chatbot_response_:
+        raise ValueError('Error: Response API Failed/not found.')
 
     _chatbot_response_ = re.sub(r'\b(?:' + '|'.join(COLORS.keys()) + r')\b', colorize, _chatbot_response_, flags=re.IGNORECASE)
 
@@ -994,16 +995,21 @@ try:
         print(char, end='', flush=True)
         time.sleep(0.03)
 
+    print()
+
 except json.JSONDecodeError:
-    print('Error: Invalid JSON')
+    print('Error: Invalid JSON', flush=True)
+
+except ValueError as e:
+    print(e, flush=True)
 
 except KeyboardInterrupt:
     print(' Cancelled', end='', flush=True)
-    sys.exit(0)
+    sys.exit(130)
 "
 
-            echo
             bash_end ""
+            echo
             ;;
         "nano"*)
             if [ "$__DIS_GNU_NANO" == "false" ]; then
@@ -1019,9 +1025,6 @@ except KeyboardInterrupt:
                 if [[ -n "$commands_ARGS" && "$commands_ARGS" != "$main_commands" ]]; then
                     commands_INPUT="$commands_ARGS"
                 else
-                    echo -e "$(bash_coltext_a ":: Enter File Name:")"
-                    read -r -p ">>> " commands_INPUT
-
                     echo -e "$(bash_coltext_a ":: Enter File Name:")"
                     while true; do
                         read -r -p ">>> " commands_INPUT
@@ -1088,7 +1091,7 @@ except KeyboardInterrupt:
                             ;;
                         *)
                             echo "Operation cancelled"
-                            break
+                            bash_end ""
                             ;;
                     esac
                 done

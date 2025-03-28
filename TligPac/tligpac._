@@ -34,39 +34,39 @@ function bash_TligPac()
             
             # shellcheck disable=SC2154
             if [ ! -f "$shell_DIR/.cache/tligpac" ]; then
-               echo -e "$(bash_coltext_r "crit:") no downloads history in cache found!"  # Print error message if no cache found
-               mode_TLIGPAC ""  # Call the mode_TLIGPAC function with an empty argument
+                echo -e "$(bash_coltext_r "crit:") no downloads history in cache found!"  # Print error message if no cache found
+                mode_TLIGPAC ""  # Call the mode_TLIGPAC function with an empty argument
             fi
 
-            local __find_urls  # Declare a local variable to store found URLs
-            # Extract URLs from the cache file and store them in __find_urls
-            __find_urls=$(grep -o 'https://[^ ]*' "$shell_DIR/.cache/tligpac")
+            local __find_url  # Declare a local variable to store the last found URL
+            # Extract the last URL from the cache file
+            __find_url=$(grep -o 'https://[^ ]*' "$shell_DIR/.cache/tligpac" | tail -n 1)
 
-            # Split the URLs into an array
-            mapfile -t __url_of_arrays <<< "$__find_urls"
+            # Check if a valid URL was found
+            if [[ -z "$__find_url" ]]; then
+                echo -e "$(bash_coltext_r "crit:") no valid URL found in cache!"
+                mode_TLIGPAC ""  # Call mode_TLIGPAC function if no URL is found
+            fi
 
-            local __urls  # Declare a local variable to loop through each URL
-            # Loop through each URL in the array
-            for __urls in "${__url_of_arrays[@]}"; do
-                # If the URL does not start with "https://", print a warning
-                if [[ ! "$__urls" =~ ^https:// ]]; then
-                    echo -e "$(bash_coltext_r "crit:") history not allowed for: $__urls"
-                fi
+            # Print debug message showing the found URL
+            echo -e "$(bash_coltext_y "dbg:") using last found history: $__find_url"
 
-                # Print debug message showing the found URL
-                echo -e "$(bash_coltext_y "dbg:") found history for: $__urls"
-                tligpac_OPTION_FLAGS="install $__find_urls"  # Set install option flag with found URLs
-                bash_TligPac "$tligpac_OPTION_FLAGS"  # Call the bash_TligPac function with the flags
-            done
+            # give to one so as not to re-output to the cache which would corrupt the tligpac cache.
+            __TLIGPAC_AUTTOIN=1
+
+            tligpac_OPTION_FLAGS="install $__find_url"  # Set install option flag with the found URL
+            bash_TligPac "$tligpac_OPTION_FLAGS"  # Call the bash_TligPac function with the flags
             ;;
         "install"*)
             save_TITLE "Install Packages"
 
             local tligpac_input_args="${tligpac_OPTION_FLAGS#"install "}"
-            local tligpac_input_args="${tligpac_input_args#install }"
 
             # shellcheck disable=SC2154
-            echo "$tligpac_input_args" >> "$shell_DIR/.cache/tligpac"
+            # shellcheck disable=SC2086
+            if [ $__TLIGPAC_AUTTOIN != 1 ]; then
+                echo "$tligpac_input_args" >> "$shell_DIR/.cache/tligpac"
+            fi
 
             local __tligpac_url__=()
 
@@ -315,9 +315,12 @@ mode_TLIGPAC ""
                     mode_TLIGPAC ""
                 fi
 
+                mapfile -t __include_names < <(find "$tligpac_EXTRACT_DIR" -type f -name "*.inc" -exec basename {} \;)
+
                 if [ -d "$TLIGPAC_DIR" ]; then
                     find "$tligpac_EXTRACT_DIR" -type f -name "*.inc" | while IFS= read -r inc_file; do
                         tligpac_REAL_PATH=$(realpath --relative-to="$tligpac_EXTRACT_DIR" "$inc_file" 2> /dev/null || echo "$inc_file")
+                        
 
                         # Check if $tligpac_REAL_PATH contains '/include/'
                         # If it does, the part before '/include/' will be removed
@@ -381,79 +384,94 @@ mode_TLIGPAC ""
             done
 
             # Function to add #include <find_plugin_name> into main.pwn
-            add_find_plugin_name_to_main() {
-                local __find_plugin_name=$1
-                # Check if main.pwn exists and is not empty
-                if [[ -f "$shell_DIR/gamemodes/$SERVER_MAIN" ]]; then
-                    # Check if #include <__find_plugin_name> already exists
-                    if ! grep -q "#include <$__find_plugin_name>" "$shell_DIR/gamemodes/$SERVER_MAIN"; then
-                        # Check if there are other #include statements in main.pwn
-                        if grep -q "#include" "$shell_DIR/gamemodes/$SERVER_MAIN"; then
-                            # If there are other #include statements, add #include <__find_plugin_name> at the end
-                            echo -e "$(bash_coltext_y "dbg:") Adding #include <$__find_plugin_name> after existing #include"
-                            sed -i "/#include/ s|$|#include <$__find_plugin_name>|" "$shell_DIR/gamemodes/$SERVER_MAIN"
+            function add_find_include_to_main() {
+                # Get the first argument as the include name
+                local __find_include_name=$1
+                # Define the main file path
+                local main_file="$shell_DIR/gamemodes/$SERVER_MAIN"
 
+                # Check if the main file exists
+                if [[ -f "$main_file" ]]; then
+                    # Check if the include already exists in the file
+                    if ! grep -qxF "#include <$__find_include_name>" "$main_file"; then
+                        # Check if a_samp or open.mp includes are present
+                        if grep -Eq "^#include <(a_samp|open\.mp)>" "$main_file"; then
+                            # Debug message
+                            echo -e "$(bash_coltext_y "dbg:") Adding #include <$__find_include_name> after #include <a_samp> or #include <open.mp>"
+                            # Insert the include after a_samp or open.mp
+                            awk -v inc="#include <$__find_include_name>" '
+                                /^#include <(a_samp|open\.mp)>/ { print; print inc; next }
+                                { print }
+                            ' "$main_file" > "$main_file.tmp" && mv "$main_file.tmp" "$main_file"
                         else
-                            # If there are no #include statements, add it at the beginning of the file
-                            echo -e "$(bash_coltext_y "dbg:") Adding #include <$__find_plugin_name> at the beginning"
-                            sed -i "1i #include <$__find_plugin_name>" "$shell_DIR/gamemodes/$SERVER_MAIN"
+                            # Debug message if no a_samp or open.mp found
+                            echo -e "$(bash_coltext_y "dbg:") No #include <a_samp> or #include <open.mp> found, adding at the beginning"
+                            # Add the include at the beginning of the file
+                            sed -i "1i#include <$__find_include_name>" "$main_file"
                         fi
                     else
-                        echo -e "$(bash_coltext_y "dbg:") #include <$__find_plugin_name> already exists in $shell_DIR/gamemodes/$SERVER_MAIN"
+                        # Debug message if the include already exists
+                        echo -e "$(bash_coltext_y "dbg:") #include <$__find_include_name> already exists in $main_file"
                     fi
                 else
-                    echo -e "$(bash_coltext_y "dbg:") $shell_DIR/gamemodes/$SERVER_MAIN not found."
+                    # Debug message if the file is not found
+                    echo -e "$(bash_coltext_y "dbg:") $main_file not found."
                 fi
             }
 
-            for __package in $tligpac_PACKAGES; do  # Iterate through each package in the $tligpac_PACKAGES variable
-                if [ -n "$__package" ]; then  # Check if $__package is not empty
-                    # Using the value from tligpac_PACKAGES to determine __find_plugin_name
-                    __find_plugin_name="$__package"  # Assign the value of $__package to the __find_plugin_name variable
-                    
-                    # Add the plugin to the main server
-                    add_find_plugin_name_to_main "$__find_plugin_name"  # Add the plugin to the main server using the add_find_plugin_name_to_main function
+            # Loop through each package name in the __include_names array
+            for __package in "${__include_names[@]}"; do
+                # Check if the package name is not empty
+                if [ -n "$__package" ]; then
+                    # Assign the package name to the __find_include_name variable
+                    __find_include_name="$__package"
+                    # Call the function to add the include directive to main.pwn
+                    add_find_include_to_main "$__find_include_name"
                 fi
             done
 
             # shellcheck disable=SC2154
 if [ -f "$shell_DIR/$SERVER_CONF" ]; then
             # if exist
+            # Check if the SAMP server type is "samp"
             if [ "$__SAMP_SERVER" == "samp" ]; then
-                # if __SAMP_SERVER is samp
+                
+                # Function to check and add the plugin if it's not already in server.cfg
                 __check_and_add() {
                     local __find_plugin_name=$1
                     local __find_so_linux="$__SAMP_PLUGIN_DIR/$__find_plugin_name.so"
                     local __find_dll_win="$__SAMP_PLUGIN_DIR/$__find_plugin_name.dll"
 
-                    # Check if the plugin is already in server.cfg
-                    if ! grep -q "plugins.*$__find_plugin_name" "$SERVER_CONF"; then
-                        # If both .so and .dll exist
+                    # Check if the plugin is already listed in server.cfg
+                    if ! grep -qE "^plugins.*\b$__find_plugin_name\b" "$SERVER_CONF"; then
+                        # If both .so and .dll files exist
                         if [[ -f "$__find_so_linux" && -f "$__find_dll_win" ]]; then
                             echo -e "$(bash_coltext_y "dbg:") Adding $__find_plugin_name.so and $__find_plugin_name.dll to the plugins"
-                            sed -i "/^plugins/ s/$/ $__find_plugin_name.dll $__find_plugin_name.so/" "$SERVER_CONF"
+                            sed -i -E "s/^(plugins.*)/\1 $__find_plugin_name.dll $__find_plugin_name.so/" "$SERVER_CONF"
                         # If only .so exists
                         elif [[ -f "$__find_so_linux" ]]; then
                             echo -e "$(bash_coltext_y "dbg:") Adding $__find_plugin_name.so to the plugins"
-                            sed -i "/^plugins/ s/$/ $__find_plugin_name.so/" "$SERVER_CONF"
+                            sed -i -E "s/^(plugins.*)/\1 $__find_plugin_name.so/" "$SERVER_CONF"
                         # If only .dll exists
                         elif [[ -f "$__find_dll_win" ]]; then
                             echo -e "$(bash_coltext_y "dbg:") Adding $__find_plugin_name.dll to the plugins"
-                            sed -i "/^plugins/ s/$/ $__find_plugin_name.dll/" "$SERVER_CONF"
+                            sed -i -E "s/^(plugins.*)/\1 $__find_plugin_name.dll/" "$SERVER_CONF"
                         fi
                     else
                         echo -e "$(bash_coltext_y "dbg:") Plugin $__find_plugin_name already exists, not added."
                     fi
                 }
+
                 # Check if the "plugins" line exists in server.cfg
                 if ! grep -q "^plugins" "$SERVER_CONF"; then
-                    # If the plugins line doesn't exist, add it to the end of the file
                     echo "plugins" >> "$SERVER_CONF"
                     echo -e "$(bash_coltext_y "dbg:") The 'plugins' line has been added to server.cfg."
                 fi
-                # Check both tligpac_PACKAGES and __tligpac_PACKAGES variables
-                __check_and_add "$tligpac_PACKAGES"
-                __check_and_add "$__tligpac_PACKAGES"
+
+                # Loop to ensure all plugins are properly added
+                for plugin in $tligpac_PACKAGES $__tligpac_PACKAGES; do
+                    __check_and_add "$plugin"
+                done
             fi
 elif [ "$__SAMP_SERVER" == "omp" ]; then
             # if __SAMP_SERVER is open.mp ("omp")
