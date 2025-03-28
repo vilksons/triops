@@ -16,11 +16,6 @@ __handleOS() {
             __PAWNCC__="pawncc"
             __DISABLE_NANO__="true"
             __OS_NOTICE__=1
-
-            if ! command -v docker &>/dev/null; then
-                echo -e "$(bash_coltext_r "crit:") Docker not found!.."
-                echo "Install first!. See: https://github.com/vilksons/triops/wiki/Get-Started"
-            fi
         elif [ -d "/c/Windows/System32" ] || [ -d "/mnt/c/Windows/System32" ] || [ -d "/Windows/System32" ]; then
             __OS__="windows"
             __PAWNCC__="pawncc.exe"

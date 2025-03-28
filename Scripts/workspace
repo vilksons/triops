@@ -93,7 +93,7 @@ COLOR_R="\e[91m"
 export bash_coltext_r
 
 function bash_coltext_a() {
-# Color Text {Gray}
+# Color Text {Gray} 
 # ' echo "$(bash_coltext_a "label")" content '
 COLOR_A="\e[97m"
     local color="$COLOR_A"
@@ -103,7 +103,7 @@ COLOR_A="\e[97m"
 export bash_coltext_a
 
 function bash_coltext_lg() {
-# Color Text (Light Green)
+# Color Text {Light Green}
 # ' echo "$(bash_coltext_lg "label")" content '
 COLOR_LG="\e[92m"
     local color="$COLOR_LG"
@@ -139,66 +139,6 @@ if [ ! -d ".triops" ]; then
 fi
 
 function load_module() {
-    local __missing=()
-    local __cmd
-
-    # List of required commands
-    for __cmd in python3 wget curl grep awk sed tr; do
-        command -v "$__cmd" &>/dev/null || __missing+=("$__cmd")
-    done
-
-    # If missing packages exist, check OS and install
-    if ((${#__missing[@]} > 0)); then
-        echo "Missing packages: ${__missing[*]}"
-        read -r -p "Install now? [y/n] " INSTALL_NOW
-
-        while true; do
-            case "$INSTALL_NOW" in
-                [Yy])
-                    if [[ -f /etc/os-release ]]; then
-                        source /etc/os-release
-                        for i in "${!__missing[@]}"; do
-                            if [[ "${__missing[i]}" == "tr" ]]; then
-                                : ' if missing is "tr", send for install coreutils '
-                                __missing[i]="coreutils"
-                            fi
-                        done
-                        case "$ID" in
-                            fedora|rhel|centos)
-                                : ' fedora / rhel / centos '
-                                sudo dnf install -y "${__missing[@]}"
-                                ;;
-                            debian|ubuntu|linuxmint|pop)
-                                : ' debian / ubuntu / linuxmint / pop '
-                                sudo apt update && sudo apt install -y "${__missing[@]}"
-                                ;;
-                            arch|manjaro)
-                                : ' arch / manjaro '
-                                sudo pacman -Sy --noconfirm "${__missing[@]}"
-                                ;;
-                            *)
-                                : ' if distro is not found '
-                                echo "info: Unrecognized distro, please install manually!"
-                                bash
-                                ;;
-                        esac
-                    else
-                        : ' if /etc/os-release is not found '
-                        echo "/etc/os-release not found. Install packages manually."
-                        bash
-                    fi
-                    ;;
-                [Nn])
-                    bash
-                    ;;
-                *)
-                    : ' return '
-                    read -r -p "Install now? [y/n] " INSTALL_NOW
-                    ;;
-            esac
-        done
-    fi
-    
     local module_name=$1
     local module_path="$shell_DIR/$module_name"
     local module_url=$2
@@ -280,9 +220,24 @@ function bash_typeof() {
     #   @mode.Typeof
     #
     
-    if [ "$MODULE_LOADED_NOTICE" != 1 ]; then
-        LOAD_ALL_MODULES ""
+    local __missing=()
+    local __cmd
+
+    # List of required commands
+    for __cmd in python3 wget curl grep awk sed tr; do
+        command -v "$__cmd" &>/dev/null || __missing+=("$__cmd")
+    done
+
+    # If missing packages exist.
+    if ((${#__missing[@]} > 0)); then
+        echo " Missing packages: ${__missing[*]}"
+        sleep 1.0
         MODULE_LOADED_NOTICE=1
+    else
+        if [ "$MODULE_LOADED_NOTICE" != 1 ]; then
+            LOAD_ALL_MODULES ""
+            MODULE_LOADED_NOTICE=1
+        fi
     fi
 
     #
@@ -298,13 +253,13 @@ function bash_typeof() {
     if [ "$MESSAGE_WARN_PACN" != 1 ]; then
         if ! command -v jq &> /dev/null; then
             echo -e "$(bash_coltext_g "warn:") jq not found."
-            sleep 0.5
+            sleep 1.0
             clear
         fi
         
         if ! command -v aria2c &> /dev/null; then
             echo -e "$(bash_coltext_g "warn:") aria2c not found."
-            sleep 0.5
+            sleep 1.0
             clear
         fi
 
@@ -413,17 +368,13 @@ mode_TRIOPS() {
         "compile"*)
             save_TITLE "Compiler"
 
-            if [ "$__OS__" == "darwin" ]; then
-                ignore_this docker stop $__SAMP_EXEC
-            elif [ "$__OS__" == "linux" ] || [ "$__OS__" == "windows" ]; then
-                if [ -f "$save_LOCK_NAME_SERVER" ]; then
-                    PID=$(cat "$save_LOCK_NAME_SERVER")
-                    ignore_this kill -9 "$PID"
-                    cd "$shell_DIR" >/dev/null 2>&1 || echo "" 
-                    ignore_this rm "$save_LOCK_NAME_SERVER"
-                fi
+            if [ -f "$save_LOCK_NAME_SERVER" ]; then
+                PID=$(cat "$save_LOCK_NAME_SERVER")
+                ignore_this kill -9 "$PID"
+                cd "$shell_DIR" >/dev/null 2>&1 || echo "" 
+                ignore_this rm "$save_LOCK_NAME_SERVER"
             fi
-            
+
             local commands_ARGS="${main_commands#compile }"
             local commands_INPUT=""
             local commands_OPAMX=()
@@ -580,15 +531,11 @@ mode_TRIOPS() {
         "running"*)
             save_TITLE "Running"
 
-            if [ "$__OS__" == "darwin" ]; then
-                ignore_this docker stop $__SAMP_EXEC
-            elif [ "$__OS__" == "linux" ] || [ "$__OS__" == "windows" ]; then 
-                if [ -f "$save_LOCK_NAME_SERVER" ]; then
-                    PID=$(cat "$save_LOCK_NAME_SERVER")
-                    ignore_this kill -9 "$PID"
-                    cd "$shell_DIR" >/dev/null 2>&1 || echo "" 
-                    ignore_this rm "$save_LOCK_NAME_SERVER"
-                fi
+            if [ -f "$save_LOCK_NAME_SERVER" ]; then
+                PID=$(cat "$save_LOCK_NAME_SERVER")
+                ignore_this kill -9 "$PID"
+                cd "$shell_DIR" >/dev/null 2>&1 || echo "" 
+                ignore_this rm "$save_LOCK_NAME_SERVER"
             fi
             
             local commands_ARGS="${main_commands#running }"
@@ -722,15 +669,6 @@ mode_TRIOPS() {
         "clear")
             clear; echo -ne "\033[3J"
             bash_typeof ""
-            ;;
-        "fcheck")
-            save_TITLE "Folder check"
-
-            bash_check_dir "filterscripts"
-            bash_check_dir "gamemodes"
-            bash_check_dir "scriptfiles"
-
-            bash_end ""
             ;;
         "cat"*)
             save_TITLE "Cat"
@@ -1135,7 +1073,6 @@ except KeyboardInterrupt:
                 ["pawncc"]=":: Download PawnCC SA-MP with Selection - Usage: pawncc"
                 ["clear"]=":: Clear Screen Terminal - Usage: clear"
                 ["checksums"]=":: Checksums of Triops - Usage: checksums"
-                ["fcheck"]=":: Checks Directory of SA-MP - Usage: fcheck"
                 ["cat"]=":: Display a files to Triops Terminal - Usage: cat"
                 ["kill"]=":: Kill a Triops Terminal - Usage: kill"
                 ["exit"]=":: Exit/End Triops Terminal - Usage: exit | (+) [<args>] \"all\" to kill all tasks"
@@ -1209,8 +1146,8 @@ function bash_help()
     echo "Commands:"
     echo " compile, running, irunn (compile-run), debug (debugger)"
     echo " stop (stopped server), restart (restart server)"
-    echo " gamemode, pawncc, clear (clear-screen), checksums"
-    echo " fcheck (folder-checks), cat, tligpac, kill, directory"
+    echo " gamemode, pawncc, clear (clear-screen)"
+    echo " checksums, cat, tligpac, kill, directory"
     echo " sync (update/upgrade), syncc (update/upgrade full)"
 
     if [ "$__DISABLE_NANO__" == "true" ]; then

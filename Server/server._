@@ -11,10 +11,6 @@ function space_servers() {
         fi
     fi
 
-    if [ -f "$__SAMP_LOG" ]; then
-        ignore_this rm "$shell_DIR/$__SAMP_LOG"
-    fi
-
     ignore_this sleep 0.1
 
     if [ ! -f "$shell_DIR/$__SAMP_EXEC" ]; then
@@ -48,11 +44,7 @@ function space_servers() {
     chmod 777 "$__SAMP_EXEC"
     
     ( 
-        if [ "$__OS__" == "darwin" ]; then
-            docker run --rm -v "$(pwd)":/app ubuntu /app/"$__SAMP_EXEC"
-        elif [ "$__OS__" == "linux" ] || [ "$__OS__" == "windows" ]; then 
-            ignore_this exec -a "$SERVER_DOUBLE_SHA256" ./"$__SAMP_EXEC"
-        fi
+        ignore_this exec -a "$SERVER_DOUBLE_SHA256" ./"$__SAMP_EXEC"
     ) &
     local pid=$!
 
@@ -67,11 +59,16 @@ function space_servers() {
 
     if [ "$status" -ne 0 ]; then
         shell_TITLE="running - failed"
-        bash_title "$SHUSERS:~/ $shell_TITLE"
+        bash_title "$shell_TITLE"
+
+        if [ -f "$shell_DIR/$save_LOCK_NAME_SERVER" ]; then
+            ignore_this rm "$shell_DIR/$save_LOCK_NAME_SERVER"
+        fi
 
         echo
         echo -e "$(bash_coltext_r "# Fail")"
         echo
+        
         if [ -f "$__SAMP_LOG" ]; then
             sleep 2 > /dev/null
             cat $__SAMP_LOG
@@ -95,14 +92,10 @@ function space_servers() {
             start_false ""
         fi
         if [ "$SERVERS_NEXT" == 2 ]; then
-            if [ "$__OS__" == "darwin" ]; then
-                ignore_this docker stop $__SAMP_EXEC
-            elif [ "$__OS__" == "linux" ] || [ "$__OS__" == "windows" ]; then 
-                if [ -f "$save_LOCK_NAME_SERVER" ]; then
-                    PID=$(cat "$save_LOCK_NAME_SERVER")
-                    ignore_this kill -9 "$PID"
-                    rm "$save_LOCK_NAME_SERVER"
-                fi
+            if [ -f "$save_LOCK_NAME_SERVER" ]; then
+                PID=$(cat "$save_LOCK_NAME_SERVER")
+                ignore_this kill -9 "$PID"
+                rm "$save_LOCK_NAME_SERVER"
             fi
         fi
     fi
@@ -111,18 +104,10 @@ export space_servers
 
 function space_wargs_servers() {
     __SAMP_NEXT_QUERY=1
-    if [ "$__OS__" == "darwin" ]; then
-        ignore_this docker stop $__SAMP_EXEC
-    elif [ "$__OS__" == "linux" ] || [ "$__OS__" == "windows" ]; then 
-        if [ -f "$save_LOCK_NAME_SERVER" ]; then
-            PID=$(cat "$save_LOCK_NAME_SERVER")
-            ignore_this kill -9 "$PID"
-            rm "$save_LOCK_NAME_SERVER"
-        fi
-    fi
-    
-    if [ -f "$__SAMP_LOG" ]; then
-        ignore_this rm "$shell_DIR/$__SAMP_LOG"
+    if [ -f "$save_LOCK_NAME_SERVER" ]; then
+        PID=$(cat "$save_LOCK_NAME_SERVER")
+        ignore_this kill -9 "$PID"
+        rm "$save_LOCK_NAME_SERVER"
     fi
 
     ignore_this sleep 0.1
@@ -153,7 +138,7 @@ with open(f, "w") as file:
                 sed -E "s/^(gamemode0 )[0-9]+/\1$commands_INPUT/" $SERVER_CONF.bak > $SERVER_CONF
     fi
 
-    echo ":: New $SERVER_CONF created with gamemode: $commands_INPUT"
+    echo -e "$(bash_coltext_lg " Running: $commands_INPUT")"
     
     if [ ! -f "$shell_DIR/$__SAMP_EXEC" ]; then
         echo -e "$(bash_coltext_r "crit:") $__SAMP_EXEC not found!. You can get this in \`gamemode\`"
@@ -183,11 +168,7 @@ with open(f, "w") as file:
         chmod 777 "$__SAMP_EXEC"
 
         ( 
-            if [ "$__OS__" == "darwin" ]; then
-                docker run --rm -v "$(pwd)":/app ubuntu /app/"$__SAMP_EXEC"
-            elif [ "$__OS__" == "linux" ] || [ "$__OS__" == "windows" ]; then 
-                ignore_this exec -a "$SERVER_DOUBLE_SHA256" ./"$__SAMP_EXEC"
-            fi
+            ignore_this exec -a "$SERVER_DOUBLE_SHA256" ./"$__SAMP_EXEC"
         ) &
         local pid=$!
 
@@ -202,11 +183,16 @@ with open(f, "w") as file:
 
         if [ "$status" -ne 0 ]; then
             shell_TITLE="running - failed"
-            bash_title "$SHUSERS:~/ $shell_TITLE"
+            bash_title "$shell_TITLE"
+
+            if [ -f "$shell_DIR/$save_LOCK_NAME_SERVER" ]; then
+                ignore_this rm "$shell_DIR/$save_LOCK_NAME_SERVER"
+            fi
 
             echo
             echo -e "$(bash_coltext_r "# Fail")"
             echo
+            
             if [ -f "$__SAMP_LOG" ]; then
                 sleep 2 > /dev/null
                 cat $__SAMP_LOG
@@ -232,14 +218,10 @@ with open(f, "w") as file:
         fi
 
         if [ "$SERVERS_NEXT" == 2 ]; then
-            if [ "$__OS__" == "darwin" ]; then
-                ignore_this docker stop $__SAMP_EXEC
-            elif [ "$__OS__" == "linux" ] || [ "$__OS__" == "windows" ]; then 
-                if [ -f "$save_LOCK_NAME_SERVER" ]; then
-                    PID=$(cat "$save_LOCK_NAME_SERVER")
-                    ignore_this kill -9 "$PID"
-                    rm "$save_LOCK_NAME_SERVER"
-                fi
+            if [ -f "$save_LOCK_NAME_SERVER" ]; then
+                PID=$(cat "$save_LOCK_NAME_SERVER")
+                ignore_this kill -9 "$PID"
+                rm "$save_LOCK_NAME_SERVER"
             fi
         fi
     fi

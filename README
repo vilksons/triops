@@ -63,6 +63,33 @@ Supported Platforms:
   - UserLAnd: https://play.google.com/store/apps/details?id=tech.ula&hl=id&pli=1
   - Linux Deploy: https://github.com/meefik/linuxdeploy
 
+Docker Usage - (Mac/Windows)
+------------------
+  * docker run -it ubuntu
+    - docker run -v ~/Downloads:/mnt/downloads -it ubuntu
+    ^ allowed downloads directory
+    * apt update
+    - apt upgrade
+    * dpkg --add-architecture i386
+    * apt install libc6:i386 libstdc++6:i386
+    - apt install python3 wget curl grep awk sed coreutils jq tomlq aria2
+  * cd /path/to/triops/
+  * chmod +x workspace
+  * ./workspace
+  (Linux)
+  * sudo usermod -aG docker $USER
+  * newgrp docker
+  * docker run -it ubuntu
+    - docker run -v ~/Downloads:/mnt/downloads -it ubuntu
+    ^ allowed downloads directory
+    * apt update
+    - apt upgrade
+    * dpkg --add-architecture i386
+    * apt install libc6:i386 libstdc++6:i386
+    - apt install python3 wget curl grep awk sed coreutils jq tomlq aria2
+  * chmod +x workspace
+  * ./workspace
+
 INSTALLATION STEPS
 ------------------
 1. Open the terminal.

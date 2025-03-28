@@ -21,9 +21,6 @@ security_file_rm()
         ignore_this rm ".cache"
     fi
 
-    if [ -f "$__SAMP_LOG" ]; then
-        ignore_this rm "$__SAMP_LOG"
-    fi
     if [ -f ".cach" ]; then
         ignore_this rm ".cach"
     fi
