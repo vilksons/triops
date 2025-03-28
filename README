@@ -194,6 +194,9 @@ Installing Packages:
 Removing Packages:
     remove streamer
 
+Use `autoinstall` to download packages from the tligpac cache from previous `install` results.
+    autoinstall
+  
 TLIGPAC CONFIGURATION
 ---------------------
 TligPac uses `tligpac.toml` or `tligpac.json`.

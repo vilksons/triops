@@ -74,7 +74,7 @@ function triops_compilers() {
 
 # shellcheck disable=SC2154
                 for _ in {1..10}; do
-                    "$COMPILER_PAWNCC" -i"$DEF_INCLUDE" "$DEF_EXCLUDE" -i"$__SPECIAL_INCLUDE_DIR" "$__LOOP_COMPILES_FILE" -o"$AMX_O" "$AMX_OPT_F" > "$__cache_save" 2>&1
+                    "$COMPILER_PAWNCC" -i"$DEF_INCLUDE" "$DEF_EXCLUDE" -i"$__SPECIAL_INCLUDE_DIR" "$__LOOP_COMPILES_FILE" -o"$AMX_O" "$AMX_OPT_F" > "$__cache_save_compile" 2>&1
                 done
 
             # end of process
@@ -86,7 +86,7 @@ function triops_compilers() {
 
             bash_cache_compiler ""
             sleep 0.1 > /dev/null &&
-            cat "$__cache_save"
+            cat "$__cache_save_compile"
 
             if [ -s "$AMX_O" ]; then
                 echo

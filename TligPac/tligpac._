@@ -28,11 +28,37 @@ function bash_TligPac()
     local __tligpac_unknown_host__=0
 
     case "$tligpac_OPTION_FLAGS" in
+        "autoinstall")
+            # shellcheck disable=SC2154
+            if [ ! -f "$shell_DIR/.cache/tligpac" ]; then
+               echo -e "$(bash_coltext_r "crit:") no downloads history in cache found!"
+               mode_TLIGPAC ""
+            fi
+
+            local __find_urls
+            __find_urls=$(grep -o 'https://[^ ]*' "$shell_DIR/.cache/tligpac")
+
+            mapfile -t __url_of_arrays <<< "$__find_urls"
+
+            local __urls
+            for __urls in "${__url_of_arrays[@]}"; do
+                if [[ ! "$__urls" =~ ^https:// ]]; then
+                    echo -e "$(bash_coltext_r "crit:") history not allowed for: $__urls"
+                fi
+
+                echo -e "$(bash_coltext_y "dbg:") found history for: $__urls"
+                tligpac_OPTION_FLAGS="install $__find_urls"
+                bash_TligPac "$tligpac_OPTION_FLAGS"
+            done
+            ;;
         "install"*)
             save_TITLE "Install Packages"
 
             local tligpac_input_args="${tligpac_OPTION_FLAGS#"install "}"
             local tligpac_input_args="${tligpac_input_args#install }"
+
+            # shellcheck disable=SC2154
+            echo "$tligpac_input_args" >> "$shell_DIR/.cache/tligpac"
 
             local __tligpac_url__=()
 

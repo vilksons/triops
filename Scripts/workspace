@@ -33,8 +33,8 @@ export DO_NOT_SHOW_LNOT
 SERVERS_NEXT=0
 export SERVERS_NEXT
 
-__cache_save=""
-export __cache_save
+__cache_save_compile=""
+export __cache_save_compile
 
 shell_TITLE=""
 export shell_TITLE
@@ -278,8 +278,8 @@ function bash_typeof() {
     if [ ! -d ".cache" ]; then
         mkdir ".cache"
     fi
-    __cache_save=".cache/compiler.log"
-    export __cache_save
+    __cache_save_compile=".cache/compiler.log"
+    export __cache_save_compile
     
     if ! command -v jq &> /dev/null; then
         echo -e "$(bash_coltext_g "warn:") jq not found."
@@ -515,9 +515,9 @@ mode_TRIOPS() {
 
                             for _ in {1..10}; do
                                 if [ $COMPILER_NEXT == 1 ]; then
-                                    "$COMPILER_PAWNCC" -i"$DEF_INCLUDE" "$DEF_EXCLUDE" -i"$__SPECIAL_INCLUDE_DIR" "$__LOOP_COMPILES_FILE" -o"$AMX_O" "$AMX_OPT_F" > "$__cache_save" 2>&1
+                                    "$COMPILER_PAWNCC" -i"$DEF_INCLUDE" "$DEF_EXCLUDE" -i"$__SPECIAL_INCLUDE_DIR" "$__LOOP_COMPILES_FILE" -o"$AMX_O" "$AMX_OPT_F" > "$__cache_save_compile" 2>&1
                                 elif [ $COMPILER_NEXT == 2 ]; then
-                                    "$COMPILER_PAWNCC" -i"$DEF_INCLUDE" "$DEF_EXCLUDE" -i"$__SPECIAL_INCLUDE_DIR" "$__LOOP_COMPILES_FILE" -o"$AMX_O" "$AMX_OPT_F" "${commands_OPAMX[@]}" > "$__cache_save" 2>&1
+                                    "$COMPILER_PAWNCC" -i"$DEF_INCLUDE" "$DEF_EXCLUDE" -i"$__SPECIAL_INCLUDE_DIR" "$__LOOP_COMPILES_FILE" -o"$AMX_O" "$AMX_OPT_F" "${commands_OPAMX[@]}" > "$__cache_save_compile" 2>&1
                                 fi
                             done
                         
@@ -530,7 +530,7 @@ mode_TRIOPS() {
                         
                         bash_cache_compiler ""
                         ignore_this sleep 0.1 &&
-                        cat "$__cache_save"
+                        cat "$__cache_save_compile"
 
                         if [ -s "$AMX_O" ]; then
                             echo
@@ -1182,9 +1182,10 @@ function bash_help2()
 {
     echo "Usage: ops <command> [<args>]"
     echo "Commands:"
-    echo " install - Install/Reinstall Packages"
-    echo " remove  - Remove Packages"
-    echo " exit    - Exit TligPac Mode"
+    echo " autoinstall - auto Install from tligpac cache"
+    echo " install     - Install/Reinstall Packages"
+    echo " remove      - Remove Packages"
+    echo " exit        - Exit TligPac Mode"
 }
 
 function bash_end() {
