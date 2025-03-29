@@ -260,7 +260,7 @@ Example `tligpac.json`:
 
 FINAL NOTES
 -----------
-  - Keep your environment updated using `sync` or `syncc`.
-  - Refer to the Wiki: https://github.com/vilksons/triops/wiki
-  - For issues, visit GitHub Discussions: https://github.com/vilksons/triops/discussions
-  - Report bugs via GitHub Issues.
+- Keep your environment updated using `sync` or `syncc`.
+- Refer to the Wiki: https://github.com/vilksons/triops/wiki
+- For issues, visit GitHub Discussions: https://github.com/vilksons/triops/discussions
+- Report bugs via GitHub Issues.
