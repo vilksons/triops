@@ -815,6 +815,8 @@ mode_TRIOPS() {
 
                             echo "$__lat" > "$shell_DIR/.commits"
 
+                            cd "$shell_DIR" >/dev/null 2>&1 || echo ""
+
                             sleep 1 && bash ./workspace
                             ;;
                         *)
