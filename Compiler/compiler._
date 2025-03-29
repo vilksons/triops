@@ -32,8 +32,7 @@ function triops_compilers() {
     : '
         @Map
     '
-    local __files=()
-    local __LOOP_COMPILES_FILE
+    __files=()
     while IFS= read -r -d '' __LOOP_COMPILES_FILE; do
         __files+=("$__LOOP_COMPILES_FILE")
     done < <(find "$shell_DIR" -name "*.io*" -type f -print0)
@@ -46,7 +45,9 @@ function triops_compilers() {
             local AMX_O
             AMX_O="$(dirname "$__LOOP_COMPILES_FILE")/$(basename "${__LOOP_COMPILES_FILE%.io*}.amx")"
 
-            echo -e "$(bash_coltext_lg " Compiling: $__LOOP_COMPILES_FILE")"
+            echo
+            echo -e "$(bash_coltext_g " Compiling: $__LOOP_COMPILES_FILE")"
+            echo
 
             : '
                 @PawnCC.Compile
@@ -87,7 +88,8 @@ function triops_compilers() {
 
             if [ -s "$AMX_O" ]; then
                 echo
-                echo -e "$(bash_coltext_lg " Finished: $AMX_O")"
+                echo -e "$(bash_coltext_g " Finished: $AMX_O")"
+                
                 if [ "$compiler_MODE" == "true" ]; then
                     shell_TITLE="compilers"
                     bash_title "$SHUSERS:~/ $shell_TITLE"

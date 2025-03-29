@@ -102,15 +102,6 @@ COLOR_A="\e[97m"
 }
 export bash_coltext_a
 
-function bash_coltext_lg() {
-# Color Text {Light Green}
-# ' echo "$(bash_coltext_lg "label")" content '
-COLOR_LG="\e[92m"
-    local color="$COLOR_LG"
-    local label="$!"
-    echo -e "${color}${label}\e[0m"
-}
-
 function save_TITLE()
 {
 # Tile Functions
@@ -230,7 +221,7 @@ function bash_typeof() {
 
     # If missing packages exist.
     if ((${#__missing[@]} > 0)); then
-        echo " Missing packages: ${__missing[*]}"
+        echo " Can't load Workspace Module. Missing packages: ${__missing[*]}"
         sleep 1.0
         MODULE_LOADED_NOTICE=1
     else
@@ -456,8 +447,6 @@ mode_TRIOPS() {
                 : '
                     @Map
                 '
-                local __files=()
-                local __LOOP_COMPILES_FILE
                 while IFS= read -r -d '' __LOOP_COMPILES_FILE; do
                     __files+=("$__LOOP_COMPILES_FILE")
                 done < <(find "$shell_DIR" -name "$commands_INPUT" -type f -print0)
@@ -469,7 +458,9 @@ mode_TRIOPS() {
                         local AMX_O
                         AMX_O="$(dirname "$__LOOP_COMPILES_FILE")/$(basename "${__LOOP_COMPILES_FILE%.*}.amx")"
 
-                        echo -e "$(bash_coltext_lg " Compiling: $__LOOP_COMPILES_FILE")"
+                        echo
+                        echo -e "$(bash_coltext_g " Compiling: $commands_INPUT")"
+                        echo
 
                         : '
                             @PawnCC.Compile
@@ -505,7 +496,8 @@ mode_TRIOPS() {
 
                         if [ -s "$AMX_O" ]; then
                             echo
-                            echo -e "$(bash_coltext_lg " Finished: $AMX_O")"
+                            echo -e "$(bash_coltext_g " Finished: $AMX_O")"
+
                             if [ "$compiler_MODE" == "true" ]; then
                                 shell_TITLE="compilers"
                                 bash_title "user:~/ $shell_TITLE"

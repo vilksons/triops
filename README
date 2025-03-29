@@ -79,7 +79,7 @@ Docker Usage
     * dpkg --add-architecture i386
     * apt install libc6:i386 libstdc++6:i386
       ^ x86 support for x64 (needed)
-    - apt install python3 wget curl grep awk sed coreutils jq tomlq aria2
+    - apt install python3 wget curl grep awk sed coreutils jq tomlq aria2 unzip tar
       ^ (optional) : packages required for triops/workspace
   @ cd /path/to/triops/
     ^ cd to triops/workspace
@@ -102,7 +102,7 @@ Docker Usage
     * dpkg --add-architecture i386
     * apt install libc6:i386 libstdc++6:i386
       ^ x86 support for x64 (needed)
-    - apt install python3 wget curl grep awk sed coreutils jq tomlq aria2
+    - apt install python3 wget curl grep awk sed coreutils jq tomlq aria2 unzip tar
       ^ (optional) : packages required for triops/workspace
   @ cd /path/to/triops/
     ^ cd to triops/workspace
@@ -111,6 +111,11 @@ Docker Usage
   @ ./workspace
     ^ runn the triops/workspace
 
+  # re-open your docker image:
+    @ docker run -d <image-name>
+      ^ running docker.
+      - docker ps -a --format "{{.Names}}"
+        ^ for see docker image-name
 USAGE
 -----
 FILE RENAMING
