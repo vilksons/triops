@@ -29,7 +29,7 @@ function struct_TLIGPAC()
 
     local tables1="autoinstall"
     local tables2="install"
-    local tables3="rmeove"
+    local tables3="remove"
 
     case "$pac_table" in
         "$tables1")
