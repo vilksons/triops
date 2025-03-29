@@ -82,15 +82,16 @@ Docker Usage
       ^ x86 support for x64 (needed)
     * apt install python3 wget curl grep awk sed coreutils tomlq aria2 unzip tar jq 
       |           ^ ----- ^ -- ^ -- ^ -- ^ - ^ - ^ ------- ^ --- ^ --- ^ --- ^ - ^
-      ^ (required) packages required for triops/workspace < ----------------------
+      ^ (required) packages required for triops/workspace                        |
+        ^ -----------------------------------------------------------------------
   @ cd /path/to/triops/
     ^ cd to triops/workspace
   @ chmod +x workspace
     |     ^ type of permissions, recommended +x : 755
-    ^ give triops/workspace permissions 
+    ^ give permissions for the triops/workspace
   @ ./workspace
     ^ runn the triops/workspace
-    
+
   (Linux)
   @ sudo usermod -aG docker $USER
     ^ added docker user to Your Linux.
@@ -109,16 +110,17 @@ Docker Usage
       ^ x86 support for x64 (needed)
     * apt install python3 wget curl grep awk sed coreutils tomlq aria2 unzip tar jq 
       |           ^ ----- ^ -- ^ -- ^ -- ^ - ^ - ^ ------- ^ --- ^ --- ^ --- ^ - ^
-      ^ (required) packages required for triops/workspace < ----------------------
+      ^ (required) packages required for triops/workspace                        |
+        ^ -----------------------------------------------------------------------
   @ cd /path/to/triops/
     ^ cd to triops/workspace
   @ chmod +x workspace
     |     ^ type of permissions, recommended +x : 755
-    ^ give triops/workspace permissions 
+    ^ give permissions for the triops/workspace
   @ ./workspace
     ^ runn the triops/workspace
 
-  (additional)
+  (Additional)
     @ docker ps -a
       ^ check all running/previously run docker
       - docker start <container-names>
