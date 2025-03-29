@@ -128,18 +128,18 @@ if [ ! -d ".triops" ]; then
     mkdir ".triops"
 fi
 
-function load_workspace_module() {
-    local module_name=$1
-    local module_path="$shell_DIR/$module_name"
-    local module_url=$2
+function console_Module_Install() {
+    local param_module=$1
+    local param_path="$shell_DIR/$param_module"
+    local param_url=$2
     local special_param=$3
     
-    if [ -f "$module_path" ] && [ "$module_loaded" != 1 ]; then
-        chmod +x "$module_path"
-        if [ "$module_name" == ".workspace.py" ]; then
+    if [ -f "$param_path" ] && [ "$module_loaded" != 1 ]; then
+        chmod +x "$param_path"
+        if [ "$param_module" == ".workspace.py" ]; then
             source <(python3 .workspace.py 2>/dev/null) >/dev/null 2>&1 || echo
         else
-            source "$module_path" || sleep 1.0
+            source "$param_path" || sleep 1.0
         fi
         
         clear
@@ -154,10 +154,10 @@ function load_workspace_module() {
         mkdir -p "$shell_DIR"
 
         if [ "$special_param" != "ignore" ]; then
-            wget -q -O "$module_path" "$module_url" &>/dev/null
+            wget -q -O "$param_path" "$param_url" &>/dev/null
         else
             # download in background - efficiency
-            wget -q -O "$module_path" "$module_url" &>/dev/null &
+            wget -q -O "$param_path" "$param_url" &>/dev/null &
         fi
 
         clear
@@ -176,15 +176,15 @@ workspace_module()
         sleep 0.10
     fi
 
-    load_workspace_module ".workspace.py" "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Scripts/workspace.py" "" 
-    load_workspace_module ".triops/security._" "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Security/security._" "ignore" 
-    load_workspace_module ".triops/compat._" "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Compat/compat._" "compat" 
-    load_workspace_module ".triops/compiler._" "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Compiler/compiler._" "ignore" 
-    load_workspace_module ".triops/tligpac._" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/TligPac/tligpac._" "ignore" 
-    load_workspace_module ".triops/samp._" "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Package/samp._" "ignore" 
-    load_workspace_module ".triops/pawncc._" "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Package/pawncc._" "ignore" 
-    load_workspace_module ".triops/misc._" "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Misc/misc._" "ignore" 
-    load_workspace_module ".triops/server._" "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Server/server._" "ignore"
+    console_Module_Install ".workspace.py" "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Scripts/workspace.py" "" 
+    console_Module_Install ".triops/security._" "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Security/security._" "ignore" 
+    console_Module_Install ".triops/compat._" "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Compat/compat._" "compat" 
+    console_Module_Install ".triops/compiler._" "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Compiler/compiler._" "ignore" 
+    console_Module_Install ".triops/tligpac._" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/TligPac/tligpac._" "ignore" 
+    console_Module_Install ".triops/samp._" "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Package/samp._" "ignore" 
+    console_Module_Install ".triops/pawncc._" "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Package/pawncc._" "ignore" 
+    console_Module_Install ".triops/misc._" "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Misc/misc._" "ignore" 
+    console_Module_Install ".triops/server._" "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Server/server._" "ignore"
 }
 
 rest_var() {
@@ -622,7 +622,7 @@ mode_TRIOPS() {
                     ignore_this sleep 2
                     space_servers ""
                 else
-                    echo "error: No progress Server running."
+                    echo "error: No process Server is running."
                 fi
             fi
 
@@ -1117,7 +1117,7 @@ function help_dialog_ops()
         echo "Invalid!.. Please Use:"
     fi
 
-    echo "Usage: ops <command> | help | -h | --h | [<commands>]"
+    echo "Usage: ops <flags> | help | -h | --h | [<commands>]"
     echo "Commands:"
     echo " compile, running, irunn (compile-run), debug (debugger)"
     echo " stop (stopped server), restart (restart server)"

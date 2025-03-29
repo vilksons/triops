@@ -31,4 +31,4 @@ SET "AMX_OPTION=-;+ -(+ -d3"
   )
 
 PAUSE
-GOTO COMPILERS
+GOTO :END
