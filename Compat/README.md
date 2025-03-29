@@ -4,7 +4,7 @@ These is Compat for All OS, module of Triops/Workspace.
 
 ## How does it work?
 
-By running the command to check important Operating System folders, such as Darwin (macOS), GNU/Linux or Android, and Windows.
+By running the command to check important Operating System folders, such as GNU/Linux or Android, and Windows.
 
 ## What does not work?
 

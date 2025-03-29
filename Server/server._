@@ -1,9 +1,7 @@
 #!/bin/bash
 
 function space_servers() {
-    if [ "$__OS__" == "darwin" ]; then
-        ignore_this docker stop $json_EXE_SERV
-    elif [ "$__OS__" == "linux" ] || [ "$__OS__" == "windows" ]; then
+    if [ "$__OS__" == "linux" ] || [ "$__OS__" == "windows" ]; then
         if [ -f "$save_LOCK_NAME_SERVER" ]; then
             PID=$(cat "$save_LOCK_NAME_SERVER")
             ignore_this kill -9 "$PID"

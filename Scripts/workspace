@@ -10,7 +10,6 @@ export __OS_NOTICE__
 ###  "nul"     ###
 ###  "linux"   ###
 ###  "windows" ###
-###  "darwin"  ###
 ##################
 __OS__="nul"
 export __OS__
@@ -552,9 +551,7 @@ mode_TRIOPS() {
         "irunn")
             console_TITLE "Compile & Running"
 
-            if [ "$__OS__" == "darwin" ]; then
-                ignore_this docker stop $json_EXE_SERV
-            elif [ "$__OS__" == "linux" ] || [ "$__OS__" == "windows" ]; then 
+            if [ "$__OS__" == "linux" ] || [ "$__OS__" == "windows" ]; then 
                 if [ -f "$save_LOCK_NAME_SERVER" ]; then
                     PID=$(cat "$save_LOCK_NAME_SERVER")
                     ignore_this kill -9 "$PID"
@@ -571,9 +568,7 @@ mode_TRIOPS() {
         "debug"*)
             console_TITLE "Debugging"
 
-            if [ "$__OS__" == "darwin" ]; then
-                ignore_this docker stop $json_EXE_SERV
-            elif [ "$__OS__" == "linux" ] || [ "$__OS__" == "windows" ]; then 
+            if [ "$__OS__" == "linux" ] || [ "$__OS__" == "windows" ]; then 
                 if [ -f "$save_LOCK_NAME_SERVER" ]; then
                     PID=$(cat "$save_LOCK_NAME_SERVER")
                     ignore_this kill -9 "$PID"
@@ -606,9 +601,7 @@ mode_TRIOPS() {
         "stop")
             console_TITLE "Stop"
 
-            if [ "$__OS__" == "darwin" ]; then
-                ignore_this docker stop $json_EXE_SERV
-            elif [ "$__OS__" == "linux" ] || [ "$__OS__" == "windows" ]; then 
+            if [ "$__OS__" == "linux" ] || [ "$__OS__" == "windows" ]; then 
                 if [ -f "$save_LOCK_NAME_SERVER" ]; then
                     PID=$(cat "$save_LOCK_NAME_SERVER")
                     ignore_this kill -9 "$PID"
@@ -621,16 +614,7 @@ mode_TRIOPS() {
         "restart")
             console_TITLE "Restart"
 
-            if [ "$__OS__" == "darwin" ]; then
-                if docker ps --filter "$json_EXE_SERV" | grep -q "$json_EXE_SERV"; then
-                    ignore_this docker stop $json_EXE_SERV
-
-                    ignore_this sleep 2
-                    space_servers ""
-                else
-                    echo "error: No progress Server running."
-                fi
-            elif [ "$__OS__" == "linux" ] || [ "$__OS__" == "windows" ]; then 
+            if [ "$__OS__" == "linux" ] || [ "$__OS__" == "windows" ]; then 
                 if [ -f "$save_LOCK_NAME_SERVER" ]; then
                     PID=$(cat "$save_LOCK_NAME_SERVER")
                     ignore_this kill -9 "$PID"

@@ -68,7 +68,6 @@ function fetch_now()
     find_PLATFORM=""
     if [ "$__OS__" == "linux" ]; then find_PLATFORM="Linux"; fi
     if [ "$__OS__" == "windows" ]; then find_PLATFORM="${find_PLATFORM:+$find_PLATFORM & }Windows"; fi
-    if [ "$__OS__" == "darwin" ]; then find_PLATFORM="${find_PLATFORM:+$find_PLATFORM & }Darwin / MacOS"; fi
 
     if [ -n "$find_PLATFORM" ]; then
         echo "Triops Platform: $find_PLATFORM"
