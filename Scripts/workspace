@@ -303,7 +303,7 @@ if [ ! -f "lang.json" ]; then
     "repository": "stable"
 }
 EOF
-ignore_this sleep 0.100
+ignore_this sleep 0.1
 chmod +x "$shell_NAME"
 exec bash ./"$shell_NAME"
     elif [ "$__SAMP_SERVER" == "omp" ]; then

@@ -111,11 +111,16 @@ Docker Usage
   @ ./workspace
     ^ runn the triops/workspace
 
-  # re-open your docker image:
-    @ docker run -d <image-name>
-      ^ running docker.
-      - docker ps -a --format "{{.Names}}"
-        ^ for see docker image-name
+  # additional
+    @ docker ps -a
+      ^ check all running/previously run docker
+      - docker start <container-names>
+        ^ for start a docker images
+      - docker exec -it <container-names> /bin/bash
+        ^ to running the containers
+    @ docker stop <container-names>
+      ^ to stop a docker containers
+
 USAGE
 -----
 FILE RENAMING
