@@ -49,22 +49,23 @@ INSTALLATION
 ------------
 Supported Platforms:
 - Linux, Darwin, Windows, macOS, and Android via:
-  - WSL/WSL2: https://learn.microsoft.com/en-us/windows/wsl/install
-  - MSYS2: https://www.msys2.org/
-  - mingw-w64: https://www.mingw-w64.org/
-  - Cygwin: https://www.cygwin.com/
-  - Babun: https://github.com/babun/babun
-  - Termux: https://termux.dev/en/
-  - UserLAnd: https://github.com/CypherpunkArmory/UserLAnd
-  - Linux Deploy: https://github.com/meefik/linuxdeploy
+  - Docker (Windows/macOS): https://www.docker.com/
+  - WSL/WSL2 (Windows): https://learn.microsoft.com/en-us/windows/wsl/install
+  - MSYS2 (Windows): https://www.msys2.org/
+  - mingw-w64 (Windows/macOS): https://www.mingw-w64.org/
+  - Cygwin (Windows): https://www.cygwin.com/
+  - Babun (Windows): https://github.com/babun/babun
+  - Termux (Android/Emulator): https://termux.dev/en/
+  - UserLAnd (Android/Emulator): https://github.com/CypherpunkArmory/UserLAnd
+  - Linux Deploy (Android/Emulator): https://github.com/meefik/linuxdeploy
 
 INSTALLATION STEPS
 ------------------
-1. Open the terminal.
+1. Open the Terminal.
 2. Make the `workspace` script executable:
-  * chmod +x workspace
+   - chmod +x workspace
 3. Run the script:
-  * bash ./workspace
+   - bash ./workspace
 
 Docker Usage
 ------------------
