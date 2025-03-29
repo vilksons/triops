@@ -75,16 +75,19 @@ Docker Usage
     * apt update
       ^ refresh repository
     - apt upgrade
-      ^ (optional) : upgrade packages if needed
+      ^ (optional) upgrade packages if needed
     * dpkg --add-architecture i386
     * apt install libc6:i386 libstdc++6:i386
+      |           ^ -------- ^ i386 added configuration
       ^ x86 support for x64 (needed)
-    - apt install python3 wget curl grep awk sed coreutils jq tomlq aria2 unzip tar
-      ^ (optional) : packages required for triops/workspace
+    * apt install python3 wget curl grep awk sed coreutils jq tomlq aria2 unzip tar
+      |           |       |    |    |    |   |   |         |        |     |     |
+      ^ (required) packages required for triops/workspace
   @ cd /path/to/triops/
     ^ cd to triops/workspace
   @ chmod +x workspace
-    ^ give triops/workspace permissions +x
+    |     ^ type of permissions, recommended +x : 755
+    ^ give triops/workspace permissions 
   @ ./workspace
     ^ runn the triops/workspace
   (Linux)
@@ -98,25 +101,30 @@ Docker Usage
     * apt update
       ^ refresh repository
     - apt upgrade
-      ^ (optional) : upgrade packages if needed
+      ^ (optional) upgrade packages if needed
     * dpkg --add-architecture i386
     * apt install libc6:i386 libstdc++6:i386
+      |           ^ -------- ^ i386 added configuration
       ^ x86 support for x64 (needed)
-    - apt install python3 wget curl grep awk sed coreutils jq tomlq aria2 unzip tar
-      ^ (optional) : packages required for triops/workspace
+    * apt install python3 wget curl grep awk sed coreutils jq tomlq aria2 unzip tar
+      |           |       |    |    |    |   |   |         |        |     |     |
+      ^ (required) packages required for triops/workspace
   @ cd /path/to/triops/
     ^ cd to triops/workspace
   @ chmod +x workspace
-    ^ give triops/workspace permissions +x
+    |     ^ type of permissions, recommended +x : 755
+    ^ give triops/workspace permissions 
   @ ./workspace
     ^ runn the triops/workspace
 
-  # additional
+  (additional)
     @ docker ps -a
       ^ check all running/previously run docker
       - docker start <container-names>
+        |            ^ docker container names
         ^ for start a docker images
       - docker exec -it <container-names> /bin/bash
+        |                                 ^ location session, /bin/bash : /bin/sh 
         ^ to running the containers
     @ docker stop <container-names>
       ^ to stop a docker containers
