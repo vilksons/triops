@@ -81,9 +81,8 @@ Docker Usage
       |           ^ -------- ^ i386 configuration
       ^ x86 support for x64 (needed)
     * apt install python3 wget curl grep awk sed coreutils tomlq aria2 unzip tar jq 
-      |           ^ ----- ^ -- ^ -- ^ -- ^ - ^ - ^ ------- ^ --- ^ --- ^ --- ^ - ^
-      ^ (required) packages required for triops/workspace                        |
-        ^ -----------------------------------------------------------------------
+      | < ------- ^ ----- ^ -- ^ -- ^ -- ^ - ^ - ^ ------- ^ --- ^ --- ^ --- ^ - ^
+      ^ (required) packages required for triops/workspace              
   @ cd /path/to/triops/
     ^ cd to triops/workspace
   @ chmod +x workspace
@@ -109,9 +108,8 @@ Docker Usage
       |           ^ -------- ^ i386 added configuration
       ^ x86 support for x64 (needed)
     * apt install python3 wget curl grep awk sed coreutils tomlq aria2 unzip tar jq 
-      |           ^ ----- ^ -- ^ -- ^ -- ^ - ^ - ^ ------- ^ --- ^ --- ^ --- ^ - ^
-      ^ (required) packages required for triops/workspace                        |
-        ^ -----------------------------------------------------------------------
+      | < ------- ^ ----- ^ -- ^ -- ^ -- ^ - ^ - ^ ------- ^ --- ^ --- ^ --- ^ - ^
+      ^ (required) packages required for triops/workspace                        
   @ cd /path/to/triops/
     ^ cd to triops/workspace
   @ chmod +x workspace
