@@ -291,7 +291,7 @@ if [ ! -f "lang.json" ]; then
         "includes3"
     ],
     "samp_log": "server_log.txt",
-    "json_SERVER_CONFIG": "server.cfg",
+    "server_conf": "server.cfg",
     "main_server": "main.pwn",
     "samp_executable": "samp03svr",
     "include_dir": "pawno/include",
@@ -321,7 +321,7 @@ exec bash ./"$shell_NAME"
         "includes3"
     ],
     "samp_log": "log.txt",
-    "json_SERVER_CONFIG": "config.json",
+    "server_conf": "config.json",
     "main_server": "main.pwn",
     "samp_executable": "omp-server",
     "include_dir": "qawno/include",
@@ -765,6 +765,12 @@ mode_TRIOPS() {
                                 if [ -f "lang.json" ]; then
                                     mv lang.json lang.json.old.txt
                                 fi
+
+                                rm ".lib"
+                            fi
+
+                            if [ ! -f "$shell_DIR/.lib" ]; then
+                                mkdir "$shell_DIR/.lib"
                             fi
 
                             echo "Updating..."
