@@ -91,7 +91,7 @@ Docker Usage
   @ ./workspace
     ^ runn the triops/workspace
 
-  (Linux)
+  (Linux/WSL2)
   @ sudo usermod -aG docker $USER
     ^ added docker user to Your Linux.
   @ newgrp docker
