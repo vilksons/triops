@@ -16,8 +16,6 @@ export __OS__
 
 __PAWNCC__="nul"
 export __PAWNCC__
-__DISABLE_NANO__=""
-export __DISABLE_NANO__
 SAMP_WARGS_STATUS=0
 export SAMP_WARGS_STATUS
 __SAMP_SERVER=""
@@ -942,32 +940,27 @@ except KeyboardInterrupt:
             echo
             ;;
         "nano"*)
-            if [ "$__DISABLE_NANO__" == "false" ]; then
-                if ! command -v nano &> /dev/null; then
-                    echo "nano not found!, install first."
-                    end_console_main ""
-                fi
-                
-                console_TITLE "GNU/Nano"
-                
-                local commands_ARGS="${ops_table#nano }"
-
-                if [[ -n "$commands_ARGS" && "$commands_ARGS" != "$ops_table" ]]; then
-                    commands_INPUT="$commands_ARGS"
-                else
-                    echo -e "$(bash_coltext_a ":: Enter File Name:")"
-                    while true; do
-                        read -r -p ">>> " commands_INPUT
-                        [[ -n "$commands_INPUT" ]] && break
-                    done
-                fi
-
-                nano "$commands_INPUT"
-                end_console_main ""
-            else
-                echo "error: $ops_table: command not found"
+            if ! command -v nano &> /dev/null; then
+                echo "nano not found!, install first."
                 end_console_main ""
             fi
+            
+            console_TITLE "GNU/Nano"
+            
+            local commands_ARGS="${ops_table#nano }"
+
+            if [[ -n "$commands_ARGS" && "$commands_ARGS" != "$ops_table" ]]; then
+                commands_INPUT="$commands_ARGS"
+            else
+                echo -e "$(bash_coltext_a ":: Enter File Name:")"
+                while true; do
+                    read -r -p ">>> " commands_INPUT
+                    [[ -n "$commands_INPUT" ]] && break
+                done
+            fi
+
+            nano "$commands_INPUT"
+            end_console_main ""
             ;;
         "remcac")
             console_TITLE "Remove Cache"
@@ -1069,16 +1062,18 @@ except KeyboardInterrupt:
             
             if [[ -n "$commands_ARGS" && "$commands_ARGS" != "$ops_table" ]]; then
                 if [[ -n "${descriptions[$commands_ARGS]}" ]]; then
-                    if [[ "$commands_ARGS" == "nano" && "$__DISABLE_NANO__" == "true" ]]; then
-                        help_dialog_ops "invalid"
-                    else
-                        if [ "$commands_ARGS" == "compile" ]; then
-                            echo "${descriptions[$commands_ARGS]}"
-                            echo " Example: compile bare.pwn +option_amx"
-                            echo " For Option. Please See: github.com/vilksons/triops/wiki/Compiler-Option"
+                    if [ "$commands_ARGS" == "nano" ]; then
+                        if ! command -v nano &> /dev/null; then
+                            help_dialog_ops "invalid"
                         else
                             echo "${descriptions[$commands_ARGS]}"
                         fi
+                    elif [ "$commands_ARGS" == "compile" ]; then
+                        echo "${descriptions[$commands_ARGS]}"
+                        echo " Example: compile bare.pwn +option_amx"
+                        echo " For Option. Please See: github.com/vilksons/triops/wiki/Compiler-Option"
+                    else
+                        echo "${descriptions[$commands_ARGS]}"
                     fi
                 else
                     help_dialog_ops "invalid"
@@ -1130,7 +1125,7 @@ function help_dialog_ops()
     echo " checksums, cat, tligpac, kill, directory"
     echo " sync (update/upgrade), syncc (update/upgrade full)"
 
-    if [ "$__DISABLE_NANO__" == "true" ]; then
+    if ! command -v nano &> /dev/null; then
         echo " exit, remcac, chatbot, fetch"
     else
         echo " exit, remcac, chatbot, nano, fetch"

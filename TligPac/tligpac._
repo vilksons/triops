@@ -93,7 +93,7 @@ function struct_TLIGPAC()
     ]
 }
 EOF
-                    if [ "$__DISABLE_NANO__" == "false" ]; then
+                    if command -v nano &> /dev/null; then
                         nano "$shell_DIR/tligpac.json"
                     fi
 mode_TLIGPAC ""

@@ -10,11 +10,9 @@ __handleOS() {
             __OS__="linux"
             __PAWNCC__="pawncc"
             __OS_NOTICE__=1
-            __DISABLE_NANO__="false"
         elif [ -d "/c/Windows/System32" ] || [ -d "/mnt/c/Windows/System32" ] || [ -d "/Windows/System32" ]; then
             __OS__="windows"
             __PAWNCC__="pawncc.exe"
-            __DISABLE_NANO__="true"
             __OS_NOTICE__=1
         fi
 
@@ -26,14 +24,12 @@ __handleOS() {
                 case "$PERMISSION_NEED_OS" in
                     [Yy]) 
                         __PAWNCC__="pawncc.exe"
-                        __DISABLE_NANO__="true"
                         __OS__="windows"
                         __OS_NOTICE__=1
                         break 
                         ;;
                     [Bb]) 
                         __PAWNCC__="pawncc"
-                        __DISABLE_NANO__="false"
                         __OS__="linux"
                         __OS_NOTICE__=1
                         break 
