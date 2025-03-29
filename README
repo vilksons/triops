@@ -163,33 +163,33 @@ CONFIGURATION `lang.json`
 ---------------------------
 CONFIGURATION DETAILS
 ------------------------------
-  o amx_flags
+  o "amx_flags"
     option Flags: https://github.com/vilksons/triops/wiki/Compiler-Option
-  o include_paths
+  o "include_paths"
     Default compiler include directory.
-  o exclude_paths
+  o "exclude_paths"
     Directories excluded from compilation.                      
-  o samp_log
+  o "samp_log"
     SA-MP server log file.                                      
-  o server_conf
+  o "server_conf"
     SA-MP server configuration file.     (TligPac)
-  o main_server
+  o "main_server"
     SA-MP main server file. (TligPac)           
-  o samp_executable
+  o "samp_executable"
     SA-MP server executable.                                    
-  o include_dir
+  o "include_dir"
     Package manager include directory (TligPac).                
-  o plugins_dir
+  o "plugins_dir"
     Directory for `.dll` and `.so` plugins (TligPac).           
-  o bot_token
+  o "bot_token"
     API key from https://console.groq.com/keys
-  o bot_model
+  o "bot_model"
     AI model from https://console.groq.com/                     
-  o bot_profile
+  o "bot_profile"
     Additional chatbot configuration.                           
-  o remcache_auto
+  o "remcache_auto"
     Auto-remove `/.cache` (true/false).                         
-  o repository
+  o "repository"
     Repository of Triops for Sync - (stable/testing) ~ testing faster before main
 
 EXAMPLE: `include_paths` USAGE
