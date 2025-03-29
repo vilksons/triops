@@ -761,18 +761,6 @@ mode_TRIOPS() {
                                 rm -rf ".triops" && sleep 0.1 && mkdir ".triops"
                             fi
 
-                            if [ "$ops_table" == "syncc" ]; then
-                                if [ -f "lang.json" ]; then
-                                    mv lang.json lang.json.old.txt
-                                fi
-
-                                rm ".lib"
-                            fi
-
-                            if [ ! -f "$shell_DIR/.lib" ]; then
-                                mkdir "$shell_DIR/.lib"
-                            fi
-
                             echo "Updating..."
                             
                             echo "$__lat" > "$shell_DIR/.commits"
@@ -810,6 +798,12 @@ mode_TRIOPS() {
                                 if [ "$ops_table" == "syncc" ]; then
                                     wget -q --show-progress -O ".workspace.py" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/testing/Scripts/workspace.py"
                                     wget -q --show-progress -O "workspace" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/testing/Scripts/workspace"
+                                fi
+                            fi
+
+                            if [ "$ops_table" == "syncc" ]; then
+                                if [ -f "lang.json" ]; then
+                                    mv lang.json lang.json.old.txt
                                 fi
                             fi
 
