@@ -49,13 +49,13 @@ INSTALLATION
 ------------
 Supported Platforms:
 - Linux, Darwin, Windows, macOS, and Android via:
-  - WSL: https://learn.microsoft.com/en-us/windows/wsl/install
+  - WSL/WSL2: https://learn.microsoft.com/en-us/windows/wsl/install
   - MSYS2: https://www.msys2.org/
   - mingw-w64: https://www.mingw-w64.org/
   - Cygwin: https://www.cygwin.com/
   - Babun: https://github.com/babun/babun
   - Termux: https://termux.dev/en/
-  - UserLAnd: https://play.google.com/store/apps/details?id=tech.ula&hl=id&pli=1
+  - UserLAnd: https://github.com/CypherpunkArmory/UserLAnd
   - Linux Deploy: https://github.com/meefik/linuxdeploy
 
 INSTALLATION STEPS
