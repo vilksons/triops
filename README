@@ -120,6 +120,12 @@ Docker Usage
         ^ to running the containers
     @ docker stop <container-names>
       ^ to stop a docker containers
+    @ docker rm -f <container-names>
+      |         ^ -f for forcing
+      ^ to remove a docker containers
+      - docker rm -f $(docker ps -a -q)
+        |         ^ -f for forcing
+        ^ to remove all docker containers
 
 USAGE
 -----
