@@ -90,6 +90,7 @@ Docker Usage
     ^ give triops/workspace permissions 
   @ ./workspace
     ^ runn the triops/workspace
+    
   (Linux)
   @ sudo usermod -aG docker $USER
     ^ added docker user to Your Linux.
