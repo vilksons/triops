@@ -54,7 +54,7 @@ function triops_compilers() {
             '
             for option in $json_AMX_OPT_F; do
                 # option checking
-                if [[ " ${_valid_AMX_OPTION_[*]} " != *" $option "* ]]; then
+                if [[ " ${COMPILER_AMX_FLAGS[*]} " != *" $option "* ]]; then
                     # not valid
                     echo -e "$(collor_red "crit:") compiler option \`$option\` not found!"
                     echo -e "$(collor_yellow "info:") please see: github.com/vilksons/triops/wiki/Compiler-Option"

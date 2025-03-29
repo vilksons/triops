@@ -2,6 +2,7 @@
 
 clear && cd "$(dirname "$(realpath "$0")")" || echo
 
+function _@console_@() {
 __OS_NOTICE__=0
 export __OS_NOTICE__
 
@@ -55,6 +56,9 @@ COMPILER_PAWNCC=""
 export COMPILER_PAWNCC
 COMPILER_NEXT=0
 export COMPILER_NEXT
+}
+
+_@console_@
 
 function bash_title() {
     echo -ne "\033]0;$1\007"
@@ -111,12 +115,12 @@ function console_TITLE()
 export console_TITLE
 
 : ' compiler option '
-_valid_AMX_OPTION_=(
+COMPILER_AMX_FLAGS=(
     "-A" "-a" "-C+" "-C-" "-c" "-D" "-d0" "-d1" "-d2" "-d3" "-e" "-H" 
     "-i" "-l" "-O" "-p" "-R+" "-R-" "-r" "-S" "-s" "-t" "-v0" "-v1" "-v2"
     "-W" "-X" "-XD" "-Z+" "-Z-" "-E+" "-E-" "-^" "-;+" "-;-" "-(+" "-(-" "sym=" "sym=val"
 )
-export _valid_AMX_OPTION_
+export COMPILER_AMX_FLAGS
 
 ignore_this() {
     "$@" > /dev/null 2>&1
@@ -394,7 +398,7 @@ mode_TRIOPS() {
 
                             for option in "${commands_OPAMX[@]}"; do
                                 # option checking
-                                if [[ " ${_valid_AMX_OPTION_[*]} " != *" $option "* ]]; then
+                                if [[ " ${COMPILER_AMX_FLAGS[*]} " != *" $option "* ]]; then
                                     # not valid
                                     echo -e "$(collor_red "crit:") compiler option \`$option\` not found!"
                                     echo -e "$(collor_yellow "info:") please see: github.com/vilksons/triops/wiki/Compiler-Option"
