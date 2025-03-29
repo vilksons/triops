@@ -2,7 +2,7 @@
 
 function space_servers() {
     if [ "$__OS__" == "darwin" ]; then
-        ignore_this docker stop $__SAMP_EXEC
+        ignore_this docker stop $json_EXE_SERV
     elif [ "$__OS__" == "linux" ] || [ "$__OS__" == "windows" ]; then
         if [ -f "$save_LOCK_NAME_SERVER" ]; then
             PID=$(cat "$save_LOCK_NAME_SERVER")
@@ -13,21 +13,21 @@ function space_servers() {
 
     ignore_this sleep 0.1
 
-    if [ ! -f "$shell_DIR/$__SAMP_EXEC" ]; then
-        echo -e "$(bash_coltext_r "crit:") $__SAMP_EXEC not found!. You can get this in \`gamemode\`"
+    if [ ! -f "$shell_DIR/$json_EXE_SERV" ]; then
+        echo -e "$(collor_red "crit:") $json_EXE_SERV not found!. You can get this in \`gamemode\`"
         echo
         read -r -p "install now? [y/n] " INSTALL_NOW
 
         while true; do
             case "$INSTALL_NOW" in
                 [Yy])
-                    what_is_choice_samp ""
+                    struct_choice_samp ""
                     ;;
                 [Nn])
-                    bash_typeof ""
+                    struct_console_main ""
                     ;;
                 *)
-                    what_is_choice_samp ""
+                    struct_choice_samp ""
                     ;;
             esac
         done
@@ -38,13 +38,13 @@ function space_servers() {
     if [ ! -f "$save_LOCK_NAME_SERVER" ]; then
         : ' Create Lock File '
         touch "$save_LOCK_NAME_SERVER"
-        echo "$SERVER_DOUBLE_SHA256" > "$save_LOCK_NAME_SERVER"
+        echo "$json_SERV_DSHA256" > "$save_LOCK_NAME_SERVER"
     fi
 
-    chmod 777 "$__SAMP_EXEC"
+    chmod 777 "$json_EXE_SERV"
     
     ( 
-        ignore_this exec -a "$SERVER_DOUBLE_SHA256" ./"$__SAMP_EXEC"
+        ignore_this exec -a "$json_SERV_DSHA256" ./"$json_EXE_SERV"
     ) &
     local pid=$!
 
@@ -66,27 +66,27 @@ function space_servers() {
         fi
 
         echo
-        echo -e "$(bash_coltext_r "# Fail")"
+        echo -e "$(collor_red "# Fail")"
         echo
         
-        if [ -f "$__SAMP_LOG" ]; then
+        if [ -f "$json_LOG_SERV" ]; then
             sleep 2 > /dev/null
-            cat $__SAMP_LOG
+            cat $json_LOG_SERV
             echo
         else
-            echo "# $__SAMP_LOG not found."
+            echo "# $json_LOG_SERV not found."
         fi
 
-        echo -e "$(bash_coltext_y "# End.")"
+        echo -e "$(collor_yellow "# End.")"
         echo
-        bash_typeof ""
+        struct_console_main ""
     else
         echo
-        echo -e "$(bash_coltext_y "# Success")"
+        echo -e "$(collor_yellow "# Success")"
         echo
 
         sleep 2 > /dev/null
-        if grep -i "error" $__SAMP_LOG > /dev/null; then
+        if grep -i "error" $json_LOG_SERV > /dev/null; then
             start_true ""
         else
             start_false ""
@@ -103,7 +103,7 @@ function space_servers() {
 export space_servers
 
 function space_wargs_servers() {
-    __SAMP_NEXT_QUERY=1
+    SAMP_WARGS_STATUS=1
     if [ -f "$save_LOCK_NAME_SERVER" ]; then
         PID=$(cat "$save_LOCK_NAME_SERVER")
         ignore_this kill -9 "$PID"
@@ -114,15 +114,15 @@ function space_wargs_servers() {
 
     local commands_INPUT=$1
     
-    if [ ! -f "$SERVER_CONF" ]; then
-        echo "$SERVER_CONF not found!"
-        bash_end ""
+    if [ ! -f "$json_SERVER_CONFIG" ]; then
+        echo "$json_SERVER_CONFIG not found!"
+        end_console_main ""
     fi
 
-    mv $SERVER_CONF $SERVER_CONF.bak
+    mv $json_SERVER_CONFIG $json_SERVER_CONFIG.bak
 
-    if [ "$SERVER_CONF" == "config.json" ]; then
-        cat $SERVER_CONF.bak > $SERVER_CONF &&
+    if [ "$json_SERVER_CONFIG" == "config.json" ]; then
+        cat $json_SERVER_CONFIG.bak > $json_SERVER_CONFIG &&
         python -c '
 import json
 f = "config.json"
@@ -132,29 +132,29 @@ data["main_scripts"] = ["'"$commands_INPUT"'"]
 with open(f, "w") as file:
     json.dump(data, file, indent=2)
         '
-    elif [ "$SERVER_CONF" == "server.cfg" ]; then
+    elif [ "$json_SERVER_CONFIG" == "server.cfg" ]; then
         awk -v new_gamemode="$commands_INPUT" '
-            /^gamemode0 / {$2=new_gamemode} 1' $SERVER_CONF.bak > $SERVER_CONF || \
-                sed -E "s/^(gamemode0 )[0-9]+/\1$commands_INPUT/" $SERVER_CONF.bak > $SERVER_CONF
+            /^gamemode0 / {$2=new_gamemode} 1' $json_SERVER_CONFIG.bak > $json_SERVER_CONFIG || \
+                sed -E "s/^(gamemode0 )[0-9]+/\1$commands_INPUT/" $json_SERVER_CONFIG.bak > $json_SERVER_CONFIG
     fi
 
     echo -e "$(bash_coltext_lg " Running: $commands_INPUT")"
     
-    if [ ! -f "$shell_DIR/$__SAMP_EXEC" ]; then
-        echo -e "$(bash_coltext_r "crit:") $__SAMP_EXEC not found!. You can get this in \`gamemode\`"
+    if [ ! -f "$shell_DIR/$json_EXE_SERV" ]; then
+        echo -e "$(collor_red "crit:") $json_EXE_SERV not found!. You can get this in \`gamemode\`"
         echo
         read -r -p "install now? [y/n] " INSTALL_NOW
 
         while true; do
             case "$INSTALL_NOW" in
                 [Yy])
-                    what_is_choice_samp ""
+                    struct_choice_samp ""
                     ;;
                 [Nn])
-                    bash_typeof ""
+                    struct_console_main ""
                     ;;
                 *)
-                    what_is_choice_samp ""
+                    struct_choice_samp ""
                     ;;
             esac
         done
@@ -162,13 +162,13 @@ with open(f, "w") as file:
         if [ ! -f "$save_LOCK_NAME_SERVER" ]; then
             : ' Create Lock File '
             touch "$save_LOCK_NAME_SERVER"
-            echo "$SERVER_DOUBLE_SHA256" > "$save_LOCK_NAME_SERVER"
+            echo "$json_SERV_DSHA256" > "$save_LOCK_NAME_SERVER"
         fi
 
-        chmod 777 "$__SAMP_EXEC"
+        chmod 777 "$json_EXE_SERV"
 
         ( 
-            ignore_this exec -a "$SERVER_DOUBLE_SHA256" ./"$__SAMP_EXEC"
+            ignore_this exec -a "$json_SERV_DSHA256" ./"$json_EXE_SERV"
         ) &
         local pid=$!
 
@@ -190,27 +190,27 @@ with open(f, "w") as file:
             fi
 
             echo
-            echo -e "$(bash_coltext_r "# Fail")"
+            echo -e "$(collor_red "# Fail")"
             echo
             
-            if [ -f "$__SAMP_LOG" ]; then
+            if [ -f "$json_LOG_SERV" ]; then
                 sleep 2 > /dev/null
-                cat $__SAMP_LOG
+                cat $json_LOG_SERV
                 echo
             else
-                echo "# $__SAMP_LOG not found."
+                echo "# $json_LOG_SERV not found."
             fi
 
-            echo -e "$(bash_coltext_y "# End.")"
+            echo -e "$(collor_yellow "# End.")"
             echo
-            bash_typeof ""
+            struct_console_main ""
         else
             echo
-            echo -e "$(bash_coltext_y "# Success")"
+            echo -e "$(collor_yellow "# Success")"
             echo
 
             sleep 2 > /dev/null
-            if grep -i "error" $__SAMP_LOG > /dev/null; then
+            if grep -i "error" $json_LOG_SERV > /dev/null; then
                 start_true ""
             else
                 start_false ""
@@ -232,7 +232,7 @@ start_true() {
     : '
         @strain.True
     '
-    echo -e "$(bash_coltext_r "~")"
+    echo -e "$(collor_red "~")"
     echo "    ; \"error\"   .. Yes .. True"
     error_cache ""
 }
@@ -242,7 +242,7 @@ start_false() {
     : '
         @strain.False
     '
-    echo -e "$(bash_coltext_y "~")"
+    echo -e "$(collor_yellow "~")"
     echo "    ; \"error\"   .. No .. False"
     check2 ""
 }
@@ -252,7 +252,7 @@ start_true2() {
     : '
         @strain.True2
     '
-    echo -e "$(bash_coltext_r "~")"
+    echo -e "$(collor_red "~")"
     echo "    ; \"failed\"  .. Yes .. True"
     failed_cache ""
 }
@@ -262,7 +262,7 @@ start_false2() {
     : '
         @strain.False2
     '
-    echo -e "$(bash_coltext_y "~")"
+    echo -e "$(collor_yellow "~")"
     echo "    ; \"failed\"  .. No .. False"
     check3 ""
 }
@@ -272,15 +272,15 @@ start_true3() {
     : '
         @strain.True3
     '
-    echo -e "$(bash_coltext_r "~")"
+    echo -e "$(collor_red "~")"
     echo "    ; \"invalid\" .. Yes .. True"
     invalid_cache ""
 
-if [ "$__SAMP_NEXT_QUERY" == 1 ]; then
-    if [ -f "$SERVER_CONF" ]; then
-        rm $SERVER_CONF
-        mv $SERVER_CONF.bak $SERVER_CONF
-        echo "Original $SERVER_CONF has been restored."
+if [ "$SAMP_WARGS_STATUS" == 1 ]; then
+    if [ -f "$json_SERVER_CONFIG" ]; then
+        rm $json_SERVER_CONFIG
+        mv $json_SERVER_CONFIG.bak $json_SERVER_CONFIG
+        echo "Original $json_SERVER_CONFIG has been restored."
     fi
 fi
 }
@@ -290,15 +290,15 @@ start_false3() {
     : '
         @strain.False3
     '
-    echo -e "$(bash_coltext_y "~")"
+    echo -e "$(collor_yellow "~")"
     echo "    ; \"invalid\" .. No .. False"
     echo
 
-if [ "$__SAMP_NEXT_QUERY" == 1 ]; then
-    if [ -f "$SERVER_CONF" ]; then
-        rm $SERVER_CONF
-        mv $SERVER_CONF.bak $SERVER_CONF
-        echo "Original $SERVER_CONF has been restored."
+if [ "$SAMP_WARGS_STATUS" == 1 ]; then
+    if [ -f "$json_SERVER_CONFIG" ]; then
+        rm $json_SERVER_CONFIG
+        mv $json_SERVER_CONFIG.bak $json_SERVER_CONFIG
+        echo "Original $json_SERVER_CONFIG has been restored."
     fi
 fi
 }
@@ -309,7 +309,7 @@ error_cache() {
         @strain.Error
     '
     echo
-    grep -i "error" $__SAMP_LOG
+    grep -i "error" $json_LOG_SERV
     echo
     check2 ""
 }
@@ -320,7 +320,7 @@ failed_cache() {
         @strain.Failed
     '
     echo
-    grep -i "failed" $__SAMP_LOG
+    grep -i "failed" $json_LOG_SERV
     echo
     check3 ""
 }
@@ -331,13 +331,13 @@ invalid_cache() {
         @strain.Invalid
     '
     echo
-    grep -i "invalid" $__SAMP_LOG
+    grep -i "invalid" $json_LOG_SERV
     echo
 }
 export invalid_cache
 
 check2() {
-    if grep -i "failed" $__SAMP_LOG > /dev/null; then
+    if grep -i "failed" $json_LOG_SERV > /dev/null; then
         start_true2 ""
     else
         start_false2 ""
@@ -346,7 +346,7 @@ check2() {
 export check2
 
 check3() {
-    if grep -i "invalid" $__SAMP_LOG > /dev/null; then
+    if grep -i "invalid" $json_LOG_SERV > /dev/null; then
         start_true3 ""
     else
         start_false3 ""
@@ -358,7 +358,7 @@ ok_next() {
     : '
         @Func.OK_Next
     '
-    echo -e "$(bash_coltext_y "Press any key to running.")"
+    echo -e "$(collor_yellow "Press any key to running.")"
     echo
     read -r -n 1 -s
     space_servers ""

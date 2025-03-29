@@ -10,20 +10,20 @@ function triops_compilers() {
     done < <(find "$shell_DIR" -type f -iname "$__PAWNCC__" -print0)
 
     if [ -z "$COMPILER_PAWNCC" ]; then
-        echo -e "$(bash_coltext_r "crit:") $__PAWNCC__ not found!. You can get this in \`pawncc\`"
+        echo -e "$(collor_red "crit:") $__PAWNCC__ not found!. You can get this in \`pawncc\`"
         echo
         read -r -p "install now? [y/n] " INSTALL_NOW
 
         while true; do
             case "$INSTALL_NOW" in
                 [Yy])
-                    what_is_choice_pawncc ""
+                    struct_choice_pawncc ""
                     ;;
                 [Nn])
-                    bash_typeof ""
+                    struct_console_main ""
                     ;;
                 *)
-                    what_is_choice_pawncc ""
+                    struct_choice_pawncc ""
                     ;;
             esac
         done
@@ -46,18 +46,18 @@ function triops_compilers() {
             AMX_O="$(dirname "$__LOOP_COMPILES_FILE")/$(basename "${__LOOP_COMPILES_FILE%.io*}.amx")"
 
             echo
-            echo -e "$(bash_coltext_g " Compiling: $__LOOP_COMPILES_FILE")"
+            echo -e "$(collor_green " Compiling: $__LOOP_COMPILES_FILE")"
             echo
 
             : '
                 @PawnCC.Compile
             '
-            for option in $AMX_OPT_F; do
+            for option in $json_AMX_OPT_F; do
                 # option checking
                 if [[ " ${_valid_AMX_OPTION_[*]} " != *" $option "* ]]; then
                     # not valid
-                    echo -e "$(bash_coltext_r "crit:") compiler option \`$option\` not found!"
-                    echo -e "$(bash_coltext_y "info:") please see: github.com/vilksons/triops/wiki/Compiler-Option"
+                    echo -e "$(collor_red "crit:") compiler option \`$option\` not found!"
+                    echo -e "$(collor_yellow "info:") please see: github.com/vilksons/triops/wiki/Compiler-Option"
                     continue
                 fi
             done
@@ -72,7 +72,7 @@ function triops_compilers() {
             start_time=$(date +%s%3N)
 
                 for _ in {1..10}; do
-                    "$COMPILER_PAWNCC" -i"$DEF_INCLUDE" "$DEF_EXCLUDE" -i"$__SPECIAL_INCLUDE_DIR" "$__LOOP_COMPILES_FILE" -o"$AMX_O" "$AMX_OPT_F" > "$__cache_save_compile" 2>&1
+                    "$COMPILER_PAWNCC" -i"$json_INCLUDE" "$json_EXCLUDE" -i"$__SPECIAL_INCLUDE_DIR" "$__LOOP_COMPILES_FILE" -o"$AMX_O" "$json_AMX_OPT_F" > "$__cache_save_compile" 2>&1
                 done
 
             # end of process
@@ -88,7 +88,7 @@ function triops_compilers() {
 
             if [ -s "$AMX_O" ]; then
                 echo
-                echo -e "$(bash_coltext_g " Finished: $AMX_O")"
+                echo -e "$(collor_green " Finished: $AMX_O")"
                 
                 if [ "$compiler_MODE" == "true" ]; then
                     shell_TITLE="compilers"
@@ -106,12 +106,12 @@ function triops_compilers() {
     done
 
     if [ "$SHFILE" == "false" ]; then
-        echo -e "$(bash_coltext_r "..io not found!")"
+        echo -e "$(collor_red "..io not found!")"
         echo
-        bash_end ""
+        end_console_main ""
     fi
     if [[ "$compiler_MODE" == "true" || "$compiler_MODE" == "nul" || "$compiler_MODE" == "" ]]; then
-        bash_end ""
+        end_console_main ""
     elif [ "$compiler_MODE" == "false" ]; then
         space_servers ""
     fi

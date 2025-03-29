@@ -54,7 +54,7 @@ __handleOS() {
                         break 
                         ;;
                     *) 
-                        echo -e "$(bash_coltext_r "err:") Invalid selection. Please enter the correct option!"
+                        echo -e "$(collor_red "err:") Invalid selection. Please enter the correct option!"
                         read -r -p "Choose OS for Triops Y) Windows, B) GNU/Linux, X) Darwin (Mac): " PERMISSION_NEED_OS 
                         ;;
                 esac

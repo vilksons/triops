@@ -14,27 +14,25 @@ export __OS_NOTICE__
 __OS__="nul"
 export __OS__
 
-__SAMP_EXEC="nul"
-export __SAMP_EXEC
 __PAWNCC__="nul"
 export __PAWNCC__
 __DISABLE_NANO__=""
 export __DISABLE_NANO__
-__SAMP_NEXT_QUERY=0
-export __SAMP_NEXT_QUERY
+SAMP_WARGS_STATUS=0
+export SAMP_WARGS_STATUS
 __SAMP_SERVER=""
 export __SAMP_SERVER
 
-__TLIGPAC_AUTTOIN=0
-export __TLIGPAC_AUTTOIN
+save_autoinstall=0
+export save_autoinstall
 
-MODULE_LOADED_NOTICE=0
-export MODULE_LOADED_NOTICE
-DO_NOT_SHOW_LNOT=0
-export DO_NOT_SHOW_LNOT
+notice_modules=0
+export notice_modules
+module_loaded=0
+export module_loaded
 
-MESSAGE_WARN_PACN=0
-export MESSAGE_WARN_PACN
+notice_miss_pac=0
+export notice_miss_pac
 
 SERVERS_NEXT=0
 export SERVERS_NEXT
@@ -62,35 +60,35 @@ function bash_title() {
     echo -ne "\033]0;$1\007"
 }
 
-function bash_coltext_y() {
+function collor_yellow() {
 # Color Text {Yellow}
-# ' echo "$(bash_coltext_y "label")" content '
+# ' echo "$(collor_yellow "label")" content '
 COLOR_Y="\e[33m"
     local color="$COLOR_Y"
     local label="$1"
     echo -e "${color}${label}\e[0m"
 }
-export bash_coltext_y
+export collor_yellow
 
-function bash_coltext_g() {
+function collor_green() {
 # Color Text {Green}
-# ' echo "$(bash_coltext_g "label")" content '
+# ' echo "$(collor_green "label")" content '
 COLOR_G="\e[32m"
     local color="$COLOR_G"
     local label="$1"
     echo -e "${color}${label}\e[0m"
 }
-export bash_coltext_g
+export collor_green
 
-function bash_coltext_r() {
+function collor_red() {
 # Color Text {Red}
-# ' echo "$(bash_coltext_r "label")" content '
+# ' echo "$(collor_red "label")" content '
 COLOR_R="\e[91m"
     local color="$COLOR_R"
     local label="$1"
     echo -e "${color}${label}\e[0m" 
 }
-export bash_coltext_r
+export collor_red
 
 function bash_coltext_a() {
 # Color Text {Gray} 
@@ -102,15 +100,15 @@ COLOR_A="\e[97m"
 }
 export bash_coltext_a
 
-function save_TITLE()
+function console_TITLE()
 {
 # Tile Functions
-# ' save_TITLE "title" '
+# ' console_TITLE "title" '
     local title=$1
     shell_TITLE="$title"
     bash_title "user:~/ $shell_TITLE"
 }
-export save_TITLE
+export console_TITLE
 
 : ' compiler option '
 _valid_AMX_OPTION_=(
@@ -129,13 +127,13 @@ if [ ! -d ".triops" ]; then
     mkdir ".triops"
 fi
 
-function load_module() {
+function load_workspace_module() {
     local module_name=$1
     local module_path="$shell_DIR/$module_name"
     local module_url=$2
     local special_param=$3
     
-    if [ -f "$module_path" ] && [ "$DO_NOT_SHOW_LNOT" != 1 ]; then
+    if [ -f "$module_path" ] && [ "$module_loaded" != 1 ]; then
         chmod +x "$module_path"
         if [ "$module_name" == ".workspace.py" ]; then
             source <(python3 .workspace.py 2>/dev/null) >/dev/null 2>&1 || echo
@@ -149,7 +147,7 @@ function load_module() {
             __handleOS ""
         fi
     else
-        DO_NOT_SHOW_LNOT=1
+        module_loaded=1
         bash_title "Waiting resources.."
 
         mkdir -p "$shell_DIR"
@@ -165,7 +163,7 @@ function load_module() {
     fi
 }
 
-LOAD_ALL_MODULES()
+workspace_module()
 {
     # Recheck Sync
     if [ -f ".__update" ]; then
@@ -177,18 +175,18 @@ LOAD_ALL_MODULES()
         sleep 0.10
     fi
 
-    load_module ".workspace.py" "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Scripts/workspace.py" "" 
-    load_module ".triops/security._" "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Security/security._" "ignore" 
-    load_module ".triops/compat._" "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Compat/compat._" "compat" 
-    load_module ".triops/compiler._" "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Compiler/compiler._" "ignore" 
-    load_module ".triops/tligpac._" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/TligPac/tligpac._" "ignore" 
-    load_module ".triops/samp._" "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Package/samp._" "ignore" 
-    load_module ".triops/pawncc._" "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Package/pawncc._" "ignore" 
-    load_module ".triops/misc._" "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Misc/misc._" "ignore" 
-    load_module ".triops/server._" "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Server/server._" "ignore"
+    load_workspace_module ".workspace.py" "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Scripts/workspace.py" "" 
+    load_workspace_module ".triops/security._" "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Security/security._" "ignore" 
+    load_workspace_module ".triops/compat._" "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Compat/compat._" "compat" 
+    load_workspace_module ".triops/compiler._" "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Compiler/compiler._" "ignore" 
+    load_workspace_module ".triops/tligpac._" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/TligPac/tligpac._" "ignore" 
+    load_workspace_module ".triops/samp._" "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Package/samp._" "ignore" 
+    load_workspace_module ".triops/pawncc._" "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Package/pawncc._" "ignore" 
+    load_workspace_module ".triops/misc._" "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Misc/misc._" "ignore" 
+    load_workspace_module ".triops/server._" "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Server/server._" "ignore"
 }
 
-resetVariable() {
+rest_var() {
     # Reset Variables #
 
     : ' Checking before unset '
@@ -196,38 +194,38 @@ resetVariable() {
     [ -n "${COMPILER_PAWNCC+x}" ] && unset COMPILER_PAWNCC
     [ -n "${COMPILER_NEXT+x}" ] && unset COMPILER_NEXT
     [ -n "${SERVERS_NEXT+x}" ] && unset SERVERS_NEXT
-    [ -n "${__SAMP_NEXT_QUERY+x}" ] && unset __SAMP_NEXT_QUERY
+    [ -n "${SAMP_WARGS_STATUS+x}" ] && unset SAMP_WARGS_STATUS
 
     compiler_MODE="nul"
     COMPILER_PAWNCC=""
     COMPILER_NEXT=0
     SERVERS_NEXT=0
-    __SAMP_NEXT_QUERY=0
-    __TLIGPAC_AUTTOIN=0
+    SAMP_WARGS_STATUS=0
+    save_autoinstall=0
 }
 
-function bash_typeof() {
+function struct_console_main() {
     #
     #   @mode.Typeof
     #
     
-    local __missing=()
-    local __cmd
+    local _missing_=()
+    local _cmds_
 
     # List of required commands
-    for __cmd in python3 wget curl grep awk sed tr; do
-        command -v "$__cmd" &>/dev/null || __missing+=("$__cmd")
+    for _cmds_ in python3 wget curl grep awk sed tr; do
+        command -v "$_cmds_" &>/dev/null || _missing_+=("$_cmds_")
     done
 
     # If missing packages exist.
-    if ((${#__missing[@]} > 0)); then
-        echo " Can't load Workspace Module. Missing packages: ${__missing[*]}"
+    if ((${#_missing_[@]} > 0)); then
+        echo " Can't load Workspace Module. Missing packages: ${_missing_[*]}"
         sleep 1.0
-        MODULE_LOADED_NOTICE=1
+        notice_modules=1
     else
-        if [ "$MODULE_LOADED_NOTICE" != 1 ]; then
-            LOAD_ALL_MODULES ""
-            MODULE_LOADED_NOTICE=1
+        if [ "$notice_modules" != 1 ]; then
+            workspace_module ""
+            notice_modules=1
         fi
     fi
 
@@ -241,20 +239,20 @@ function bash_typeof() {
     __cache_save_compile=".cache/compiler.log"
     export __cache_save_compile
 
-    if [ "$MESSAGE_WARN_PACN" != 1 ]; then
+    if [ "$notice_miss_pac" != 1 ]; then
         if ! command -v jq &> /dev/null; then
-            echo -e "$(bash_coltext_g "warn:") jq not found."
+            echo -e "$(collor_green "warn:") jq not found."
             sleep 1.0
             clear
         fi
         
         if ! command -v aria2c &> /dev/null; then
-            echo -e "$(bash_coltext_g "warn:") aria2c not found."
+            echo -e "$(collor_green "warn:") aria2c not found."
             sleep 1.0
             clear
         fi
 
-        MESSAGE_WARN_PACN=1
+        notice_miss_pac=1
     fi
 
     cd "$shell_DIR" >/dev/null 2>&1 || echo ""
@@ -289,7 +287,7 @@ if [ ! -f "lang.json" ]; then
         "includes3"
     ],
     "samp_log": "server_log.txt",
-    "server_conf": "server.cfg",
+    "json_SERVER_CONFIG": "server.cfg",
     "main_server": "main.pwn",
     "samp_executable": "samp03svr",
     "include_dir": "pawno/include",
@@ -319,7 +317,7 @@ exec bash ./"$shell_NAME"
         "includes3"
     ],
     "samp_log": "log.txt",
-    "server_conf": "config.json",
+    "json_SERVER_CONFIG": "config.json",
     "main_server": "main.pwn",
     "samp_executable": "omp-server",
     "include_dir": "qawno/include",
@@ -336,28 +334,28 @@ chmod +x "$shell_NAME"
 exec bash ./"$shell_NAME"
     fi
 fi
-    save_TITLE "OPS Mode | Use \`kill\` for refresh."
+    console_TITLE "OPS Mode | Use \`kill\` for refresh."
  
-    resetVariable ""
+    rest_var ""
 
-    read -e -r -p "user:~$ " main_commands
-    mode_TRIOPS "$main_commands"
+    read -e -r -p "user:~$ " ops_table
+    mode_TRIOPS "$ops_table"
 }
-export bash_typeof
+export struct_console_main
 
 mode_TRIOPS() {
     #
     #   @Send.OPS-Mode
     #
     #
-    #   always remember to end use 'bash_end' or 'bash_typeof' so it doesn't crash or exit triops
+    #   always remember to end use 'end_console_main' or 'struct_console_main' so it doesn't crash or exit triops
     #
     
-    local commands_TRIGGER="ops"
+    local trigger_ops="ops"
 
-    case "$main_commands" in
+    case "$ops_table" in
         "compile"*)
-            save_TITLE "Compiler"
+            console_TITLE "Compiler"
 
             if [ -f "$save_LOCK_NAME_SERVER" ]; then
                 PID=$(cat "$save_LOCK_NAME_SERVER")
@@ -366,7 +364,7 @@ mode_TRIOPS() {
                 ignore_this rm "$save_LOCK_NAME_SERVER"
             fi
 
-            local commands_ARGS="${main_commands#compile }"
+            local commands_ARGS="${ops_table#compile }"
             local commands_INPUT=""
             local commands_OPAMX=()
 
@@ -380,7 +378,7 @@ mode_TRIOPS() {
 
             local amx_valid=false
 
-            if [[ "$main_commands" == "compile" ]]; then
+            if [[ "$ops_table" == "compile" ]]; then
                 compiler_MODE="true"
                 triops_compilers ""
             else
@@ -398,10 +396,10 @@ mode_TRIOPS() {
                                 # option checking
                                 if [[ " ${_valid_AMX_OPTION_[*]} " != *" $option "* ]]; then
                                     # not valid
-                                    echo -e "$(bash_coltext_r "crit:") compiler option \`$option\` not found!"
-                                    echo -e "$(bash_coltext_y "info:") please see: github.com/vilksons/triops/wiki/Compiler-Option"
+                                    echo -e "$(collor_red "crit:") compiler option \`$option\` not found!"
+                                    echo -e "$(collor_yellow "info:") please see: github.com/vilksons/triops/wiki/Compiler-Option"
                                     amx_valid=false
-                                    bash_end ""
+                                    end_console_main ""
                                 fi
                             done
 
@@ -420,28 +418,28 @@ mode_TRIOPS() {
                 done < <(find "$shell_DIR" -type f -iname "$__PAWNCC__" -print0)
 
                 if [ -z "$COMPILER_PAWNCC" ]; then
-                    echo -e "$(bash_coltext_r "crit:") $__PAWNCC__ not found!. You can get this in \`pawncc\`"
+                    echo -e "$(collor_red "crit:") $__PAWNCC__ not found!. You can get this in \`pawncc\`"
                     echo
                     read -r -p "install now? [y/n] " INSTALL_NOW
 
                     while true; do
                         case "$INSTALL_NOW" in
                             [Yy])
-                                what_is_choice_pawncc ""
+                                struct_choice_pawncc ""
                                 ;;
                             [Nn])
-                                bash_typeof ""
+                                struct_console_main ""
                                 ;;
                             *)
-                                what_is_choice_pawncc ""
+                                struct_choice_pawncc ""
                                 ;;
                         esac
                     done
                 fi
 
                 if ! find "$shell_DIR" -type f -name "$commands_INPUT" | grep -q .; then
-                    echo -e "$(bash_coltext_r "crit:") $commands_INPUT not found!."
-                    bash_typeof ""
+                    echo -e "$(collor_red "crit:") $commands_INPUT not found!."
+                    struct_console_main ""
                 fi
 
                 : '
@@ -459,7 +457,7 @@ mode_TRIOPS() {
                         AMX_O="$(dirname "$__LOOP_COMPILES_FILE")/$(basename "${__LOOP_COMPILES_FILE%.*}.amx")"
 
                         echo
-                        echo -e "$(bash_coltext_g " Compiling: $commands_INPUT")"
+                        echo -e "$(collor_green " Compiling: $commands_INPUT")"
                         echo
 
                         : '
@@ -477,9 +475,9 @@ mode_TRIOPS() {
 
                             for _ in {1..10}; do
                                 if [ "$COMPILER_NEXT" == 1 ]; then
-                                    "$COMPILER_PAWNCC" -i"$DEF_INCLUDE" "$DEF_EXCLUDE" -i"$__SPECIAL_INCLUDE_DIR" "$__LOOP_COMPILES_FILE" -o"$AMX_O" "$AMX_OPT_F" > "$__cache_save_compile" 2>&1
+                                    "$COMPILER_PAWNCC" -i"$json_INCLUDE" "$json_EXCLUDE" -i"$__SPECIAL_INCLUDE_DIR" "$__LOOP_COMPILES_FILE" -o"$AMX_O" "$json_AMX_OPT_F" > "$__cache_save_compile" 2>&1
                                 elif [ "$COMPILER_NEXT" == 2 ]; then
-                                    "$COMPILER_PAWNCC" -i"$DEF_INCLUDE" "$DEF_EXCLUDE" -i"$__SPECIAL_INCLUDE_DIR" "$__LOOP_COMPILES_FILE" -o"$AMX_O" "$AMX_OPT_F" "${commands_OPAMX[@]}" > "$__cache_save_compile" 2>&1
+                                    "$COMPILER_PAWNCC" -i"$json_INCLUDE" "$json_EXCLUDE" -i"$__SPECIAL_INCLUDE_DIR" "$__LOOP_COMPILES_FILE" -o"$AMX_O" "$json_AMX_OPT_F" "${commands_OPAMX[@]}" > "$__cache_save_compile" 2>&1
                                 fi
                             done
                         
@@ -496,7 +494,7 @@ mode_TRIOPS() {
 
                         if [ -s "$AMX_O" ]; then
                             echo
-                            echo -e "$(bash_coltext_g " Finished: $AMX_O")"
+                            echo -e "$(collor_green " Finished: $AMX_O")"
 
                             if [ "$compiler_MODE" == "true" ]; then
                                 shell_TITLE="compilers"
@@ -518,10 +516,10 @@ mode_TRIOPS() {
                 done
             fi
 
-            bash_end ""
+            end_console_main ""
             ;;
         "running"*)
-            save_TITLE "Running"
+            console_TITLE "Running"
 
             if [ -f "$save_LOCK_NAME_SERVER" ]; then
                 PID=$(cat "$save_LOCK_NAME_SERVER")
@@ -530,9 +528,9 @@ mode_TRIOPS() {
                 ignore_this rm "$save_LOCK_NAME_SERVER"
             fi
             
-            local commands_ARGS="${main_commands#running }"
+            local commands_ARGS="${ops_table#running }"
             
-            if [[ -n "$commands_ARGS" && "$commands_ARGS" != "$main_commands" ]]; then
+            if [[ -n "$commands_ARGS" && "$commands_ARGS" != "$ops_table" ]]; then
                 commands_INPUT="$commands_ARGS"
             else
                 space_servers ""
@@ -545,13 +543,13 @@ mode_TRIOPS() {
             else
                 space_wargs_servers "$commands_INPUT"
             fi
-            bash_end ""
+            end_console_main ""
             ;;
         "irunn")
-            save_TITLE "Compile & Running"
+            console_TITLE "Compile & Running"
 
             if [ "$__OS__" == "darwin" ]; then
-                ignore_this docker stop $__SAMP_EXEC
+                ignore_this docker stop $json_EXE_SERV
             elif [ "$__OS__" == "linux" ] || [ "$__OS__" == "windows" ]; then 
                 if [ -f "$save_LOCK_NAME_SERVER" ]; then
                     PID=$(cat "$save_LOCK_NAME_SERVER")
@@ -567,10 +565,10 @@ mode_TRIOPS() {
             space_servers ""
             ;;
         "debug"*)
-            save_TITLE "Debugging"
+            console_TITLE "Debugging"
 
             if [ "$__OS__" == "darwin" ]; then
-                ignore_this docker stop $__SAMP_EXEC
+                ignore_this docker stop $json_EXE_SERV
             elif [ "$__OS__" == "linux" ] || [ "$__OS__" == "windows" ]; then 
                 if [ -f "$save_LOCK_NAME_SERVER" ]; then
                     PID=$(cat "$save_LOCK_NAME_SERVER")
@@ -580,9 +578,9 @@ mode_TRIOPS() {
                 fi
             fi
 
-            local commands_ARGS="${main_commands#debug }"
+            local commands_ARGS="${ops_table#debug }"
             
-            if [[ -n "$commands_ARGS" && "$commands_ARGS" != "$main_commands" ]]; then
+            if [[ -n "$commands_ARGS" && "$commands_ARGS" != "$ops_table" ]]; then
                 commands_INPUT="$commands_ARGS"
             else
                 echo -e "$(bash_coltext_a ":: Enter GM Name:")"
@@ -599,13 +597,13 @@ mode_TRIOPS() {
             else
                 space_wargs_servers "$commands_INPUT"
             fi
-            bash_end ""
+            end_console_main ""
             ;;
         "stop")
-            save_TITLE "Stop"
+            console_TITLE "Stop"
 
             if [ "$__OS__" == "darwin" ]; then
-                ignore_this docker stop $__SAMP_EXEC
+                ignore_this docker stop $json_EXE_SERV
             elif [ "$__OS__" == "linux" ] || [ "$__OS__" == "windows" ]; then 
                 if [ -f "$save_LOCK_NAME_SERVER" ]; then
                     PID=$(cat "$save_LOCK_NAME_SERVER")
@@ -614,14 +612,14 @@ mode_TRIOPS() {
                     ignore_this rm "$save_LOCK_NAME_SERVER"
                 fi
             fi
-            bash_end ""
+            end_console_main ""
             ;;
         "restart")
-            save_TITLE "Restart"
+            console_TITLE "Restart"
 
             if [ "$__OS__" == "darwin" ]; then
-                if docker ps --filter "$__SAMP_EXEC" | grep -q "$__SAMP_EXEC"; then
-                    ignore_this docker stop $__SAMP_EXEC
+                if docker ps --filter "$json_EXE_SERV" | grep -q "$json_EXE_SERV"; then
+                    ignore_this docker stop $json_EXE_SERV
 
                     ignore_this sleep 2
                     space_servers ""
@@ -642,32 +640,32 @@ mode_TRIOPS() {
                 fi
             fi
 
-            bash_end ""
+            end_console_main ""
             ;;
         "gamemode")
-            save_TITLE "Downloads | GameMode"
+            console_TITLE "Downloads | GameMode"
 
-            what_is_choice_samp ""
+            struct_choice_samp ""
 
-            bash_end ""
+            end_console_main ""
             ;;
         "pawncc")
-            save_TITLE "Downloads | PawnCC"
+            console_TITLE "Downloads | PawnCC"
 
-            what_is_choice_pawncc ""
+            struct_choice_pawncc ""
 
-            bash_end ""
+            end_console_main ""
             ;;
         "clear")
             clear; echo -ne "\033[3J"
-            bash_typeof ""
+            struct_console_main ""
             ;;
         "cat"*)
-            save_TITLE "Cat"
+            console_TITLE "Cat"
 
-            local commands_ARGS="${main_commands#cat }"
+            local commands_ARGS="${ops_table#cat }"
             
-            if [[ -n "$commands_ARGS" && "$commands_ARGS" != "$main_commands" ]]; then
+            if [[ -n "$commands_ARGS" && "$commands_ARGS" != "$ops_table" ]]; then
                 commands_INPUT="$commands_ARGS"
             else
                 echo -e "$(bash_coltext_a ":: Enter File Name:")"
@@ -679,31 +677,31 @@ mode_TRIOPS() {
 
             cat "$commands_INPUT"
             echo
-            bash_end ""
+            end_console_main ""
             ;;
         "directory"*)
-            save_TITLE "Directory - $shell_DIR"
+            console_TITLE "Directory - $shell_DIR"
 
-            local commands_ARGS="${main_commands#directory }"
+            local commands_ARGS="${ops_table#directory }"
             
-            if [[ -n "$commands_ARGS" && "$commands_ARGS" != "$main_commands" ]]; then
+            if [[ -n "$commands_ARGS" && "$commands_ARGS" != "$ops_table" ]]; then
                 commands_INPUT="$commands_ARGS"
             else
                 ls -a
-                bash_end ""
+                end_console_main ""
             fi
 
             ignore_this cd "$commands_INPUT" && ls -a && shell_TITLE="directory - $shell_DIR" && bash_title "user:~/ $shell_TITLE" || echo
-            bash_typeof ""
+            struct_console_main ""
             ;;
         "ls")
             ls -a
-            bash_typeof ""
+            struct_console_main ""
             ;;
         "kill")
-            save_TITLE "Kill"
+            console_TITLE "Kill"
 
-            MODULE_LOADED_NOTICE=0
+            notice_modules=0
 
             if [ -f "$shell_DIR/lang.json" ]; then
                 read -r -p "rebuild \`lang.json\`? [y/n] " REBUILD_LANG
@@ -728,10 +726,10 @@ mode_TRIOPS() {
             fi
             ;;
         "sync" | "syncc")
-            if [ "$main_commands" == "sync" ]; then
-                save_TITLE "Sync"
-            elif [ "$main_commands" == "syncc" ]; then
-                save_TITLE "Syncc"
+            if [ "$ops_table" == "sync" ]; then
+                console_TITLE "Sync"
+            elif [ "$ops_table" == "syncc" ]; then
+                console_TITLE "Syncc"
             fi
 
             local __lat
@@ -742,7 +740,7 @@ mode_TRIOPS() {
 
             if [[ "$__lat" == "$__cur" ]]; then
                 echo "warning: $shell_NAME is up to date, Nothing to do."
-                bash_end ""
+                end_console_main ""
             else
                 echo -e "$(bash_coltext_a ":: There is an update!. Commits: (SHA1): ")"
                 echo "$__lat"
@@ -759,7 +757,7 @@ mode_TRIOPS() {
                                 rm -rf ".triops" && sleep 0.1 && mkdir ".triops"
                             fi
 
-                            if [ "$main_commands" == "syncc" ]; then
+                            if [ "$ops_table" == "syncc" ]; then
                                 if [ -f "lang.json" ]; then
                                     mv lang.json lang.json.old.txt
                                 fi
@@ -771,7 +769,7 @@ mode_TRIOPS() {
                             
                             cd "$shell_DIR/.triops" >/dev/null 2>&1 || echo ""
 
-                            if [ "$__REAL_REPOS" == "stable" ]; then
+                            if [ "$json_WSPACE_REPO" == "stable" ]; then
                                 wget -q --show-progress -O "security._" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Security/security._" || { cd "$shell_DIR" >/dev/null && touch ".__update"; } && cd "$shell_DIR/.triops" >/dev/null 2>&1 || echo ""
                                 wget -q --show-progress -O "compat._" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Compat/compat._" || { cd "$shell_DIR" >/dev/null && touch ".__update"; } && cd "$shell_DIR/.triops" >/dev/null 2>&1 || echo ""
                                 wget -q --show-progress -O "tligpac._" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/TligPac/tligpac._" || { cd "$shell_DIR" >/dev/null && touch ".__update"; } && cd "$shell_DIR/.triops" >/dev/null 2>&1 || echo ""
@@ -783,11 +781,11 @@ mode_TRIOPS() {
 
                                 ignore_this sleep 1 && cd "$shell_DIR" >/dev/null 2>&1 || echo ""
 
-                                if [ "$main_commands" == "syncc" ]; then
+                                if [ "$ops_table" == "syncc" ]; then
                                     wget -q --show-progress -O ".workspace.py" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Scripts/workspace.py"
                                     wget -q --show-progress -O "workspace" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Scripts/workspace"
                                 fi
-                            elif [ "$__REAL_REPOS" == "testing" ]; then
+                            elif [ "$json_WSPACE_REPO" == "testing" ]; then
                                 wget -q --show-progress -O "security._" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/testing/Security/security._" || { cd "$shell_DIR" >/dev/null && touch ".__update"; } && cd "$shell_DIR/.triops" >/dev/null 2>&1 || echo ""
                                 wget -q --show-progress -O "compat._" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/testing/Compat/compat._" || { cd "$shell_DIR" >/dev/null && touch ".__update"; } && cd "$shell_DIR/.triops" >/dev/null 2>&1 || echo ""
                                 wget -q --show-progress -O "tligpac._" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/testing/TligPac/tligpac._" || { cd "$shell_DIR" >/dev/null && touch ".__update"; } && cd "$shell_DIR/.triops" >/dev/null 2>&1 || echo ""
@@ -799,7 +797,7 @@ mode_TRIOPS() {
 
                                 ignore_this sleep 1 && cd "$shell_DIR" >/dev/null 2>&1 || echo ""
 
-                                if [ "$main_commands" == "syncc" ]; then
+                                if [ "$ops_table" == "syncc" ]; then
                                     wget -q --show-progress -O ".workspace.py" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/testing/Scripts/workspace.py"
                                     wget -q --show-progress -O "workspace" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/testing/Scripts/workspace"
                                 fi
@@ -810,7 +808,7 @@ mode_TRIOPS() {
                             sleep 1 && bash ./workspace
                             ;;
                         *)
-                            bash_end ""
+                            end_console_main ""
                             break
                             ;;
                     esac
@@ -818,17 +816,17 @@ mode_TRIOPS() {
             fi
             ;;
         "checksums"*)
-            save_TITLE "Checksums"
+            console_TITLE "Checksums"
 
-            local commands_ARGS="${main_commands#checksums }"
+            local commands_ARGS="${ops_table#checksums }"
 
             ignore_this cd "$shell_DIR" || echo ""
 
-            if [[ -n "$commands_ARGS" && "$commands_ARGS" != "$main_commands" ]]; then
+            if [[ -n "$commands_ARGS" && "$commands_ARGS" != "$ops_table" ]]; then
                 commands_INPUT="$commands_ARGS"
             else
                 echo "sha1:" && sha1sum "$shell_NAME" && echo "sha256:" && sha256sum "$shell_NAME" && echo "md5:" && md5sum "$shell_NAME"
-                bash_end ""
+                end_console_main ""
             fi
 
             for algo in $commands_INPUT; do
@@ -843,14 +841,14 @@ mode_TRIOPS() {
                 fi
             done
 
-            bash_end ""
+            end_console_main ""
             ;;
         "exit"*)
-            save_TITLE "Exit"
+            console_TITLE "Exit"
 
-            local commands_ARGS="${main_commands#exit }"
+            local commands_ARGS="${ops_table#exit }"
 
-            if [[ -n "$commands_ARGS" && "$commands_ARGS" != "$main_commands" ]]; then
+            if [[ -n "$commands_ARGS" && "$commands_ARGS" != "$ops_table" ]]; then
                 commands_INPUT="$commands_ARGS"
             else
                 ignore_this sleep 0.100 &&
@@ -859,11 +857,11 @@ mode_TRIOPS() {
             bash
             ;;
         "chatbot"*)
-            save_TITLE "Chatbot"
+            console_TITLE "Chatbot"
 
-            local commands_ARGS="${main_commands#chatbot }"
+            local commands_ARGS="${ops_table#chatbot }"
 
-            if [[ -n "$commands_ARGS" && "$commands_ARGS" != "$main_commands" ]]; then
+            if [[ -n "$commands_ARGS" && "$commands_ARGS" != "$ops_table" ]]; then
                 commands_INPUT="$commands_ARGS"
             else
                 echo -e "$(bash_coltext_a ":: Enter Question Name:")"
@@ -874,18 +872,18 @@ mode_TRIOPS() {
             fi
 
             if [[ "$commands_ARGS" == "exit" ]]; then
-                bash_end ""
+                end_console_main ""
             fi
 
             _chatbot_response_=$(curl -s -X POST https://api.groq.com/openai/v1/chat/completions \
-                -H "Authorization: Bearer $CHATBOT_TOKEN" \
+                -H "Authorization: Bearer $json_CHATBOT_TOKEN" \
                 -H "Content-Type: application/json" \
                 -d "{
-                    \"model\": \"$CHATBOT_MODEL\",
+                    \"model\": \"$json_CHATBOT_MODEL\",
                     \"messages\": [
                         {
                         \"role\": \"system\",
-                        \"content\": \"$CHATBOT_BIODATA\"
+                        \"content\": \"$json_CHATBOT_BIODATA\"
                         },
                         {
                         \"role\": \"user\",
@@ -950,21 +948,21 @@ except KeyboardInterrupt:
     sys.exit(130)
 "
 
-            bash_end ""
+            end_console_main ""
             echo
             ;;
         "nano"*)
             if [ "$__DISABLE_NANO__" == "false" ]; then
                 if ! command -v nano &> /dev/null; then
                     echo "nano not found!, install first."
-                    bash_end ""
+                    end_console_main ""
                 fi
                 
-                save_TITLE "GNU/Nano"
+                console_TITLE "GNU/Nano"
                 
-                local commands_ARGS="${main_commands#nano }"
+                local commands_ARGS="${ops_table#nano }"
 
-                if [[ -n "$commands_ARGS" && "$commands_ARGS" != "$main_commands" ]]; then
+                if [[ -n "$commands_ARGS" && "$commands_ARGS" != "$ops_table" ]]; then
                     commands_INPUT="$commands_ARGS"
                 else
                     echo -e "$(bash_coltext_a ":: Enter File Name:")"
@@ -975,24 +973,24 @@ except KeyboardInterrupt:
                 fi
 
                 nano "$commands_INPUT"
-                bash_end ""
+                end_console_main ""
             else
-                echo "error: $main_commands: command not found"
-                bash_end ""
+                echo "error: $ops_table: command not found"
+                end_console_main ""
             fi
             ;;
         "remcac")
-            save_TITLE "Remove Cache"
+            console_TITLE "Remove Cache"
 
             if [ "$compiler_MODE" != "nul" ]; then
                 # err compiler is running
-                echo -e "$(bash_coltext_r "crit:") can't remove cache!."
-                bash_end ""
+                echo -e "$(collor_red "crit:") can't remove cache!."
+                end_console_main ""
             fi
 
             if [ ! -f "$shell_DIR/.cache/tligpac" ] && [ ! -f "$shell_DIR/.cache/compiler.log" ]; then
                 echo "no cache found."
-                bash_end ""
+                end_console_main ""
             fi
 
             if [ -f "$shell_DIR/.cache/tligpac" ]; then
@@ -1029,16 +1027,16 @@ except KeyboardInterrupt:
                             cd "$shell_DIR" || echo "Failed to change directory"
                             rm -rf ".cache/compiler.log" && echo "Files removed successfully"
                             sleep 1
-                            bash_end ""
+                            end_console_main ""
                             ;;
                         *)
                             echo "Operation cancelled"
-                            bash_end ""
+                            end_console_main ""
                             ;;
                     esac
                 done
             else
-                bash_end ""
+                end_console_main ""
             fi
         
             ;;
@@ -1047,12 +1045,12 @@ except KeyboardInterrupt:
             ;;
         "tligpac")
             mode_TLIGPAC ""
-            bash_help2 ""
+            help_dialog_pac ""
             ;;
-        "help"* | "$commands_TRIGGER -h"* | "$commands_TRIGGER --h"*)
-            local commands_ARGS="${main_commands#"$commands_TRIGGER -h "}"
+        "help"* | "$trigger_ops -h"* | "$trigger_ops --h"*)
+            local commands_ARGS="${ops_table#"$trigger_ops -h "}"
             local commands_ARGS="${commands_ARGS#help }"
-            local commands_ARGS="${commands_ARGS#"$commands_TRIGGER --h "}"
+            local commands_ARGS="${commands_ARGS#"$trigger_ops --h "}"
 
             declare -A descriptions=(
                 ["compile"]=":: Compile a project - Usage: compile | (+) [<args>] [target]"
@@ -1079,10 +1077,10 @@ except KeyboardInterrupt:
                 ["fetch"]=":: Fetch Triops -> Usage: fetch"
             )
             
-            if [[ -n "$commands_ARGS" && "$commands_ARGS" != "$main_commands" ]]; then
+            if [[ -n "$commands_ARGS" && "$commands_ARGS" != "$ops_table" ]]; then
                 if [[ -n "${descriptions[$commands_ARGS]}" ]]; then
                     if [[ "$commands_ARGS" == "nano" && "$__DISABLE_NANO__" == "true" ]]; then
-                        bash_help "invalid"
+                        help_dialog_ops "invalid"
                     else
                         if [ "$commands_ARGS" == "compile" ]; then
                             echo "${descriptions[$commands_ARGS]}"
@@ -1093,37 +1091,37 @@ except KeyboardInterrupt:
                         fi
                     fi
                 else
-                    bash_help "invalid"
+                    help_dialog_ops "invalid"
                 fi
             else
-                bash_help ""
+                help_dialog_ops ""
             fi
 
-            bash_typeof ""
+            struct_console_main ""
             ;;
-        "$commands_TRIGGER")
-            bash_help ""
-            bash_typeof ""
+        "$trigger_ops")
+            help_dialog_ops ""
+            struct_console_main ""
             ;;
         "")
-            bash_help ""
-            bash_typeof ""
+            help_dialog_ops ""
+            struct_console_main ""
             ;;
         *)
-            not_found ""
+            not_found_ops ""
             ;;
     esac
 }
 export mode_TRIOPS
 
-function not_found()
+function not_found_ops()
 {
-    echo "error: $main_commands: command not found"
-    bash_help ""
-    bash_typeof ""
+    echo "error: $ops_table: command not found"
+    help_dialog_ops ""
+    struct_console_main ""
 }
 
-function bash_help()
+function help_dialog_ops()
 {
     : '
         @Send.Help
@@ -1149,7 +1147,7 @@ function bash_help()
     fi
 }
 
-function bash_help2()
+function help_dialog_pac()
 {
     echo "Usage: ops <command> [<args>]"
     echo "Commands:"
@@ -1159,13 +1157,13 @@ function bash_help2()
     echo " exit        - Exit TligPac Mode"
 }
 
-function bash_end() {
-    echo -e "$(bash_coltext_y "# Press any key to return.")"
+function end_console_main() {
+    echo -e "$(collor_yellow "# Press any key to return.")"
     read -r -n 1 -s
-    bash_typeof ""
+    struct_console_main ""
 }
 
 : '
     @summary: Main
 '
-bash_typeof ""
+struct_console_main ""

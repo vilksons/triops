@@ -1,12 +1,12 @@
 #!/usr/bin/bash
 
-function send_samp_linux()
+function struct_samp_linux()
 {
     echo ":: Do you want to continue downloading SA-MP? (Yy/Nn)"
     read -r -p ">> " SEL_C
 
     if [[ -z "$SEL_C" || "$SEL_C" =~ ^[Yy]$ ]]; then
-        cd "$shell_DIR" || bash_end ""
+        cd "$shell_DIR" || end_console_main ""
         echo "Select the SA-MP version to download:"
         echo "[A/a] SA-MP  0.3.DL R1"
         echo "[B/b] SA-MP  0.3.7 R3"
@@ -61,7 +61,7 @@ function send_samp_linux()
                     break
                     ;;
                 *)
-                    echo -e "$(bash_coltext_r "err:") Invalid selection. Please enter the Number!"
+                    echo -e "$(collor_red "err:") Invalid selection. Please enter the Number!"
                     read -r -p ">> " VERSION_NEED
                     ;;
             esac
@@ -69,32 +69,32 @@ function send_samp_linux()
 
         echo -e "\nDownloading: $DOWNLOAD_URL_CURL -> $DOWNLOAD_FILE_CURL"
         if ! curl -L --progress-bar -o "$DOWNLOAD_FILE_CURL" "$DOWNLOAD_URL_CURL"; then
-            echo -e "$(bash_coltext_r "fail:") Failed to download the file.."
+            echo -e "$(collor_red "fail:") Failed to download the file.."
             
-            bash_end ""
+            end_console_main ""
         else
             tar -xzvf "$DOWNLOAD_FILE_CURL" -C "$shell_DIR" --strip-components=1
 
             echo
-            echo -n "$(bash_coltext_y "Download completed successfully.")"
+            echo -n "$(collor_yellow "Download completed successfully.")"
             echo
             echo "Please rename \"rcon_password\" before running this command again"
 
-            bash_end ""
+            end_console_main ""
         fi
     else
-        bash_end ""
+        end_console_main ""
     fi
 }
-export send_samp_linux
+export struct_samp_linux
 
-function send_samp_win()
+function struct_samp_win()
 {
     echo ":: Do you want to continue downloading SA-MP? (Yy/Nn)"
     read -r -p ">> " SEL_C
     
     if [[ -z "$SEL_C" || "$SEL_C" =~ ^[Yy]$ ]]; then
-        cd "$shell_DIR" || bash_end ""
+        cd "$shell_DIR" || end_console_main ""
         echo "Select the SA-MP version to download:"
         echo "[A/a] SA-MP 0.3.DL R1"
         echo "[B/b] SA-MP 0.3.7 R3"
@@ -149,7 +149,7 @@ function send_samp_win()
                     break
                     ;;
                 *)
-                    echo -e "$(bash_coltext_r "err:") Invalid selection. Please enter the Number!"
+                    echo -e "$(collor_red "err:") Invalid selection. Please enter the Number!"
                     read -r -p ">> " VERSION_NEED
                     ;;
             esac
@@ -157,21 +157,21 @@ function send_samp_win()
 
         echo -e "\nDownloading: $DOWNLOAD_URL_CURL -> $DOWNLOAD_FILE_CURL"
         if ! curl -L --progress-bar -o "$DOWNLOAD_FILE_CURL" "$DOWNLOAD_URL_CURL"; then
-            echo -e "$(bash_coltext_r "fail:") Failed to download the file.."
+            echo -e "$(collor_red "fail:") Failed to download the file.."
 
-            bash_end ""
+            end_console_main ""
         else
             unzip -q "$DOWNLOAD_FILE_CURL" -d "$shell_DIR"
 
             echo
-            echo -n "$(bash_coltext_y "Download completed successfully.")"
+            echo -n "$(collor_yellow "Download completed successfully.")"
             echo
             echo "Please rename \"rcon_password\" before running this command again"
 
-            bash_end ""
+            end_console_main ""
         fi
     else
-        bash_end ""
+        end_console_main ""
     fi
 }
-export send_samp_win
+export struct_samp_win

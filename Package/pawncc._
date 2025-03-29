@@ -1,12 +1,12 @@
 #!/bin/bash
 
-function send_compilers_linux()
+function struct_compilers_linux()
 {
     echo ":: Do you want to continue downloading PawnCC? (Yy/Nn)"
     read -r -p ">> " SEL_C
 
     if [[ -z "$SEL_C" || "$SEL_C" =~ ^[Yy]$ ]]; then
-        cd "$shell_DIR" || bash_end ""
+        cd "$shell_DIR" || end_console_main ""
         echo "Select the PawnCC version to download:"
         echo "[A/a] PawnCC 3.10.10"
         echo "[B/b] PawnCC 3.10.9"
@@ -73,7 +73,7 @@ function send_compilers_linux()
                     break
                     ;;
                 *)
-                    echo -e "$(bash_coltext_r "err:") Invalid selection. Please enter the Number!"
+                    echo -e "$(collor_red "err:") Invalid selection. Please enter the Number!"
                     read -r -p ">> " VERSION_NEED
                     ;;
             esac
@@ -81,31 +81,31 @@ function send_compilers_linux()
 
         echo -e "\nDownloading: $DOWNLOAD_URL_CURL -> $DOWNLOAD_FILE_CURL"
         if ! curl -L --progress-bar -o "$DOWNLOAD_FILE_CURL" "$DOWNLOAD_URL_CURL"; then
-            echo -e "$(bash_coltext_r "fail:") Failed to download the file.."
+            echo -e "$(collor_red "fail:") Failed to download the file.."
 
-            bash_end ""
+            end_console_main ""
         else
             tar -xzvf "$DOWNLOAD_FILE_CURL" -C "$shell_DIR" --strip-components=1
 
             echo
-            echo -e "$(bash_coltext_y "Download completed successfully.")"
+            echo -e "$(collor_yellow "Download completed successfully.")"
             echo "See https://github.com/vilksons/triops/wiki/PawnCC-Installation for Docs."
 
-            bash_end ""
+            end_console_main ""
         fi
     else
-        bash_end ""
+        end_console_main ""
     fi
 }
-export send_compilers_linux
+export struct_compilers_linux
 
-function send_compilers_win()
+function struct_compilers_win()
 {
     echo ":: Do you want to continue downloading PawnCC? (Yy/Nn)"
     read -r -p ">> " SEL_C
     
     if [[ -z "$SEL_C" || "$SEL_C" =~ ^[Yy]$ ]]; then
-        cd "$shell_DIR" || bash_end ""
+        cd "$shell_DIR" || end_console_main ""
         echo "Select the PawnCC version to download:"
         echo "[A/a] PawnCC 3.10.10"
         echo "[B/b] PawnCC 3.10.9"
@@ -172,7 +172,7 @@ function send_compilers_win()
                     break
                     ;;
                 *)
-                    echo -e "$(bash_coltext_r "err:") Invalid selection. Please enter the Number!"
+                    echo -e "$(collor_red "err:") Invalid selection. Please enter the Number!"
                     read -r -p ">> " VERSION_NEED
                     ;;
             esac
@@ -180,21 +180,21 @@ function send_compilers_win()
 
         echo -e "\nDownloading: $DOWNLOAD_URL_CURL -> $DOWNLOAD_FILE_CURL"
         if ! curl -L --progress-bar -o "$DOWNLOAD_FILE_CURL" "$DOWNLOAD_URL_CURL"; then
-            echo -e "$(bash_coltext_r "fail:") Failed to download the file.."
+            echo -e "$(collor_red "fail:") Failed to download the file.."
 
-            bash_end ""
+            end_console_main ""
         else
             unzip -q "$DOWNLOAD_FILE_CURL" -d "$shell_DIR"
 
             echo
-            echo -e "$(bash_coltext_y "Download completed successfully.")"
+            echo -e "$(collor_yellow "Download completed successfully.")"
             echo
 
-            bash_end ""
+            end_console_main ""
         fi
     else
-        bash_end ""
+        end_console_main ""
     fi
 }
-export send_compilers_win
+export struct_compilers_win
 

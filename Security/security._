@@ -17,7 +17,7 @@ security_file_rm()
     : ' Remove File Logs '
     cd "$shell_DIR" >/dev/null 2>&1 || echo "" &&
 
-    if [ "$__REMCACHE" == "true" ]; then
+    if [ "$json_RM_CACHE" == "true" ]; then
         ignore_this rm ".cache"
     fi
 
@@ -43,4 +43,4 @@ security_cleanup() {
 '
 trap security_cleanup SIGTERM SIGQUIT SIGHUP
 
-trap bash_end SIGINT
+trap end_console_main SIGINT

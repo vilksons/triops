@@ -1,38 +1,38 @@
 #!/bin/bash
 
-function what_is_choice_samp()
+function struct_choice_samp()
 {
     while true; do
         echo "# Select: [L]inux for Linux Files [W]indows for Windows Files"
         read -r -p ">> " SEL_CO
         case "$SEL_CO" in
             [Ll])
-                send_samp_linux "" && break ;;
+                struct_samp_linux "" && break ;;
             [Ww])
-                send_samp_win "" && break ;;
+                struct_samp_win "" && break ;;
             *)
-                echo -e "$(bash_coltext_r "err:") Invalid selection. Please enter L or W." ;;
+                echo -e "$(collor_red "err:") Invalid selection. Please enter L or W." ;;
         esac
     done
 }
-export what_is_choice_samp
+export struct_choice_samp
 
-function what_is_choice_pawncc()
+function struct_choice_pawncc()
 {
     while true; do
         echo "# Select: [L]inux for Linux Files [W]indows for Windows Files"
         read -r -p ">> " SEL_CO
         case "$SEL_CO" in
             [Ll])
-                send_compilers_linux "" && break ;;
+                struct_compilers_linux "" && break ;;
             [Ww])
-                send_compilers_win "" && break ;;
+                struct_compilers_win "" && break ;;
             *)
-                echo -e "$(bash_coltext_r "err:") Invalid selection. Please enter L or W." ;;
+                echo -e "$(collor_red "err:") Invalid selection. Please enter L or W." ;;
         esac
     done
 }
-export what_is_choice_pawncc
+export struct_choice_pawncc
 
 function fetch_now()
 {
@@ -75,6 +75,6 @@ function fetch_now()
     else
         echo "Triops Platform: Unknown"
     fi
-    bash_end ""
+    end_console_main ""
 }
 export fetch_now

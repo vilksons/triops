@@ -150,7 +150,7 @@ CONFIGURATION DETAILS
     Directories excluded from compilation.                      
   o samp_log
     SA-MP server log file.                                      
-  o server_conf
+  o json_SERVER_CONFIG
     SA-MP server configuration file.     (TligPac)
   o main_server
     SA-MP main server file. (TligPac)           

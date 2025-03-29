@@ -8,7 +8,7 @@ import hashlib
 import json
 # Module for interacting with the system, such as reading command-line arguments and exiting the script
 import sys
-# Module for working with regular expressions (regex), used for chatbot_token security validation
+# Module for working with regular expressions (regex), used for json_CHATBOT_TOKEN security validation
 import re
 
 def double_sha256():
@@ -24,10 +24,10 @@ def double_sha256():
     return hash2
 
 # Generate two random double SHA256 hashes and store them in variables
-SERVER_DOUBLE_SHA256 = double_sha256()
+json_SERV_DSHA256 = double_sha256()
 
 # Export the double SHA256 values to the bash environment
-print(f"export SERVER_DOUBLE_SHA256={SERVER_DOUBLE_SHA256}")
+print(f"export json_SERV_DSHA256={json_SERV_DSHA256}")
 
 def __load_json__():
     """ Load json for lang.json """
@@ -53,40 +53,40 @@ exclude_paths = data.get('exclude_paths', [])
 exclude_flags = ' '.join(f'-i"{path}"' for path in exclude_paths)
 
 # Export the exclude flags
-print_export("DEF_EXCLUDE", exclude_flags)
+print_export("json_EXCLUDE", exclude_flags)
 
 # Export the include paths and other values from the JSON data
-print_export("DEF_INCLUDE", data.get('include_paths', ''))
-print_export("TLIGPAC_DIR", data.get('include_dir', ''))
-print_export("__SAMP_PLUGIN_DIR", data.get('plugins_dir', ''))
-print_export("__SAMP_LOG", data.get('samp_log', ''))
-print_export("SERVER_CONF", data.get('server_conf', ''))
-print_export("SERVER_MAIN", data.get('main_server', ''))
-print_export("__SAMP_EXEC", data.get('samp_executable', ''))
-print_export("__REMCACHE", data.get('remcache_auto', ''))
-print_export("__REAL_REPOS", data.get('repository', ''))
+print_export("json_INCLUDE", data.get('include_paths', ''))
+print_export("json_PAC_INCLUDE", data.get('include_dir', ''))
+print_export("json_PAC_PLUGINS", data.get('plugins_dir', ''))
+print_export("json_LOG_SERV", data.get('samp_log', ''))
+print_export("json_SERVER_CONFIG", data.get('json_SERVER_CONFIG', ''))
+print_export("json_FILE_SERV", data.get('main_server', ''))
+print_export("json_EXE_SERV", data.get('samp_executable', ''))
+print_export("json_RM_CACHE", data.get('remcache_auto', ''))
+print_export("json_WSPACE_REPO", data.get('repository', ''))
 
 # Export the chatbot model value
-print_export("CHATBOT_MODEL", data.get('bot_model', ''))
+print_export("json_CHATBOT_MODEL", data.get('bot_model', ''))
 # Export the chatbot biodata value
-print_export("CHATBOT_BIODATA", data.get('bot_profile', ''))
+print_export("json_CHATBOT_BIODATA", data.get('bot_profile', ''))
 
 # Define a regex pattern to validate the chatbot token
 valid_token_regex = re.compile("^[a-zA-Z0-9_-]{1,62}$")
 
 # Get the chatbot token from the JSON data
-chatbot_token = data.get('bot_token', '')
+json_CHATBOT_TOKEN = data.get('bot_token', '')
 
 # Validate the chatbot token format using the regex pattern
-if not valid_token_regex.match(chatbot_token):
+if not valid_token_regex.match(json_CHATBOT_TOKEN):
     sys.exit(0)
 
 # Export the chatbot token value
-print_export("CHATBOT_TOKEN", data.get('bot_token', ''))
+print_export("json_CHATBOT_TOKEN", data.get('bot_token', ''))
 
 # Get the amx_flags and export them
 amx_opt = data.get('amx_flags', [])
-print_export("AMX_OPT_F", ' '.join(amx_opt))
+print_export("json_AMX_OPT_F", ' '.join(amx_opt))
 
 if __name__ == '__main__':
     """ Ensure the script runs only when executed directly, not when imported """

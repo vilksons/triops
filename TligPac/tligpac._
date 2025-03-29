@@ -5,80 +5,84 @@ function mode_TLIGPAC() {
     #   @mode.TLIGPAC
     #
 
-    save_TITLE "TligPac Mode"
+    console_TITLE "TligPac Mode"
 
     #
     #   @Send.Permissions.Typing
     #
 
-    resetVariable ""
+    rest_var ""
 
-    read -e -r -p "pac:~$ " tligpac_OPTION_FLAGS
-    bash_TligPac "$tligpac_OPTION_FLAGS"
+    read -e -r -p "pac:~$ " pac_table
+    struct_TLIGPAC "$pac_table"
 }
 export mode_TLIGPAC
 
-function bash_TligPac()
+function struct_TLIGPAC()
 {
     : '
         TligPac Mode
     '
 
-    local tligpac_TRIGGER="tligpac"
-    local __tligpac_unknown_host__=0
+    local trigger_pac="tligpac"
+    local pac_uhost=0
 
-    case "$tligpac_OPTION_FLAGS" in
-        "autoinstall")
+    local tables1="autoinstall"
+    local tables2="install"
+    local tables3="rmeove"
+
+    case "$pac_table" in
+        "$tables1")
             if [ ! -f "$shell_DIR/.cache/tligpac" ]; then
-                echo -e "$(bash_coltext_r "crit:") no downloads history in cache found!"  # Print error message if no cache found
+                echo -e "$(collor_red "crit:") no downloads history in cache found!"  # Print error message if no cache found
                 mode_TLIGPAC ""  # Call the mode_TLIGPAC function with an empty argument
             fi
 
-            local __find_url  # Declare a local variable to store the last found URL
+            local tables1_url_cache  # Declare a local variable to store the last found URL
             # Extract the last URL from the cache file
-            __find_url=$(grep -o 'https://[^ ]*' "$shell_DIR/.cache/tligpac" | tail -n 1)
+            tables1_url_cache=$(grep -o 'https://[^ ]*' "$shell_DIR/.cache/tligpac" | tail -n 1)
 
             # Check if a valid URL was found
-            if [[ -z "$__find_url" ]]; then
-                echo -e "$(bash_coltext_r "crit:") no valid URL found in cache!"
+            if [[ -z "$tables1_url_cache" ]]; then
+                echo -e "$(collor_red "crit:") no valid URL found in cache!"
                 mode_TLIGPAC ""  # Call mode_TLIGPAC function if no URL is found
             fi
 
             # Print debug message showing the found URL
-            echo -e "$(bash_coltext_y "dbg:") using last found history: $__find_url"
+            echo -e "$(collor_yellow "dbg:") using last found history: $tables1_url_cache"
 
             # give to one so as not to re-output to the cache which would corrupt the tligpac cache.
-            __TLIGPAC_AUTTOIN=1
+            save_autoinstall=1
 
-            tligpac_OPTION_FLAGS="install $__find_url"  # Set install option flag with the found URL
-            bash_TligPac "$tligpac_OPTION_FLAGS"  # Call the bash_TligPac function with the flags
+            pac_table="install $tables1_url_cache"  # Set install option flag with the found URL
+            struct_TLIGPAC "$pac_table"  # Call the struct_TLIGPAC function with the flags
             ;;
-        "install"*)
-            save_TITLE "Install Packages"
+        "$tables2"*)
+            console_TITLE "Install Packages"
 
-            local tligpac_input_args="${tligpac_OPTION_FLAGS#"install "}"
+            local tables2_input_args="${pac_table#"$tables2 "}"
 
-            if [ "$__TLIGPAC_AUTTOIN" != 1 ]; then
-                echo "$tligpac_input_args" >> "$shell_DIR/.cache/tligpac"
+            if [ "$save_autoinstall" != 1 ]; then
+                echo "$tables2_input_args" >> "$shell_DIR/.cache/tligpac"
             fi
 
-            local __tligpac_url__=()
+            local tables2_url_args=()
 
             # Check if the repository URL is non-empty and not equal to "install"
-            if [[ -n "$tligpac_input_args" && "$tligpac_input_args" != "install" ]]; then
-                # If a valid repository URL is provided, store it in the __tligpac_url__ array
-                __tligpac_url__=("$tligpac_input_args")
+            if [[ -n "$tables2_input_args" && "$tables2_input_args" != "install" ]]; then
+                # If a valid repository URL is provided, store it in the tables2_url_args array
+                tables2_url_args=("$tables2_input_args")
             else
                 # Check if tligpac.json file exists
                 if [ -f "tligpac.json" ] && [ -f "tligpac.toml" ]; then
-                    echo -e "$(bash_coltext_r "crit:") tligpac.json and tligpac.toml Cannot be merged!. choose tligpac.json.."
+                    echo -e "$(collor_red "crit:") tligpac.json and tligpac.toml Cannot be merged!. choose tligpac.json.."
                     sleep 0.1
                 elif [ -f "tligpac.json" ]; then
-                    mapfile -t __tligpac_url__ < <(python3 -c 'import json, sys; data = json.load(sys.stdin); print("\n".join(data["package"]))' < tligpac.json)
+                    mapfile -t tables2_url_args < <(python3 -c 'import json, sys; data = json.load(sys.stdin); print("\n".join(data["package"]))' < tligpac.json)
                 elif [ -f "tligpac.toml" ]; then
-                    mapfile -t __tligpac_url__ < <(tomlq -r '.package.urls[]' tligpac.toml)
+                    mapfile -t tables2_url_args < <(tomlq -r '.package.urls[]' tligpac.toml)
                 else
-                    echo -e "$(bash_coltext_r "crit:") tligpac.json or tligpac.toml not found!"
+                    echo -e "$(collor_red "crit:") tligpac.json or tligpac.toml not found!"
                     sleep 2.2
                     cat > tligpac.json <<EOF
 {
@@ -96,111 +100,111 @@ mode_TLIGPAC ""
                 fi
             fi
 
-            for tligpac_input_args in "${__tligpac_url__[@]}"; do
+            for tables2_input_args in "${tables2_url_args[@]}"; do
                 : ' array to variable '
 
-                if [[ "$tligpac_input_args" != https://* ]]; then
+                if [[ "$tables2_input_args" != https://* ]]; then
                 : ' TligPac: package URL to https
                 '
-                    if [[ "$tligpac_input_args" == github/* ]]; then
+                    if [[ "$tables2_input_args" == github/* ]]; then
                         : ' github '
-                        tligpac_input_args="https://github.com/${tligpac_input_args#github/}"
-                    elif [[ "$tligpac_input_args" == gitlab/* ]]; then
+                        tables2_input_args="https://github.com/${tables2_input_args#github/}"
+                    elif [[ "$tables2_input_args" == gitlab/* ]]; then
                         : ' gitlab '
-                        tligpac_input_args="https://gitlab.com/${tligpac_input_args#gitlab/}"
-                    elif [[ "$tligpac_input_args" == sourceforge/* ]]; then
+                        tables2_input_args="https://gitlab.com/${tables2_input_args#gitlab/}"
+                    elif [[ "$tables2_input_args" == sourceforge/* ]]; then
                         : ' sourceforge '
-                        tligpac_input_args="https://sourceforge.net/projects/${tligpac_input_args#sourceforge/}"
+                        tables2_input_args="https://sourceforge.net/projects/${tables2_input_args#sourceforge/}"
                     else
                         : ' unknown '
-                        echo "$(bash_coltext_g "warn:") host url unknown's: $tligpac_input_args..."
-                        __tligpac_unknown_host__=1
+                        echo "$(collor_green "warn:") host url unknown's: $tables2_input_args..."
+                        pac_uhost=1
                         continue
                     fi
                 fi
                 
-                if [[ "$tligpac_input_args" == *"/releases/download/"* ]]; then
-                    tligpac_archive_url="$tligpac_input_args"
-                elif [[ "$tligpac_input_args" == *"/releases/tag/"* ]]; then
-                    local tligpac_REPO_NAME
-                    tligpac_REPO_NAME=$(echo "$tligpac_input_args" | awk -F '/' '{print $(NF-3) "/" $(NF-2)}')
-                    local tligpac_TAG_VERSION
-                    tligpac_TAG_VERSION=$(echo "$tligpac_input_args" | awk -F '/' '{print $NF}')
+                if [[ "$tables2_input_args" == *"/releases/download/"* ]]; then
+                    pac_ARCH_URL="$tables2_input_args"
+                elif [[ "$tables2_input_args" == *"/releases/tag/"* ]]; then
+                    local pac_REPOS
+                    pac_REPOS=$(echo "$tables2_input_args" | awk -F '/' '{print $(NF-3) "/" $(NF-2)}')
+                    local pac_REPOS_TAG
+                    pac_REPOS_TAG=$(echo "$tables2_input_args" | awk -F '/' '{print $NF}')
                 
-                    if [[ "$tligpac_input_args" == *"github.com"* ]]; then
+                    if [[ "$tables2_input_args" == *"github.com"* ]]; then
                         : ' github '
-                        tligpac_API_URL="https://api.github.com/repos/$tligpac_REPO_NAME/git/refs/tags/$tligpac_TAG_VERSION"
-                    elif [[ "$tligpac_input_args" == *"gitlab.com"* ]]; then
+                        pac_API_URL="https://api.github.com/repos/$pac_REPOS/git/refs/tags/$pac_REPOS_TAG"
+                    elif [[ "$tables2_input_args" == *"gitlab.com"* ]]; then
                         : ' gitlab '
-                        tligpac_API_URL="https://gitlab.com/api/v4/projects/$(echo "$tligpac_REPO_NAME" | tr '/' '%2F')/releases/$tligpac_TAG_VERSION"
-                    elif [[ "$tligpac_input_args" == *"sourceforge.net"* ]]; then
+                        pac_API_URL="https://gitlab.com/api/v4/projects/$(echo "$pac_REPOS" | tr '/' '%2F')/releases/$pac_REPOS_TAG"
+                    elif [[ "$tables2_input_args" == *"sourceforge.net"* ]]; then
                         : ' sourceforge '
-                        tligpac_API_URL="https://sourceforge.net/projects/$tligpac_REPO_NAME/files/latest/download"
+                        pac_API_URL="https://sourceforge.net/projects/$pac_REPOS/files/latest/download"
                     else
                         : ' unknown '
-                        echo "$(bash_coltext_g "warn:") host url unknown's: $tligpac_input_args..."
-                        __tligpac_unknown_host__=1
+                        echo "$(collor_green "warn:") host url unknown's: $tables2_input_args..."
+                        pac_uhost=1
                         continue
                     fi
                 
-                    if [ "$__tligpac_unknown_host__" == 1 ]; then
-                        [[ -z "$tligpac_archive_url" ]] && tligpac_archive_url=$(curl -s "$tligpac_input_args" | grep "browser_download_url" | grep -E ".zip|.tar.gz" | awk -F '"' '{print $4}' | head -n 1)
-                    elif [ "$__tligpac_unknown_host__" == 0 ]; then
-                        [[ -z "$tligpac_archive_url" ]] && tligpac_archive_url=$(curl -s "$tligpac_API_URL" | grep "browser_download_url" | grep -E ".zip|.tar.gz" | awk -F '"' '{print $4}' | head -n 1)
+                    if [ "$pac_uhost" == 1 ]; then
+                        [[ -z "$pac_ARCH_URL" ]] && pac_ARCH_URL=$(curl -s "$tables2_input_args" | grep "browser_download_url" | grep -E ".zip|.tar.gz" | awk -F '"' '{print $4}' | head -n 1)
+                    elif [ "$pac_uhost" == 0 ]; then
+                        [[ -z "$pac_ARCH_URL" ]] && pac_ARCH_URL=$(curl -s "$pac_API_URL" | grep "browser_download_url" | grep -E ".zip|.tar.gz" | awk -F '"' '{print $4}' | head -n 1)
                     fi
                 else
-                    local tligpac_REPO_NAME
-                    tligpac_REPO_NAME=$(echo "$tligpac_input_args" | awk -F '/' '{print $(NF-1) "/" $NF}')
+                    local pac_REPOS
+                    pac_REPOS=$(echo "$tables2_input_args" | awk -F '/' '{print $(NF-1) "/" $NF}')
                 
-                    if [[ "$tligpac_input_args" == *"github.com"* ]]; then
+                    if [[ "$tables2_input_args" == *"github.com"* ]]; then
                         : ' github '
-                        tligpac_API_URL="https://api.github.com/repos/$tligpac_REPO_NAME/releases/latest"
-                    elif [[ "$tligpac_input_args" == *"gitlab.com"* ]]; then
+                        pac_API_URL="https://api.github.com/repos/$pac_REPOS/releases/latest"
+                    elif [[ "$tables2_input_args" == *"gitlab.com"* ]]; then
                         : ' gitlab '
-                        tligpac_API_URL="https://gitlab.com/api/v4/projects/$(echo "$tligpac_REPO_NAME" | tr '/' '%2F')/releases/permalink/latest"
-                    elif [[ "$tligpac_input_args" == *"sourceforge.net"* ]]; then
+                        pac_API_URL="https://gitlab.com/api/v4/projects/$(echo "$pac_REPOS" | tr '/' '%2F')/releases/permalink/latest"
+                    elif [[ "$tables2_input_args" == *"sourceforge.net"* ]]; then
                         : ' sourceforge '
-                        tligpac_archive_url="https://sourceforge.net/projects/$tligpac_REPO_NAME/files/latest/download"
+                        pac_ARCH_URL="https://sourceforge.net/projects/$pac_REPOS/files/latest/download"
                     else
                         : ' unknown '
-                        echo "$(bash_coltext_g "warn:") host url unknown's: $tligpac_input_args..."
-                        __tligpac_unknown_host__=1
+                        echo "$(collor_green "warn:") host url unknown's: $tables2_input_args..."
+                        pac_uhost=1
                         continue
                     fi
 
-                    if [ "$__tligpac_unknown_host__" == 1 ]; then
-                        [[ -z "$tligpac_archive_url" ]] && tligpac_archive_url=$(curl -s "$tligpac_input_args" | grep "browser_download_url" | grep -E ".zip|.tar.gz" | awk -F '"' '{print $4}' | head -n 1)
-                    elif [ "$__tligpac_unknown_host__" == 0 ]; then
-                        [[ -z "$tligpac_archive_url" ]] && tligpac_archive_url=$(curl -s "$tligpac_API_URL" | grep "browser_download_url" | grep -E ".zip|.tar.gz" | awk -F '"' '{print $4}' | head -n 1)
+                    if [ "$pac_uhost" == 1 ]; then
+                        [[ -z "$pac_ARCH_URL" ]] && pac_ARCH_URL=$(curl -s "$tables2_input_args" | grep "browser_download_url" | grep -E ".zip|.tar.gz" | awk -F '"' '{print $4}' | head -n 1)
+                    elif [ "$pac_uhost" == 0 ]; then
+                        [[ -z "$pac_ARCH_URL" ]] && pac_ARCH_URL=$(curl -s "$pac_API_URL" | grep "browser_download_url" | grep -E ".zip|.tar.gz" | awk -F '"' '{print $4}' | head -n 1)
                     fi
                 fi
 
                 sleep 0.1
 
                 # cache extract directory
-                local tligpac_EXTRACT_DIR=".tcache"
-                if [[ -d "$tligpac_EXTRACT_DIR" && "$tligpac_EXTRACT_DIR" == .tcache ]]; then
-                    rm -rf "$tligpac_EXTRACT_DIR"
+                local pac_extract_dirs=".tcache"
+                if [[ -d "$pac_extract_dirs" && "$pac_extract_dirs" == .tcache ]]; then
+                    rm -rf "$pac_extract_dirs"
                 fi
-                mkdir -p "$tligpac_EXTRACT_DIR"
+                mkdir -p "$pac_extract_dirs"
 
-                if [ -n "$TLIGPAC_DIR" ]; then
+                if [ -n "$json_PAC_INCLUDE" ]; then
                     # if not null
-                    if [ ! -d "$TLIGPAC_DIR" ]; then
+                    if [ ! -d "$json_PAC_INCLUDE" ]; then
                         # if not exist -> d : dir - f : file
-                        mkdir -p "$TLIGPAC_DIR"
+                        mkdir -p "$json_PAC_INCLUDE"
                     fi
                 else
-                    if [ ! -d "$TLIGPAC_DIR" ]; then
+                    if [ ! -d "$json_PAC_INCLUDE" ]; then
                         # if not exist -> d : dir - f : file
                         mkdir -p "pawno/include"
-                        TLIGPAC_DIR="pawno/include"
+                        json_PAC_INCLUDE="pawno/include"
                     fi
                 fi
 
-                if [ ! -d "$__SAMP_PLUGIN_DIR" ]; then
+                if [ ! -d "$json_PAC_PLUGINS" ]; then
                     # if not exist -> : d : dir - f : file
-                    mkdir "$__SAMP_PLUGIN_DIR" >/dev/null 2>&1 || mkdir "plugins" >/dev/null 2>&1
+                    mkdir "$json_PAC_PLUGINS" >/dev/null 2>&1 || mkdir "plugins" >/dev/null 2>&1
                 fi
 
                 #
@@ -208,477 +212,474 @@ mode_TLIGPAC ""
                 #
 
                 # Extract the base name of the repository URL and remove the file extension (if any)
-                local tligpac_PACKAGES
-                tligpac_PACKAGES=$(basename "$tligpac_input_args")
-                local tligpac_PACKAGES
-                tligpac_PACKAGES="${tligpac_PACKAGES%.*}"
+                local pac_DEPENDS
+                pac_DEPENDS=$(basename "$tables2_input_args")
+                local pac_DEPENDS
+                pac_DEPENDS="${pac_DEPENDS%.*}"
 
                 # Initialize an empty variable for repository version
-                local __tligpac_VERSION_REPO=""
+                local new_vrepo=""
 
                 # Check if the repository URL contains '/releases/tag/' or '/releases/download/'
                 # and extract the version information from the URL accordingly
-                if [[ "$tligpac_input_args" == *"/releases/tag/"* ]]; then
+                if [[ "$tables2_input_args" == *"/releases/tag/"* ]]; then
                     # If it's a tag release, the version is the last part of the URL
-                    tligpac_VERSION_REPO=$(echo "$tligpac_input_args" | awk -F '/' '{print $NF}')
-                elif [[ "$tligpac_input_args" == *"/releases/download/"* ]]; then
+                    vrepo=$(echo "$tables2_input_args" | awk -F '/' '{print $NF}')
+                elif [[ "$tables2_input_args" == *"/releases/download/"* ]]; then
                     # If it's a download release, the version is the second-to-last part of the URL
-                    tligpac_VERSION_REPO=$(echo "$tligpac_input_args" | awk -F '/' '{print $(NF-1)}')
+                    vrepo=$(echo "$tables2_input_args" | awk -F '/' '{print $(NF-1)}')
                 else
                     # If neither tag nor download, set the version as "Unknown's"
-                    tligpac_VERSION_REPO="Unknown's"
+                    vrepo="Unknown's"
                 fi
 
                 # Remove the 'v' prefix if present in the version
-                local tligpac_VERSION_REPO=${tligpac_VERSION_REPO#v}
+                local vrepo=${vrepo#v}
 
                 # Store the version in another variable for later use
-                local __tligpac_VERSION_REPO="$tligpac_VERSION_REPO"
+                local new_vrepo="$vrepo"
 
                 # If the version doesn't contain any digits, mark it as an unknown version
-                if ! [[ "$tligpac_VERSION_REPO" =~ [0-9] ]]; then
+                if ! [[ "$vrepo" =~ [0-9] ]]; then
                     # If no version detected, clear the version variable and set it as "Unknown's"
-                    tligpac_VERSION_REPO=""
-                    __tligpac_VERSION_REPO="Unknown's"
+                    vrepo=""
+                    new_vrepo="Unknown's"
                 fi
 
                 # If the package name wasn't extracted, set it as "Unknown's"
-                if [[ -z "$tligpac_PACKAGES" ]]; then
-                    tligpac_PACKAGES="Unknown's"
+                if [[ -z "$pac_DEPENDS" ]]; then
+                    pac_DEPENDS="Unknown's"
                 fi
 
-                local __tligpac_PACKAGES="$tligpac_PACKAGES"
+                local new_pac_DEPENDS="$pac_DEPENDS"
 
                 sleep 0.1
 
                 # Extract the package name from the repository URL by removing the file extension and hyphen
-                tligpac_PACKAGES=$(basename "$tligpac_input_args")
-                tligpac_PACKAGES="${tligpac_PACKAGES%%-*}"
+                pac_DEPENDS=$(basename "$tables2_input_args")
+                pac_DEPENDS="${pac_DEPENDS%%-*}"
 
                 # Determine the archive file format based on the URL
                 # If the URL ends with .zip, set the archive file to be .zip
-                if [[ "$tligpac_archive_url" =~ \.zip$ ]]; then
-                    tligpac_ARCHIVE_FILE="$__tligpac_PACKAGES.zip"
+                if [[ "$pac_ARCH_URL" =~ \.zip$ ]]; then
+                    arch_files="$new_pac_DEPENDS.zip"
                 # If the URL ends with .tar.gz, set the archive file to be .tar.gz
-                elif [[ "$tligpac_archive_url" =~ \.tar\.gz$ ]]; then
-                    tligpac_ARCHIVE_FILE="$__tligpac_PACKAGES.tar.gz"
+                elif [[ "$pac_ARCH_URL" =~ \.tar\.gz$ ]]; then
+                    arch_files="$new_pac_DEPENDS.tar.gz"
                 # Default to .zip if neither .zip nor .tar.gz is detected
                 else
-                    tligpac_ARCHIVE_FILE="$__tligpac_PACKAGES.zip"
+                    arch_files="$new_pac_DEPENDS.zip"
                 fi
 
                 # Inform the user that the download is starting
-                echo -e "$(bash_coltext_y "Downloading") $__tligpac_PACKAGES v$tligpac_VERSION_REPO"
+                echo -e "$(collor_yellow "Downloading") $new_pac_DEPENDS v$vrepo"
                                 
                 # Download the archive using wget with progress showing
-                aria2c --summary-interval=1 --console-log-level=warn --download-result=hide -o "$tligpac_ARCHIVE_FILE" "$tligpac_archive_url"
+                aria2c --summary-interval=1 --console-log-level=warn --download-result=hide -o "$arch_files" "$pac_ARCH_URL"
                 echo
 
                 # Archive Check
-                if [ -f "$tligpac_ARCHIVE_FILE" ]; then
+                if [ -f "$arch_files" ]; then
                     # Check if the downloaded file is a ZIP archive
-                    if file "$tligpac_ARCHIVE_FILE" | grep -q "Zip archive data"; then
+                    if file "$arch_files" | grep -q "Zip archive data"; then
                         # If it's a ZIP file, unzip it to the extraction directory
-                        unzip -q "$tligpac_ARCHIVE_FILE" -d "$tligpac_EXTRACT_DIR"
+                        unzip -q "$arch_files" -d "$pac_extract_dirs"
                     # Check if the downloaded file is a GZIP compressed TAR file
-                    elif file "$tligpac_ARCHIVE_FILE" | grep -q "gzip compressed data"; then
+                    elif file "$arch_files" | grep -q "gzip compressed data"; then
                         # If it's a TAR.GZ file, extract it to the extraction directory
-                        mkdir -p "$tligpac_EXTRACT_DIR"
-                        tar -xzf "$tligpac_ARCHIVE_FILE" -C "$tligpac_EXTRACT_DIR" --strip-components=1
+                        mkdir -p "$pac_extract_dirs"
+                        tar -xzf "$arch_files" -C "$pac_extract_dirs" --strip-components=1
                     else
                         # If the downloaded file is neither a ZIP nor a TAR.GZ, report an error and clean up
-                        echo -e "$(bash_coltext_r "crit:") Downloaded file is not a valid ZIP or TAR.GZ.."
+                        echo -e "$(collor_red "crit:") Downloaded file is not a valid ZIP or TAR.GZ.."
                         
                         # Verify before removing
-                        if [ -f "$tligpac_ARCHIVE_FILE" ]; then
-                            echo -e "$(bash_coltext_y "[OK] ") Removing invalid archive: $tligpac_ARCHIVE_FILE"
-                            rm -f "$tligpac_ARCHIVE_FILE"
+                        if [ -f "$arch_files" ]; then
+                            echo -e "$(collor_yellow "[OK] ") Removing invalid archive: $arch_files"
+                            rm -f "$arch_files"
                         fi
                         
-                        if [ -d "$tligpac_EXTRACT_DIR" ]; then
-                            echo -e "$(bash_coltext_y "[OK] ") Removing extracted directory: $tligpac_EXTRACT_DIR"
-                            rm -rf "$tligpac_EXTRACT_DIR"
+                        if [ -d "$pac_extract_dirs" ]; then
+                            echo -e "$(collor_yellow "[OK] ") Removing extracted directory: $pac_extract_dirs"
+                            rm -rf "$pac_extract_dirs"
                         fi
                         
                         continue
                     fi
                 else
                     # If not exist
-                    echo -e "$(bash_coltext_r "crit:") Download failed!. Check the installer"
+                    echo -e "$(collor_red "crit:") Download failed!. Check the installer"
                     mode_TLIGPAC ""
                 fi
 
-                mapfile -t __include_names < <(find "$tligpac_EXTRACT_DIR" -type f -name "*.inc" -exec basename {} \;)
+                mapfile -t _pac_include < <(find "$pac_extract_dirs" -type f -name "*.inc" -exec basename {} \;)
 
-                if [ -d "$TLIGPAC_DIR" ]; then
-                    find "$tligpac_EXTRACT_DIR" -type f -name "*.inc" | while IFS= read -r inc_file; do
-                        tligpac_REAL_PATH=$(realpath --relative-to="$tligpac_EXTRACT_DIR" "$inc_file" 2> /dev/null || echo "$inc_file")
+                if [ -d "$json_PAC_INCLUDE" ]; then
+                    find "$pac_extract_dirs" -type f -name "*.inc" | while IFS= read -r inc_file; do
+                        _real_path=$(realpath --relative-to="$pac_extract_dirs" "$inc_file" 2> /dev/null || echo "$inc_file")
                         
-
-                        # Check if $tligpac_REAL_PATH contains '/include/'
+                        # Check if $_real_path contains '/include/'
                         # If it does, the part before '/include/' will be removed
                         # This ensures we only get the path after 'include/'
-                        if [[ "$tligpac_REAL_PATH" =~ (^|/)include/ ]]; then
-                            tligpac_REAL_PATH="${tligpac_REAL_PATH#*include/}"
+                        if [[ "$_real_path" =~ (^|/)include/ ]]; then
+                            _real_path="${_real_path#*include/}"
                         fi
 
-                        # Check if $tligpac_REAL_PATH contains '/' which indicates a more complete path
-                        # If there is a '/', we need to get the directory from $tligpac_REAL_PATH
-                        # $TLIGPAC_DIR will be combined with the directory of that path
-                        if [[ "$tligpac_REAL_PATH" == */* ]]; then
-                            tligpac_DEST_PATH="$TLIGPAC_DIR/$(dirname "$tligpac_REAL_PATH")"
+                        # Check if $_real_path contains '/' which indicates a more complete path
+                        # If there is a '/', we need to get the directory from $_real_path
+                        # $json_PAC_INCLUDE will be combined with the directory of that path
+                        if [[ "$_real_path" == */* ]]; then
+                            _dest_path="$json_PAC_INCLUDE/$(dirname "$_real_path")"
                         else
-                            # If there is no '/', $tligpac_REAL_PATH is just a file name
-                            # So, we just point to the base directory $TLIGPAC_DIR
-                            tligpac_DEST_PATH="$TLIGPAC_DIR"
+                            # If there is no '/', $_real_path is just a file name
+                            # So, we just point to the base directory $json_PAC_INCLUDE
+                            _dest_path="$json_PAC_INCLUDE"
                         fi
 
-                        mkdir -p "$tligpac_DEST_PATH"
-                        mv -f "$inc_file" "$tligpac_DEST_PATH/"
+                        mkdir -p "$_dest_path"
+                        mv -f "$inc_file" "$_dest_path/"
                     done
 
                     # Check if both "components" and "plugins" directories exist
                     # If they do, move them both to shell_DIR
-                    if [ -d "$tligpac_EXTRACT_DIR/components" ] && [ -d "$tligpac_EXTRACT_DIR/plugins" ]; then
+                    if [ -d "$pac_extract_dirs/components" ] && [ -d "$pac_extract_dirs/plugins" ]; then
                         mkdir -p "$shell_DIR/components" "$shell_DIR/plugins"
-                        echo -e "$(bash_coltext_y "Detected & Moving") plugins & components to $shell_DIR"
-                        cp -r "$tligpac_EXTRACT_DIR/components/"* "$shell_DIR/components/"
-                        cp -r "$tligpac_EXTRACT_DIR/plugins/"* "$shell_DIR/plugins/"
+                        echo -e "$(collor_yellow "Detected & Moving") plugins & components to $shell_DIR"
+                        cp -r "$pac_extract_dirs/components/"* "$shell_DIR/components/"
+                        cp -r "$pac_extract_dirs/plugins/"* "$shell_DIR/plugins/"
 
-                        rm -rf "$tligpac_EXTRACT_DIR/components" "$tligpac_EXTRACT_DIR/plugins"
+                        rm -rf "$pac_extract_dirs/components" "$pac_extract_dirs/plugins"
 
                     # Check if only "components" directory exists, then move it
-                    elif [ -d "$tligpac_EXTRACT_DIR/components" ]; then
+                    elif [ -d "$pac_extract_dirs/components" ]; then
                         mkdir -p "$shell_DIR/components"
-                        echo -e "$(bash_coltext_y "Detected & Moving") components to $shell_DIR"
-                        cp -r "$tligpac_EXTRACT_DIR/components/"* "$shell_DIR/components/"
+                        echo -e "$(collor_yellow "Detected & Moving") components to $shell_DIR"
+                        cp -r "$pac_extract_dirs/components/"* "$shell_DIR/components/"
 
                     # Check if only "plugins" directory exists, then move it
-                    elif [ -d "$tligpac_EXTRACT_DIR/plugins" ]; then
+                    elif [ -d "$pac_extract_dirs/plugins" ]; then
                         mkdir -p "$shell_DIR/plugins"
-                        echo -e "$(bash_coltext_y "Detected & Moving") plugins to $shell_DIR"
-                        cp -r "$tligpac_EXTRACT_DIR/plugins/"* "$shell_DIR/plugins/"
+                        echo -e "$(collor_yellow "Detected & Moving") plugins to $shell_DIR"
+                        cp -r "$pac_extract_dirs/plugins/"* "$shell_DIR/plugins/"
 
                     # If neither "components" nor "plugins" exist, move .dll and .so files instead
                     else
-                        find "$tligpac_EXTRACT_DIR" -type f \( -name "*.dll" -o -name "*.so" \) -exec mv -f {} "$__SAMP_PLUGIN_DIR/" \;
+                        find "$pac_extract_dirs" -type f \( -name "*.dll" -o -name "*.so" \) -exec mv -f {} "$json_PAC_PLUGINS/" \;
                     fi
 
                     # Cleanup: Remove the extracted archive and its directory
-                    if [[ -f "$tligpac_ARCHIVE_FILE" && -d "$tligpac_EXTRACT_DIR" ]]; then
-                        rm -rf -- "$tligpac_ARCHIVE_FILE" "$tligpac_EXTRACT_DIR"
-                        echo -e "$(bash_coltext_y "[OK] ") Removed: $tligpac_ARCHIVE_FILE and $tligpac_EXTRACT_DIR"
+                    if [[ -f "$arch_files" && -d "$pac_extract_dirs" ]]; then
+                        rm -rf -- "$arch_files" "$pac_extract_dirs"
+                        echo -e "$(collor_yellow "[OK] ") Removed: $arch_files and $pac_extract_dirs"
                     fi
 
                     # Print completion message with package and repo version info
-                    echo -e "$(bash_coltext_y "Complete!.") Packages: $__tligpac_PACKAGES | $__tligpac_VERSION_REPO"
+                    echo -e "$(collor_yellow "Complete!.") Packages: $new_pac_DEPENDS | $new_vrepo"
                 fi
             done
 
             # Function to add #include <find_plugin_name> into main.pwn
-            function __add_include_t_main() {
+            function pac_include_serv() {
                 # Get the first argument as the include name
-                local __find_include_name=$1
+                local loc_include_name=$1
                 # Define the main file path
-                local __main_file__="$shell_DIR/gamemodes/$SERVER_MAIN"
+                local loc_target_file="$shell_DIR/gamemodes/$json_FILE_SERV"
 
                 # Check if the main file exists
-                if [[ -f "$__main_file__" ]]; then
+                if [[ -f "$loc_target_file" ]]; then
                     # Check if the include already exists in the file
-                    if ! grep -qxF "#include <$__find_include_name>" "$__main_file__"; then
+                    if ! grep -qxF "#include <$loc_include_name>" "$loc_target_file"; then
                         # Check if a_samp or open.mp includes are present
-                        if grep -Eq "^#include <(a_samp|open\.mp)>" "$__main_file__"; then
+                        if grep -Eq "^#include <(a_samp|open\.mp)>" "$loc_target_file"; then
                             # Debug message
-                            echo -e "$(bash_coltext_y "dbg:") Adding #include <$__find_include_name> after #include <a_samp> or #include <open.mp>"
+                            echo -e "$(collor_yellow "dbg:") Adding #include <$loc_include_name> after #include <a_samp> or #include <open.mp>"
                             # Insert the include after a_samp or open.mp
-                            awk -v inc="#include <$__find_include_name>" '
+                            awk -v inc="#include <$loc_include_name>" '
                                 /^#include (<|")?(a_samp|a_samp.inc|open\.mp)(>|")?/ { print; print inc; next }
                                 { print }
-                            ' "$__main_file__" > "$__main_file__.tmp" && mv "$__main_file__.tmp" "$__main_file__"
+                            ' "$loc_target_file" > "$loc_target_file.tmp" && mv "$loc_target_file.tmp" "$loc_target_file"
                         else
                             # Debug message if no a_samp or open.mp found
-                            echo -e "$(bash_coltext_y "dbg:") No #include <a_samp> | <a_samp.inc> | \"a_samp\" | \"a_samp.inc\" or #include <open.mp> | \"open.mp\" found, adding at the beginning"
+                            echo -e "$(collor_yellow "dbg:") No #include <a_samp> | <a_samp.inc> | \"a_samp\" | \"a_samp.inc\" or #include <open.mp> | \"open.mp\" found, adding at the beginning"
                             # Add the include at the beginning of the file
-                            sed -i "1i#include <$__find_include_name>" "$__main_file__"
+                            sed -i "1i#include <$loc_include_name>" "$loc_target_file"
                         fi
                     else
                         # Debug message if the include already exists
-                        echo -e "$(bash_coltext_y "dbg:") #include <$__find_include_name> already exists in $__main_file__"
+                        echo -e "$(collor_yellow "dbg:") #include <$loc_include_name> already exists in $loc_target_file"
                     fi
                 else
                     # Debug message if the file is not found
-                    echo -e "$(bash_coltext_y "dbg:") $__main_file__ not found."
+                    echo -e "$(collor_yellow "dbg:") $loc_target_file not found."
                 fi
             }
 
-            # Loop through each package name in the __include_names array
-            for __package in "${__include_names[@]}"; do
+            # Loop through each package name in the _pac_include array
+            for __packages__ in "${_pac_include[@]}"; do
                 # Check if the package name is not empty
-                if [ -n "$__package" ]; then
-                    # Assign the package name to the __find_include_name variable
-                    __find_include_name="$__package"
+                if [ -n "$__packages__" ]; then
+                    # Assign the package name to the loc_include_name variable
+                    loc_include_name="$__packages__"
                     # Call the function to add the include directive to main.pwn
-                    __add_include_t_main "$__find_include_name"
+                    pac_include_serv "$loc_include_name"
                 fi
             done
 
-if [ -f "$shell_DIR/$SERVER_CONF" ]; then
+if [ -f "$shell_DIR/$json_SERVER_CONFIG" ]; then
             # if exist
             # Check if the SAMP server type is "samp"
             if [ "$__SAMP_SERVER" == "samp" ]; then
                 
                 # Function to check and add the plugin if it's not already in server.cfg
                 function __check_and_add() {
-                    local __find_plugin_name=$1
-                    local __find_so_linux="$__SAMP_PLUGIN_DIR/$__find_plugin_name.so"
-                    local __find_dll_win="$__SAMP_PLUGIN_DIR/$__find_plugin_name.dll"
+                    local loc_plugin_name=$1
+                    local loc_so_linux="$json_PAC_PLUGINS/$loc_plugin_name.so"
+                    local loc_dll_win="$json_PAC_PLUGINS/$loc_plugin_name.dll"
 
                     # Check if the plugin is already listed in server.cfg
-                    if ! grep -qE "^plugins.*\b$__find_plugin_name\b" "$SERVER_CONF"; then
+                    if ! grep -qE "^plugins.*\b$loc_plugin_name\b" "$json_SERVER_CONFIG"; then
                         # If both .so and .dll files exist
-                        if [[ -f "$__find_so_linux" && -f "$__find_dll_win" ]]; then
-                            echo -e "$(bash_coltext_y "dbg:") Adding $__find_plugin_name.so and $__find_plugin_name.dll to the plugins"
-                            sed -i -E "s/^(plugins.*)/\1 $__find_plugin_name.dll $__find_plugin_name.so/" "$SERVER_CONF"
+                        if [[ -f "$loc_so_linux" && -f "$loc_dll_win" ]]; then
+                            echo -e "$(collor_yellow "dbg:") Adding $loc_plugin_name.so and $loc_plugin_name.dll to the plugins"
+                            sed -i -E "s/^(plugins.*)/\1 $loc_plugin_name.dll $loc_plugin_name.so/" "$json_SERVER_CONFIG"
                         # If only .so exists
-                        elif [[ -f "$__find_so_linux" ]]; then
-                            echo -e "$(bash_coltext_y "dbg:") Adding $__find_plugin_name.so to the plugins"
-                            sed -i -E "s/^(plugins.*)/\1 $__find_plugin_name.so/" "$SERVER_CONF"
+                        elif [[ -f "$loc_so_linux" ]]; then
+                            echo -e "$(collor_yellow "dbg:") Adding $loc_plugin_name.so to the plugins"
+                            sed -i -E "s/^(plugins.*)/\1 $loc_plugin_name.so/" "$json_SERVER_CONFIG"
                         # If only .dll exists
-                        elif [[ -f "$__find_dll_win" ]]; then
-                            echo -e "$(bash_coltext_y "dbg:") Adding $__find_plugin_name.dll to the plugins"
-                            sed -i -E "s/^(plugins.*)/\1 $__find_plugin_name.dll/" "$SERVER_CONF"
+                        elif [[ -f "$loc_dll_win" ]]; then
+                            echo -e "$(collor_yellow "dbg:") Adding $loc_plugin_name.dll to the plugins"
+                            sed -i -E "s/^(plugins.*)/\1 $loc_plugin_name.dll/" "$json_SERVER_CONFIG"
                         fi
                     else
-                        echo -e "$(bash_coltext_y "dbg:") Plugin $__find_plugin_name already exists, not added."
+                        echo -e "$(collor_yellow "dbg:") Plugin $loc_plugin_name already exists, not added."
                     fi
                 }
 
                 # Check if the "plugins" line exists in server.cfg
-                if ! grep -q "^plugins" "$SERVER_CONF"; then
-                    echo "plugins" >> "$SERVER_CONF"
-                    echo -e "$(bash_coltext_y "dbg:") The 'plugins' line has been added to server.cfg."
+                if ! grep -q "^plugins" "$json_SERVER_CONFIG"; then
+                    echo "plugins" >> "$json_SERVER_CONFIG"
+                    echo -e "$(collor_yellow "dbg:") The 'plugins' line has been added to server.cfg."
                 fi
 
                 # Loop to ensure all plugins are properly added
-                for plugin in $tligpac_PACKAGES $__tligpac_PACKAGES; do
-                    __check_and_add "$plugin"
+                for __plugins__ in $pac_DEPENDS $new_pac_DEPENDS; do
+                    __check_and_add "$__plugins__"
                 done
             fi
 elif [ "$__SAMP_SERVER" == "omp" ]; then
             # if __SAMP_SERVER is open.mp ("omp")
-            function __add_plugin_to_json() {
-                local __find_plugin_name=$1
-                local __find_so_linux="$__SAMP_PLUGIN_DIR/$__find_plugin_name.so"
-                local __find_dll_win="$__SAMP_PLUGIN_DIR/$__find_plugin_name.dll"
+            function pac_plugin_serv() {
+                local loc_plugin_name=$1
+                local loc_so_linux="$json_PAC_PLUGINS/$loc_plugin_name.so"
+                local loc_dll_win="$json_PAC_PLUGINS/$loc_plugin_name.dll"
 
                 # Check if the plugin already exists in the "legacy_plugins" array within the "pawn" object
-                if ! grep -q -E "$__find_plugin_name\.(so|dll)" "$SERVER_CONF"; then
+                if ! grep -q -E "$loc_plugin_name\.(so|dll)" "$json_SERVER_CONFIG"; then
                     # If both .so and .dll exist
-                    if [[ -f "$__find_so_linux" && -f "$__find_dll_win" ]]; then
-                        echo -e "$(bash_coltext_y "dbg:") Adding $__find_plugin_name.so and $__find_plugin_name.dll to pawn.legacy_plugins"
-                        jq ".pawn.legacy_plugins += [\"$__find_plugin_name.dll\", \"$__find_plugin_name.so\"]" "$SERVER_CONF" 2>/dev/null > .__ignored,json && mv .__ignored,json "$SERVER_CONF"
+                    if [[ -f "$loc_so_linux" && -f "$loc_dll_win" ]]; then
+                        echo -e "$(collor_yellow "dbg:") Adding $loc_plugin_name.so and $loc_plugin_name.dll to pawn.legacy_plugins"
+                        jq ".pawn.legacy_plugins += [\"$loc_plugin_name.dll\", \"$loc_plugin_name.so\"]" "$json_SERVER_CONFIG" 2>/dev/null > .__ignored,json && mv .__ignored,json "$json_SERVER_CONFIG"
                     # If only .so exists
-                    elif [[ -f "$__find_so_linux" ]]; then
-                        echo -e "$(bash_coltext_y "dbg:") Adding $__find_plugin_name.so to pawn.legacy_plugins"
-                        jq ".pawn.legacy_plugins += [\"$__find_plugin_name.so\"]" "$SERVER_CONF" 2>/dev/null > .__ignored,json && mv .__ignored,json "$SERVER_CONF"
+                    elif [[ -f "$loc_so_linux" ]]; then
+                        echo -e "$(collor_yellow "dbg:") Adding $loc_plugin_name.so to pawn.legacy_plugins"
+                        jq ".pawn.legacy_plugins += [\"$loc_plugin_name.so\"]" "$json_SERVER_CONFIG" 2>/dev/null > .__ignored,json && mv .__ignored,json "$json_SERVER_CONFIG"
                     # If only .dll exists
-                    elif [[ -f "$__find_dll_win" ]]; then
-                        echo -e "$(bash_coltext_y "dbg:") Adding $__find_plugin_name.dll to pawn.legacy_plugins"
-                        jq ".pawn.legacy_plugins += [\"$__find_plugin_name.dll\"]" "$SERVER_CONF" 2>/dev/null > .__ignored,json && mv .__ignored,json "$SERVER_CONF"
+                    elif [[ -f "$loc_dll_win" ]]; then
+                        echo -e "$(collor_yellow "dbg:") Adding $loc_plugin_name.dll to pawn.legacy_plugins"
+                        jq ".pawn.legacy_plugins += [\"$loc_plugin_name.dll\"]" "$json_SERVER_CONFIG" 2>/dev/null > .__ignored,json && mv .__ignored,json "$json_SERVER_CONFIG"
                     fi
                 else
-                    echo -e "$(bash_coltext_y "dbg:") Plugin $__find_plugin_name already exists in pawn.legacy_plugins, not added."
+                    echo -e "$(collor_yellow "dbg:") Plugin $loc_plugin_name already exists in pawn.legacy_plugins, not added."
                 fi
             }
 
             # Checking if the JSON file has the correct structure
             # Ensure the config.json file is an object and has a "pawn" object with a "legacy_plugins" array
-            if ! jq -e '.pawn.legacy_plugins' "$SERVER_CONF" 2>/dev/null > /dev/null; then
+            if ! jq -e '.pawn.legacy_plugins' "$json_SERVER_CONFIG" 2>/dev/null > /dev/null; then
                 # Add or fix the JSON structure by adding the "pawn" key containing "legacy_plugins" as an empty array
-                if jq -e '. | type == "object"' "$SERVER_CONF" 2>/dev/null > /dev/null; then
-                    jq '.pawn = {legacy_plugins: []} + .' "$SERVER_CONF" 2>/dev/null > .__ignored,json && mv .__ignored,json "$SERVER_CONF"
-                    echo -e "$(bash_coltext_y "dbg:") Key 'pawn.legacy_plugins' has been added as an empty array."
+                if jq -e '. | type == "object"' "$json_SERVER_CONFIG" 2>/dev/null > /dev/null; then
+                    jq '.pawn = {legacy_plugins: []} + .' "$json_SERVER_CONFIG" 2>/dev/null > .__ignored,json && mv .__ignored,json "$json_SERVER_CONFIG"
+                    echo -e "$(collor_yellow "dbg:") Key 'pawn.legacy_plugins' has been added as an empty array."
                 fi
             fi
 
             # Remove duplicates from the legacy_plugins array
-            jq '.pawn.legacy_plugins |= unique' "$SERVER_CONF" > .__ignored,json && mv .__ignored,json "$SERVER_CONF"
+            jq '.pawn.legacy_plugins |= unique' "$json_SERVER_CONFIG" > .__ignored,json && mv .__ignored,json "$json_SERVER_CONFIG"
 
-            # Adding plugins based on tligpac_PACKAGES and __tligpac_PACKAGES variables
-            __add_plugin_to_json "$tligpac_PACKAGES"
-            __add_plugin_to_json "$__tligpac_PACKAGES"
+            # Adding plugins based on pac_DEPENDS and new_pac_DEPENDS variables
+            pac_plugin_serv "$pac_DEPENDS"
+            pac_plugin_serv "$new_pac_DEPENDS"
 fi
 
             # end.
-            echo -e "$(bash_coltext_y "[All packages installed]")"
+            echo -e "$(collor_yellow "[All packages installed]")"
 
             sleep 0.1
 
             mode_TLIGPAC ""
             ;;
-        "remove"*)
-            save_TITLE "Remove Packages"
+        "$tables3"*)
+            console_TITLE "Remove Packages"
 
-            local find_ARGS_FROM="${tligpac_OPTION_FLAGS#"remove "}"
-            local find_ARGS_FROM="${find_ARGS_FROM#remove }"
+            local tables3_input_args="${pac_table#"$tables3 "}"
 
-            if [[ -n "$find_ARGS_FROM" ]]; then
-                tligpac_REMOVE_PATTERN="$find_ARGS_FROM"
+            if [[ -n "$tables3_input_args" ]]; then
+                rm_input_save="$tables3_input_args"
             else
                 echo ":: Enter the name pattern of the include/plugin to remove:"
-                read -r -p ">>> " tligpac_REMOVE_PATTERN
+                read -r -p ">>> " rm_input_save
 
                 echo -e "$(bash_coltext_a ":: Enter the name pattern of the include/plugin to remove:")"
                 while true; do
-                    read -r -p ">>> " tligpac_REMOVE_PATTERN
+                    read -r -p ">>> " rm_input_save
                     [[ -n "$commands_INPUT" ]] && break
                 done
             fi
 
             # Function to filter and remove files based on a pattern
             # Takes one argument, a pattern, which will be used to match file names
-            function tligpac_FILTER_REMOVE_FILES() {
+            function regex_to_remove() {
                 local _pattern_="$1"  # Store the pattern in a local variable
 
                 # Read each line (file path) passed to the function
                 while read -r __file; do
-                    __filename=$(basename "$__file")  # Extract the file name from the full path
+                    _file=$(basename "$__file")  # Extract the file name from the full path
 
                     # Check if the file name matches the pattern
                     # The pattern can optionally match a file extension (e.g., .txt or .md)
                     # Also, it can match file names with an optional dash before the pattern
-                    if [[ "$__filename" =~ ^$_pattern_([0-9]{1,4})?(\.[a-z]+)?$ || "$__filename" =~ .*-?$_pattern_([0-9]{1,4})?(\.[a-z]+)?$ ]]; then
+                    if [[ "$_file" =~ ^$_pattern_([0-9]{1,4})?(\.[a-z]+)?$ || "$_file" =~ .*-?$_pattern_([0-9]{1,4})?(\.[a-z]+)?$ ]]; then
                         echo "$__file"  # If it matches, print the full file path
                     fi
                 done
             }
 
-            if [ -d "$TLIGPAC_DIR" ]; then
-                tligpac_INC_FILES=$(find "$TLIGPAC_DIR" -type f -name "*.inc" -print0 | tligpac_FILTER_REMOVE_FILES "$tligpac_REMOVE_PATTERN")
+            if [ -d "$json_PAC_INCLUDE" ]; then
+                pac_INCLUDES=$(find "$json_PAC_INCLUDE" -type f -name "*.inc" -print0 | regex_to_remove "$rm_input_save")
 
-                if [[ -n "$tligpac_INC_FILES" ]]; then
-                    echo "$tligpac_INC_FILES" | xargs -0 rm -rf --
-                    echo -e "$(bash_coltext_y "[OK] ") Removed includes: $tligpac_INC_FILES"
+                if [[ -n "$pac_INCLUDES" ]]; then
+                    echo "$pac_INCLUDES" | xargs -0 rm -rf --
+                    echo -e "$(collor_yellow "[OK] ") Removed includes: $pac_INCLUDES"
                 else
-                    echo -e "$(bash_coltext_y "dbg:") No matching include files found: $tligpac_REMOVE_PATTERN"
+                    echo -e "$(collor_yellow "dbg:") No matching include files found: $rm_input_save"
                 fi
             else
-                # If the $TLIGPAC_DIR folder does not exist, print a warning message
-                echo -e "$(bash_coltext_g "warn:") $TLIGPAC_DIR not found"
+                # If the $json_PAC_INCLUDE folder does not exist, print a warning message
+                echo -e "$(collor_green "warn:") $json_PAC_INCLUDE not found"
             fi
 
-            if [ -d "$__SAMP_PLUGIN_DIR" ]; then
-                tligpac_PLUGIN_FILES=$(find "$__SAMP_PLUGIN_DIR" -type f \( -name "*.dll" -o -name "*.so" \) -print0 | tligpac_FILTER_REMOVE_FILES "$tligpac_REMOVE_PATTERN")
+            if [ -d "$json_PAC_PLUGINS" ]; then
+                _pac_plugins=$(find "$json_PAC_PLUGINS" -type f \( -name "*.dll" -o -name "*.so" \) -print0 | regex_to_remove "$rm_input_save")
 
-                if [[ -n "$tligpac_PLUGIN_FILES" ]]; then
-                    echo "$tligpac_PLUGIN_FILES" | xargs -0 rm -rf --
-                    echo -e "$(bash_coltext_y "[OK] ") Removed plugins: $tligpac_PLUGIN_FILES"
+                if [[ -n "$_pac_plugins" ]]; then
+                    echo "$_pac_plugins" | xargs -0 rm -rf --
+                    echo -e "$(collor_yellow "[OK] ") Removed plugins: $_pac_plugins"
                 else
-                    echo -e "$(bash_coltext_y "dbg:") No matching plugin files found: $tligpac_REMOVE_PATTERN"
+                    echo -e "$(collor_yellow "dbg:") No matching plugin files found: $rm_input_save"
                 fi
             else
-                # If the $__SAMP_PLUGIN_DIR folder does not exist, print a warning message
-                echo -e "$(bash_coltext_g "warn:") $__SAMP_PLUGIN_DIR not found"
+                # If the $json_PAC_PLUGINS folder does not exist, print a warning message
+                echo -e "$(collor_green "warn:") $json_PAC_PLUGINS not found"
             fi
 
             # Function to remove #include <find_plugin_name> from main.pwn
             function __rm_include_f_main() {
-                local __find_include_name=$1  # The first argument passed to the function is the plugin name
+                local loc_include_name=$1  # The first argument passed to the function is the plugin name
                 # Ensure plugin name is escaped properly to handle special characters
-                local __escaped_plugin_name
-                __escaped_plugin_name=$(echo "$__find_include_name" | sed 's/[&/\]/\\&/g')  # Escape special characters in the plugin name
+                local escaped_plugins
+                escaped_plugins=$(echo "$loc_include_name" | sed 's/[&/\]/\\&/g')  # Escape special characters in the plugin name
 
-                if [[ -f "$shell_DIR/gamemodes/$SERVER_MAIN" ]]; then  # Check if the main server file exists
-                    if grep -q "#include <$__escaped_plugin_name>" "$shell_DIR/gamemodes/$SERVER_MAIN"; then  # Check if the plugin is already included
-                        echo -e "$(bash_coltext_y "dbg:") Removing #include <$__escaped_plugin_name> from $shell_DIR/gamemodes/$SERVER_MAIN"
+                if [[ -f "$shell_DIR/gamemodes/$json_FILE_SERV" ]]; then  # Check if the main server file exists
+                    if grep -q "#include <$escaped_plugins>" "$shell_DIR/gamemodes/$json_FILE_SERV"; then  # Check if the plugin is already included
+                        echo -e "$(collor_yellow "dbg:") Removing #include <$escaped_plugins> from $shell_DIR/gamemodes/$json_FILE_SERV"
                         # Remove the #include line for the plugin from the main server file
-                        sed -i "/#include <$__escaped_plugin_name>/d" "$shell_DIR/gamemodes/$SERVER_MAIN"
+                        sed -i "/#include <$escaped_plugins>/d" "$shell_DIR/gamemodes/$json_FILE_SERV"
                     else
-                        echo -e "$(bash_coltext_y "dbg:") #include <$__escaped_plugin_name> not found in $shell_DIR/gamemodes/$SERVER_MAIN"
+                        echo -e "$(collor_yellow "dbg:") #include <$escaped_plugins> not found in $shell_DIR/gamemodes/$json_FILE_SERV"
                     fi
                 else
-                    echo -e "$(bash_coltext_y "dbg:") $shell_DIR/gamemodes/$SERVER_MAIN not found."
+                    echo -e "$(collor_yellow "dbg:") $shell_DIR/gamemodes/$json_FILE_SERV not found."
                 fi
             }
 
             # Loop to remove plugins from main.pwn
-            local __package
-            for __package in $tligpac_REMOVE_PATTERN; do  # Iterate through each pattern in the tligpac_REMOVE_PATTERN variable
-                if [ -n "$__package" ]; then  # Check if the package name is not empty
-                    # Using the value from tligpac_REMOVE_PATTERN to determine __find_include_name
-                    __find_include_name="$__package"  # Assign the pattern value to the __find_include_name variable
+            for __packages__ in $rm_input_save; do  # Iterate through each pattern in the rm_input_save variable
+                if [ -n "$__packages__" ]; then  # Check if the package name is not empty
+                    # Using the value from rm_input_save to determine loc_include_name
+                    loc_include_name="$__packages__"  # Assign the pattern value to the loc_include_name variable
                     
                     # Remove the plugin from the main server file
-                    __rm_include_f_main "$__find_include_name"  # Call the function to remove the plugin from the main server file
+                    __rm_include_f_main "$loc_include_name"  # Call the function to remove the plugin from the main server file
                 fi
             done
 
 if [ "$__SAMP_SERVER" == "samp" ]; then
-            # Check if the $SERVER_CONF file exists
-            if [ -f "$SERVER_CONF" ]; then
-                # Check if the 'plugins' entry exists in the $SERVER_CONF file
-                if grep -q "^plugins" "$SERVER_CONF"; then
-                    # Remove occurrences of $tligpac_REMOVE_PATTERN followed by .so, .dll, or no extension
+            # Check if the $json_SERVER_CONFIG file exists
+            if [ -f "$json_SERVER_CONFIG" ]; then
+                # Check if the 'plugins' entry exists in the $json_SERVER_CONFIG file
+                if grep -q "^plugins" "$json_SERVER_CONFIG"; then
+                    # Remove occurrences of $rm_input_save followed by .so, .dll, or no extension
                     # This pattern is globally replaced in the file
-                    sed -i "/^plugins /s/\b$tligpac_REMOVE_PATTERN\(\.so\|\.dll\|\)//g" "$SERVER_CONF"
+                    sed -i "/^plugins /s/\b$rm_input_save\(\.so\|\.dll\|\)//g" "$json_SERVER_CONFIG"
                     # Replace double spaces with single space throughout the file
-                    sed -i 's/  / /g' "$SERVER_CONF"
+                    sed -i 's/  / /g' "$json_SERVER_CONFIG"
                     # Ensure that the 'plugins' entry is not an empty line
-                    sed -i 's/^plugins *$/plugins /' "$SERVER_CONF"
+                    sed -i 's/^plugins *$/plugins /' "$json_SERVER_CONFIG"
                     # Print a success message after the modifications
-                    echo -e "$(bash_coltext_y "[OK] ") Removed $tligpac_REMOVE_PATTERN from $SERVER_CONF"
+                    echo -e "$(collor_yellow "[OK] ") Removed $rm_input_save from $json_SERVER_CONFIG"
                 else
                     # If no 'plugins' entry is found, print a debug message
-                    echo -e "$(bash_coltext_y "dbg:") No 'plugins' entry found in $SERVER_CONF"
+                    echo -e "$(collor_yellow "dbg:") No 'plugins' entry found in $json_SERVER_CONFIG"
                 fi
             else
-                # If the $SERVER_CONF file does not exist, print a warning message
-                echo -e "$(bash_coltext_g "warn:") $SERVER_CONF not found"
+                # If the $json_SERVER_CONFIG file does not exist, print a warning message
+                echo -e "$(collor_green "warn:") $json_SERVER_CONFIG not found"
             fi
 elif [ "$__SAMP_SERVER" == "omp" ]; then
-            # Check if the $SERVER_CONF file exists
-            if [ -f "$SERVER_CONF" ]; then
-            # Check if the 'legacy_plugins' entry exists in the $SERVER_CONF file
-                if grep -qE '"legacy_plugins"[[:space:]]*:' "$SERVER_CONF"; then
+            # Check if the $json_SERVER_CONFIG file exists
+            if [ -f "$json_SERVER_CONFIG" ]; then
+            # Check if the 'legacy_plugins' entry exists in the $json_SERVER_CONFIG file
+                if grep -qE '"legacy_plugins"[[:space:]]*:' "$json_SERVER_CONFIG"; then
                     # Handle array format
-                    jq --arg pattern "$tligpac_REMOVE_PATTERN" 'walk(if type == "array" then map(select(. != $pattern)) else . end)' "$SERVER_CONF" > tmpfile && mv tmpfile "$SERVER_CONF"
+                    jq --arg pattern "$rm_input_save" 'walk(if type == "array" then map(select(. != $pattern)) else . end)' "$json_SERVER_CONFIG" > tmpfile && mv tmpfile "$json_SERVER_CONFIG"
                     # Print a success message after the modifications
-                    echo -e "$(bash_coltext_y "[OK] ") Removed $tligpac_REMOVE_PATTERN from $SERVER_CONF"
+                    echo -e "$(collor_yellow "[OK] ") Removed $rm_input_save from $json_SERVER_CONFIG"
                 else
                     # If no 'legacy_plugins' entry is found, print a debug message
-                    echo -e "$(bash_coltext_y "dbg:") No 'legacy_plugins' entry found in $SERVER_CONF"
+                    echo -e "$(collor_yellow "dbg:") No 'legacy_plugins' entry found in $json_SERVER_CONFIG"
                 fi
             else
-                # If the $SERVER_CONF file does not exist, print a warning message
-                echo -e "$(bash_coltext_g "warn:") $SERVER_CONF not found"
+                # If the $json_SERVER_CONFIG file does not exist, print a warning message
+                echo -e "$(collor_green "warn:") $json_SERVER_CONFIG not found"
             fi
 fi
 
             # end.
-            echo -e "$(bash_coltext_y "[OK] ") Removal process completed!"
+            echo -e "$(collor_yellow "[OK] ") Removal process completed!"
 
             mode_TLIGPAC ""
             ;;
-        "$tligpac_TRIGGER -C" | "clear" | "cc")
+        "$trigger_pac -C" | "clear" | "cc")
             clear; echo -ne "\033[3J"
             mode_TLIGPAC ""
             ;;
-        "$tligpac_TRIGGER" | "$tligpac_TRIGGER " | "" | " ")
-            bash_help2
+        "$trigger_pac" | "$trigger_pac " | "" | " ")
+            help_dialog_pac
             mode_TLIGPAC ""
             ;;
         "help")
             shell_TITLE="help"
             bash_title ":~/ $shell_TITLE"
 
-            bash_help2
+            help_dialog_pac
             mode_TLIGPAC ""
             ;;
        "exit")
-            bash_typeof ""
+            struct_console_main ""
             ;;
         *)
-            echo "error: $tligpac_OPTION_FLAGS: command not found"
+            echo "error: $pac_table: command not found"
             mode_TLIGPAC ""
             ;;
     esac
