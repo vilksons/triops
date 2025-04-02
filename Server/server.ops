@@ -1,0 +1,370 @@
+#!/bin/bash
+
+function space_servers() {
+    if [ "$__OS__" == "linux" ] || [ "$__OS__" == "windows" ]; then
+        if [ -f "$save_LOCK_NAME_SERVER" ]; then
+            PID=$(cat "$save_LOCK_NAME_SERVER")
+            ignore_this kill -9 "$PID"
+            ignore_this shred -u "$save_LOCK_NAME_SERVER"
+        fi
+    fi
+
+    if [ -f "$shell_DIR/$json_LOG_SERV" ]; then
+        rm -rf "$json_LOG_SERV"
+    fi
+
+    ignore_this sleep 0.1
+
+    if [ ! -f "$shell_DIR/$json_EXE_SERV" ]; then
+        echo -e "$(collor_red "crit:") $json_EXE_SERV not found!. You can get this in \`gamemode\`"
+        echo
+        read -r -p "install now? [y/n] " INSTALL_NOW
+
+        while true; do
+            case "$INSTALL_NOW" in
+                [Yy])
+                    struct_choice_samp ""
+                    ;;
+                [Nn])
+                    struct_console_main ""
+                    ;;
+                *)
+                    struct_choice_samp ""
+                    ;;
+            esac
+        done
+    fi
+
+    cd "$shell_DIR" || echo
+
+    if [ ! -f "$save_LOCK_NAME_SERVER" ]; then
+        : ' Create Lock File '
+        touch "$save_LOCK_NAME_SERVER"
+        echo "$SERV_SHA256" > "$save_LOCK_NAME_SERVER"
+    fi
+
+    chmod 777 "$json_EXE_SERV"
+    
+    (
+        setsid bash -c 'echo "$SERV_SHA256" > /proc/self/comm; exec ./"$json_EXE_SERV"' & disown
+    ) &
+    local pid=$!
+
+    echo "Starting.."
+    sleep 2 > /dev/null
+
+    local pid_status=0
+
+    if ! kill -0 $pid 2>/dev/null; then
+        pid_status=1
+    fi
+
+    if [ "$pid_status" -ne 0 ]; then
+        shell_TITLE="running - failed"
+        bash_title "$shell_TITLE"
+
+        if [ -f "$shell_DIR/$save_LOCK_NAME_SERVER" ]; then
+            ignore_this rm "$shell_DIR/$save_LOCK_NAME_SERVER"
+        fi
+
+        echo
+        echo -e "$(collor_red "# Fail")"
+        echo
+        
+        if [ -f "$json_LOG_SERV" ]; then
+            sleep 2 > /dev/null
+            cat $json_LOG_SERV
+            echo
+        else
+            echo "# $json_LOG_SERV not found."
+        fi
+
+        echo -e "$(collor_yellow "# End.")"
+        echo
+        struct_console_main ""
+    else
+        echo
+        echo -e "$(collor_yellow "# Success")"
+        echo
+
+        sleep 2 > /dev/null
+        if grep -i "error" $json_LOG_SERV > /dev/null; then
+            start_true ""
+        else
+            start_false ""
+        fi
+        if [ "$SERVERS_NEXT" == 2 ]; then
+            if [ -f "$save_LOCK_NAME_SERVER" ]; then
+                PID=$(cat "$save_LOCK_NAME_SERVER")
+                ignore_this kill -9 "$PID"
+                ignore_this shred -u "$save_LOCK_NAME_SERVER"
+            fi
+        fi
+    fi
+}
+export space_servers
+
+function space_wargs_servers() {
+    SAMP_WARGS_STATUS=1
+    if [ -f "$save_LOCK_NAME_SERVER" ]; then
+        PID=$(cat "$save_LOCK_NAME_SERVER")
+        ignore_this kill -9 "$PID"
+        ignore_this shred -u "$save_LOCK_NAME_SERVER"
+    fi
+
+    if [ -f "$shell_DIR/$json_LOG_SERV" ]; then
+        rm -rf "$json_LOG_SERV"
+    fi
+    
+    ignore_this sleep 0.1
+
+    local commands_INPUT=$1
+    
+    if [ ! -f "$json_SERVER_CONFIG" ]; then
+        echo "$json_SERVER_CONFIG not found!"
+        end_console_main ""
+    fi
+
+    mv $json_SERVER_CONFIG .$json_SERVER_CONFIG.bak
+
+    if [ "$json_SERVER_CONFIG" == "config.json" ]; then
+        cp ".$json_SERVER_CONFIG.bak" "$json_SERVER_CONFIG"
+        python -c "
+import json
+config_file = 'config.json'
+with open(config_file) as file:
+    data = json.load(file)
+data['main_scripts'] = ['$commands_INPUT']
+with open(config_file, 'w') as file:
+    json.dump(data, file, indent=2)
+    "
+    elif [ "$json_SERVER_CONFIG" == "server.cfg" ]; then
+        if grep -q "^gamemode0 " ".$json_SERVER_CONFIG.bak"; then
+            awk -v n_modes="$commands_INPUT" '/^gamemode0 / {$2=n_modes} 1' ".$json_SERVER_CONFIG.bak" > "$json_SERVER_CONFIG"
+        else
+            sed -E "s/^(gamemode0 )[0-9]+/\1$commands_INPUT/" ".$json_SERVER_CONFIG.bak" > "$json_SERVER_CONFIG"
+        fi
+    fi
+
+    echo -e "$(bash_coltext_lg " Running: $commands_INPUT")"
+    
+    if [ ! -f "$shell_DIR/$json_EXE_SERV" ]; then
+        echo -e "$(collor_red "crit:") $json_EXE_SERV not found!. You can get this in \`gamemode\`"
+        echo
+        read -r -p "install now? [y/n] " INSTALL_NOW
+
+        while true; do
+            case "$INSTALL_NOW" in
+                [Yy])
+                    struct_choice_samp ""
+                    ;;
+                [Nn])
+                    struct_console_main ""
+                    ;;
+                *)
+                    struct_choice_samp ""
+                    ;;
+            esac
+        done
+    else
+        if [ ! -f "$save_LOCK_NAME_SERVER" ]; then
+            : ' Create Lock File '
+            touch "$save_LOCK_NAME_SERVER"
+            echo "$SERV_SHA256" > "$save_LOCK_NAME_SERVER"
+        fi
+
+        chmod 777 "$json_EXE_SERV"
+
+        (
+            setsid bash -c 'echo "$SERV_SHA256" > /proc/self/comm; exec ./"$json_EXE_SERV"' & disown
+        ) &
+        local pid=$!
+
+        echo "Starting.."
+        sleep 2 > /dev/null
+
+        local pid_status=0
+        
+        if ! kill -0 $pid 2>/dev/null; then
+            pid_status=1
+        fi
+
+        if [ "$pid_status" -ne 0 ]; then
+            shell_TITLE="running - failed"
+            bash_title "$shell_TITLE"
+            
+            echo
+            echo -e "$(collor_red "# Fail")"
+            echo
+            
+            if [ -f "$json_LOG_SERV" ]; then
+                sleep 2 > /dev/null
+                cat $json_LOG_SERV
+                echo
+            else
+                echo "# $json_LOG_SERV not found."
+            fi
+
+            echo -e "$(collor_yellow "# End.")"
+            echo
+            struct_console_main ""
+        else
+            echo
+            echo -e "$(collor_yellow "# Success")"
+            echo
+
+            sleep 2 > /dev/null
+            if grep -i "error" $json_LOG_SERV > /dev/null; then
+                start_true ""
+            else
+                start_false ""
+            fi
+        fi
+
+        if [ "$SERVERS_NEXT" == 2 ]; then
+            if [ -f "$save_LOCK_NAME_SERVER" ]; then
+                PID=$(cat "$save_LOCK_NAME_SERVER")
+                ignore_this kill -9 "$PID"
+                ignore_this shred -u "$save_LOCK_NAME_SERVER"
+            fi
+        fi
+    fi
+}
+export space_wargs_servers
+
+start_true() {
+    : '
+        @strain.True
+    '
+    echo -e "$(collor_red "~")"
+    echo "    ; \"error\"   .. Yes .. True"
+    error_cache ""
+}
+export start_true
+
+start_false() {
+    : '
+        @strain.False
+    '
+    echo -e "$(collor_yellow "~")"
+    echo "    ; \"error\"   .. No .. False"
+    check2 ""
+}
+export start_false
+
+start_true2() {
+    : '
+        @strain.True2
+    '
+    echo -e "$(collor_red "~")"
+    echo "    ; \"failed\"  .. Yes .. True"
+    failed_cache ""
+}
+export start_true2
+
+start_false2() {
+    : '
+        @strain.False2
+    '
+    echo -e "$(collor_yellow "~")"
+    echo "    ; \"failed\"  .. No .. False"
+    check3 ""
+}
+export start_false2
+
+start_true3() {
+    : '
+        @strain.True3
+    '
+    echo -e "$(collor_red "~")"
+    echo "    ; \"invalid\" .. Yes .. True"
+    invalid_cache ""
+
+if [ "$SAMP_WARGS_STATUS" -eq 1 ]; then
+    if [ -f "$json_SERVER_CONFIG" ]; then
+        rm $json_SERVER_CONFIG
+        mv .$json_SERVER_CONFIG.bak $json_SERVER_CONFIG
+        echo "Original $json_SERVER_CONFIG has been restored."
+    fi
+fi
+}
+export start_true3
+
+start_false3() {
+    : '
+        @strain.False3
+    '
+    echo -e "$(collor_yellow "~")"
+    echo "    ; \"invalid\" .. No .. False"
+    echo
+
+if [ "$SAMP_WARGS_STATUS" -eq 1 ]; then
+    if [ -f "$json_SERVER_CONFIG" ]; then
+        rm $json_SERVER_CONFIG
+        mv .$json_SERVER_CONFIG.bak $json_SERVER_CONFIG
+        echo "Original $json_SERVER_CONFIG has been restored."
+    fi
+fi
+}
+export start_false3
+
+error_cache() {
+    : '
+        @strain.Error
+    '
+    echo
+    grep -i "error" $json_LOG_SERV
+    echo
+    check2 ""
+}
+export error_cache
+
+failed_cache() {
+    : '
+        @strain.Failed
+    '
+    echo
+    grep -i "failed" $json_LOG_SERV
+    echo
+    check3 ""
+}
+export failed_cache
+
+invalid_cache() {
+    : '
+        @strain.Invalid
+    '
+    echo
+    grep -i "invalid" $json_LOG_SERV
+    echo
+}
+export invalid_cache
+
+check2() {
+    if grep -i "failed" $json_LOG_SERV > /dev/null; then
+        start_true2 ""
+    else
+        start_false2 ""
+    fi
+}
+export check2
+
+check3() {
+    if grep -i "invalid" $json_LOG_SERV > /dev/null; then
+        start_true3 ""
+    else
+        start_false3 ""
+    fi
+}
+export check3
+
+ok_next() {
+    : '
+        @Func.OK_Next
+    '
+    echo -e "$(collor_yellow "Press any key to running.")"
+    echo
+    read -r -n 1 -s
+    space_servers ""
+}
+export ok_next
