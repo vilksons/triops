@@ -1,14 +1,6 @@
 #!/bin/bash
 
 function space_servers() {
-    if [ "$__OS__" == "linux" ] || [ "$__OS__" == "windows" ]; then
-        if [ -f "$save_LOCK_NAME_SERVER" ]; then
-            PID=$(cat "$save_LOCK_NAME_SERVER")
-            ignore_this kill -9 "$PID"
-            ignore_this shred -u "$save_LOCK_NAME_SERVER"
-        fi
-    fi
-
     if [ -f "$shell_DIR/$json_LOG_SERV" ]; then
         rm -rf "$json_LOG_SERV"
     fi
@@ -37,17 +29,8 @@ function space_servers() {
 
     cd "$shell_DIR" || echo
 
-    if [ ! -f "$save_LOCK_NAME_SERVER" ]; then
-        : ' Create Lock File '
-        touch "$save_LOCK_NAME_SERVER"
-        echo "$SERV_SHA256" > "$save_LOCK_NAME_SERVER"
-    fi
-
     chmod 777 "$json_EXE_SERV"
-    
-    (
-        setsid bash -c 'echo "$SERV_SHA256" > /proc/self/comm; exec ./"$json_EXE_SERV"' & disown
-    ) &
+    ./"$json_EXE_SERV" &
     local pid=$!
 
     echo "Starting.."
@@ -62,10 +45,6 @@ function space_servers() {
     if [ "$pid_status" -ne 0 ]; then
         shell_TITLE="running - failed"
         bash_title "$shell_TITLE"
-
-        if [ -f "$shell_DIR/$save_LOCK_NAME_SERVER" ]; then
-            ignore_this rm "$shell_DIR/$save_LOCK_NAME_SERVER"
-        fi
 
         echo
         echo -e "$(collor_red "# Fail")"
@@ -93,12 +72,9 @@ function space_servers() {
         else
             start_false ""
         fi
+
         if [ "$SERVERS_NEXT" == 2 ]; then
-            if [ -f "$save_LOCK_NAME_SERVER" ]; then
-                PID=$(cat "$save_LOCK_NAME_SERVER")
-                ignore_this kill -9 "$PID"
-                ignore_this shred -u "$save_LOCK_NAME_SERVER"
-            fi
+            ignore_this pkill -9 -f "$json_EXE_SERV"
         fi
     fi
 }
@@ -106,11 +82,6 @@ export space_servers
 
 function space_wargs_servers() {
     SAMP_WARGS_STATUS=1
-    if [ -f "$save_LOCK_NAME_SERVER" ]; then
-        PID=$(cat "$save_LOCK_NAME_SERVER")
-        ignore_this kill -9 "$PID"
-        ignore_this shred -u "$save_LOCK_NAME_SERVER"
-    fi
 
     if [ -f "$shell_DIR/$json_LOG_SERV" ]; then
         rm -rf "$json_LOG_SERV"
@@ -127,7 +98,7 @@ function space_wargs_servers() {
 
     mv $json_SERVER_CONFIG .$json_SERVER_CONFIG.bak
 
-    if [ "$json_SERVER_CONFIG" == "config.json" ]; then
+    if [[ "$json_SERVER_CONFIG" == "config.json" ]]; then
         cp ".$json_SERVER_CONFIG.bak" "$json_SERVER_CONFIG"
         python -c "
 import json
@@ -138,7 +109,7 @@ data['main_scripts'] = ['$commands_INPUT']
 with open(config_file, 'w') as file:
     json.dump(data, file, indent=2)
     "
-    elif [ "$json_SERVER_CONFIG" == "server.cfg" ]; then
+    elif [[ "$json_SERVER_CONFIG" == "server.cfg" ]]; then
         if grep -q "^gamemode0 " ".$json_SERVER_CONFIG.bak"; then
             awk -v n_modes="$commands_INPUT" '/^gamemode0 / {$2=n_modes} 1' ".$json_SERVER_CONFIG.bak" > "$json_SERVER_CONFIG"
         else
@@ -146,7 +117,7 @@ with open(config_file, 'w') as file:
         fi
     fi
 
-    echo -e "$(bash_coltext_lg " Running: $commands_INPUT")"
+    echo -e "$(collor_yellow " Running: $commands_INPUT")"
     
     if [ ! -f "$shell_DIR/$json_EXE_SERV" ]; then
         echo -e "$(collor_red "crit:") $json_EXE_SERV not found!. You can get this in \`gamemode\`"
@@ -167,17 +138,8 @@ with open(config_file, 'w') as file:
             esac
         done
     else
-        if [ ! -f "$save_LOCK_NAME_SERVER" ]; then
-            : ' Create Lock File '
-            touch "$save_LOCK_NAME_SERVER"
-            echo "$SERV_SHA256" > "$save_LOCK_NAME_SERVER"
-        fi
-
         chmod 777 "$json_EXE_SERV"
-
-        (
-            setsid bash -c 'echo "$SERV_SHA256" > /proc/self/comm; exec ./"$json_EXE_SERV"' & disown
-        ) &
+        ./"$json_EXE_SERV" &
         local pid=$!
 
         echo "Starting.."
@@ -222,11 +184,7 @@ with open(config_file, 'w') as file:
         fi
 
         if [ "$SERVERS_NEXT" == 2 ]; then
-            if [ -f "$save_LOCK_NAME_SERVER" ]; then
-                PID=$(cat "$save_LOCK_NAME_SERVER")
-                ignore_this kill -9 "$PID"
-                ignore_this shred -u "$save_LOCK_NAME_SERVER"
-            fi
+            ignore_this pkill -9 -f "$json_EXE_SERV"
         fi
     fi
 }

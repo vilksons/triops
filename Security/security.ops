@@ -1,13 +1,6 @@
 #!/usr/bin/bash
 
 : '
-    Double SHA256
-    Generate a random 32-byte hex string and hash it twice using SHA256
-'
-save_LOCK_NAME_SERVER=".server"
-export save_LOCK_NAME_SERVER
-
-: '
     encryption
 '
 : '
@@ -66,7 +59,7 @@ security_file_rm()
     : ' Remove File Logs '
     cd "$shell_DIR" >/dev/null 2>&1 || echo "" &&
 
-    if [ "$json_RM_CACHE" == "true" ]; then
+    if [[ "$json_RM_CACHE" == "true" ]]; then
         ignore_this rm -rf "$shell_DIR/.cache"
 
         for __file in wget-log*; do
@@ -95,7 +88,7 @@ security_file_rm()
 
 security_cleanup() {
     security_file_rm ""
-    
+    ignore_this pkill -9 -f "$shell_NAME"
     wait && exit
 }
 

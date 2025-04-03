@@ -86,7 +86,7 @@ function triops_compilers() {
             cat "$__cache_save_compile"
             ignore_this sleep 0.1
 
-            if [ "$json_RM_CACHE" == "true" ]; then
+            if [[ "$json_RM_CACHE" == "true" ]]; then
                 cache_compiler=".cache/compiler.log"
                 if [ -f "$cache_compiler" ]; then
                     shred -u "$cache_compiler"
@@ -97,9 +97,9 @@ function triops_compilers() {
                 echo
                 echo -e "$(collor_green " Finished: $AMX_O")"
 
-                if [ "$compiler_MODE" == "true" ]; then
+                if [[ "$compiler_MODE" == "true" ]]; then
                     console_TITLE "compilers"
-                elif [ "$compiler_MODE" == "false" ]; then
+                elif [[ "$compiler_MODE" == "false" ]]; then
                     console_TITLE "compiler - running"
                 fi
                 echo
@@ -109,14 +109,14 @@ function triops_compilers() {
         fi
     done
 
-    if [ "$SHFILE" == "false" ]; then
+    if [[ "$SHFILE" == "false" ]]; then
         echo -e "$(collor_red "..io not found!")"
         echo
         end_console_main ""
     fi
     if [[ "$compiler_MODE" == "true" || "$compiler_MODE" == "nul" || "$compiler_MODE" == "" ]]; then
         end_console_main ""
-    elif [ "$compiler_MODE" == "false" ]; then
+    elif [[ "$compiler_MODE" == "false" ]]; then
         space_servers ""
     fi
 }

@@ -18,8 +18,8 @@ compat_now() {
             fi
         fi
 
-        if [ "$__OS__" == "windows" ] && [ "$__OS__" == "linux" ]; then
-            echo -e "$(bash_coltext_a ":: System detected both windows and Linux. Which one will you choose?")"
+        if [[ "$__OS__" == "windows" ]] && [[ "$__OS__" == "linux" ]]; then
+            echo -e "$(collor_gray ":: System detected both windows and Linux. Which one will you choose?")"
             read -r -p "Choose OS for Triops Y) windows, B) GNU/Linux" PERMISSION_NEED_OS
 
             while true; do

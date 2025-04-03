@@ -120,21 +120,21 @@ function printf_red() {
     fi
 }
 
-function bash_coltext_a() {
+function collor_gray() {
 # Color Text {Gray} 
-# ' echo "$(bash_coltext_a "label")" content '
+# ' echo "$(collor_gray "label")" content '
 COLOR_A="\e[97m"
     local color="$COLOR_A"
     local label="$1"
     echo -e "${color}${label}\e[0m"
 }
-export bash_coltext_a
+export collor_gray
 
 function printf_gray() {
     if [ -n "$2" ]; then
-        echo -e "$(bash_coltext_a "$1") $2"
+        echo -e "$(collor_gray "$1") $2"
     elif [ -z "$2" ]; then
-        echo -e "$(bash_coltext_a "$1")"
+        echo -e "$(collor_gray "$1")"
     fi
 }
 
@@ -189,7 +189,7 @@ rest_var() {
 @LANG_CREATE()
 {
 if [ ! -f "lang.json" ]; then
-    if [ "$__SAMP_SERVER" == "samp" ]; then
+    if [[ "$__SAMP_SERVER" == "samp" ]]; then
     cat > lang.json <<EOF
 {
     "amx_flags": [
@@ -217,7 +217,7 @@ if [ ! -f "lang.json" ]; then
 }
 EOF
 SIGNAL_KILL ""
-    elif [ "$__SAMP_SERVER" == "omp" ]; then
+    elif [[ "$__SAMP_SERVER" == "omp" ]]; then
         cat > lang.json <<EOF
 {
     "amx_flags": [
@@ -291,13 +291,13 @@ function struct_console_main() {
                 : ' Install or Load modules '
                 if [ -f "$shell_DIR/$1" ] && [ "$console_module_loaded" -ne 1 ]; then
                     chmod +x "$shell_DIR/$1"
-                    if [ "$1" == ".workspace.py3" ]; then
+                    if [[ "$1" == ".workspace.py3" ]]; then
                         source <(python3 .workspace.py3 2>/dev/null) >/dev/null 2>&1 || sleep 1.0
                     else
                         source "$shell_DIR/$1" || sleep 1.0
                     fi
 
-                    if [ "$3" == "compat" ]; then 
+                    if [[ "$3" == "compat" ]]; then 
                         ignore_this compat_now "" || echo "Err.. can't load function: \"compat_now\""
                     fi
                 else
@@ -409,13 +409,6 @@ mode_TRIOPS() {
         "compile"*)
             console_TITLE "Compiler"
 
-            if [ -f "$save_LOCK_NAME_SERVER" ]; then
-                PID=$(cat "$save_LOCK_NAME_SERVER")
-                ignore_this kill -9 "$PID"
-                cd "$shell_DIR" >/dev/null 2>&1 || echo "" 
-                ignore_this shred -u "$save_LOCK_NAME_SERVER"
-            fi
-
             local commands_ARGS="${ops_table#compile }"
             local commands_INPUT=""
             local commands_OPAMX=()
@@ -521,7 +514,7 @@ mode_TRIOPS() {
                             for _ in {1..10}; do
                                 if [ "$COMPILER_NEXT" -eq 1 ]; then
                                     "$COMPILER_PAWNCC" -i"$json_INCLUDE" "$json_EXCLUDE" "$__LOOP_COMPILES_FILE" -o"$AMX_O" "$json_AMX_OPT_F" > "$__cache_save_compile" 2>&1
-                                elif [ "$COMPILER_NEXT" == 2 ]; then
+                                elif [ "$COMPILER_NEXT" -eq 2 ]; then
                                     "$COMPILER_PAWNCC" -i"$json_INCLUDE" "$json_EXCLUDE" "$__LOOP_COMPILES_FILE" -o"$AMX_O" "$json_AMX_OPT_F" "${commands_OPAMX[@]}" > "$__cache_save_compile" 2>&1
                                 fi
                             done
@@ -536,7 +529,7 @@ mode_TRIOPS() {
                         cat "$__cache_save_compile"
                         ignore_this sleep 0.1
 
-                        if [ "$json_RM_CACHE" == "true" ]; then
+                        if [[ "$json_RM_CACHE" == "true" ]]; then
                             cache_compiler=".cache/compiler.log"
                             if [ -f "$cache_compiler" ]; then
                                 shred -u "$cache_compiler"
@@ -547,9 +540,9 @@ mode_TRIOPS() {
                             echo
                             echo -e "$(collor_green " Finished: $AMX_O")"
                             
-                            if [ "$compiler_MODE" == "true" ]; then
+                            if [[ "$compiler_MODE" == "true" ]]; then
                                 console_TITLE "compilers"
-                            elif [ "$compiler_MODE" == "false" ]; then
+                            elif [[ "$compiler_MODE" == "false" ]]; then
                                 console_TITLE "compiler - running"
                             fi
                             echo
@@ -568,13 +561,6 @@ mode_TRIOPS() {
             ;;
         "running"*)
             console_TITLE "Running"
-
-            if [ -f "$save_LOCK_NAME_SERVER" ]; then
-                PID=$(cat "$save_LOCK_NAME_SERVER")
-                ignore_this kill -9 "$PID"
-                cd "$shell_DIR" >/dev/null 2>&1 || echo "" 
-                ignore_this shred -u "$save_LOCK_NAME_SERVER"
-            fi
             
             local commands_ARGS="${ops_table#running }"
             
@@ -586,7 +572,7 @@ mode_TRIOPS() {
 
             SERVERS_NEXT=1
 
-            if [ "$commands_INPUT" == "." ]; then
+            if [[ "$commands_INPUT" == "." ]]; then
                 space_servers ""
             else
                 space_wargs_servers "$commands_INPUT"
@@ -596,31 +582,11 @@ mode_TRIOPS() {
         "irunn")
             console_TITLE "Compile & Running"
 
-            if [ "$__OS__" == "linux" ] || [ "$__OS__" == "windows" ]; then 
-                if [ -f "$save_LOCK_NAME_SERVER" ]; then
-                    PID=$(cat "$save_LOCK_NAME_SERVER")
-                    ignore_this kill -9 "$PID"
-                    cd "$shell_DIR" >/dev/null 2>&1 || echo "" 
-                    ignore_this shred -u "$save_LOCK_NAME_SERVER"
-                fi
-            fi
-
             compiler_MODE="false"
             triops_compilers ""
-
-            space_servers ""
             ;;
         "debug"*)
             console_TITLE "Debugging"
-
-            if [ "$__OS__" == "linux" ] || [ "$__OS__" == "windows" ]; then 
-                if [ -f "$save_LOCK_NAME_SERVER" ]; then
-                    PID=$(cat "$save_LOCK_NAME_SERVER")
-                    ignore_this kill -9 "$PID"
-                    cd "$shell_DIR" >/dev/null 2>&1 || echo "" 
-                    ignore_this shred -u "$save_LOCK_NAME_SERVER"
-                fi
-            fi
 
             local commands_ARGS="${ops_table#debug }"
             
@@ -636,7 +602,7 @@ mode_TRIOPS() {
 
             SERVERS_NEXT=2
             
-            if [ "$commands_INPUT" == "." ]; then
+            if [[ "$commands_INPUT" == "." ]]; then
                 space_servers ""
             else
                 space_wargs_servers "$commands_INPUT"
@@ -646,32 +612,15 @@ mode_TRIOPS() {
         "stop")
             console_TITLE "Stop"
 
-            if [ "$__OS__" == "linux" ] || [ "$__OS__" == "windows" ]; then 
-                if [ -f "$save_LOCK_NAME_SERVER" ]; then
-                    PID=$(cat "$save_LOCK_NAME_SERVER")
-                    ignore_this kill -9 "$PID"
-                    cd "$shell_DIR" >/dev/null 2>&1 || echo "" 
-                    ignore_this shred -u "$save_LOCK_NAME_SERVER"
-                fi
-            fi
+            ignore_this pkill -9 -f "$json_EXE_SERV"
+
             end_console_main ""
             ;;
         "restart")
             console_TITLE "Restart"
 
-            if [ "$__OS__" == "linux" ] || [ "$__OS__" == "windows" ]; then 
-                if [ -f "$save_LOCK_NAME_SERVER" ]; then
-                    PID=$(cat "$save_LOCK_NAME_SERVER")
-                    ignore_this kill -9 "$PID"
-                    cd "$shell_DIR" >/dev/null 2>&1 || echo "" 
-                    ignore_this shred -u "$save_LOCK_NAME_SERVER"
-
-                    ignore_this sleep 2
-                    space_servers ""
-                else
-                    printf_red "err:" "Process Server not found."
-                fi
-            fi
+            ignore_this pkill -9 -f "$json_EXE_SERV" && sleep 1
+            space_servers ""
 
             end_console_main ""
             ;;
@@ -739,15 +688,15 @@ mode_TRIOPS() {
             exec bash ./"$shell_NAME"
             ;;
         "sync")
-            if [ "$ops_table" == "sync" ]; then
+            if [[ "$ops_table" == "sync" ]]; then
                 console_TITLE "Sync"
             fi
 
             local latest
 
-            if [ "$json_WSPACE_REPO" == "stable" ]; then
+            if [[ "$json_WSPACE_REPO" == "stable" ]]; then
                 latest=$(curl -s "https://api.github.com/repos/vilksons/triops/commits/main" | grep -o '"sha": "[^"]*' | awk -F': "' '{print $2}')
-            elif [ "$json_WSPACE_REPO" == "testing" ]; then
+            elif [[ "$json_WSPACE_REPO" == "testing" ]]; then
                 latest=$(curl -s "https://api.github.com/repos/vilksons/triops/commits/testing" | grep -o '"sha": "[^"]*' | awk -F': "' '{print $2}')
             fi
 
@@ -777,7 +726,7 @@ mode_TRIOPS() {
                             
                             echo "$latest" > "$shell_DIR/.commits"
                             
-                            if [ "$json_WSPACE_REPO" == "stable" ]; then
+                            if [[ "$json_WSPACE_REPO" == "stable" ]]; then
                                 cd "$shell_DIR/.triops" >/dev/null 2>&1 || echo ""
                                 
                                 wget -q --show-progress -O "security.ops" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Security/security.ops" || { cd "$shell_DIR" >/dev/null && touch ".sync"; } && cd "$shell_DIR/.triops" >/dev/null 2>&1 || echo ""
@@ -793,7 +742,7 @@ mode_TRIOPS() {
 
                                 wget -q --show-progress -O ".workspace.py3" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Scripts/workspace.py3"
                                 wget -q --show-progress -O "workspace" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/main/Scripts/workspace"
-                            elif [ "$json_WSPACE_REPO" == "testing" ]; then
+                            elif [[ "$json_WSPACE_REPO" == "testing" ]]; then
                                 cd "$shell_DIR/.triops" >/dev/null 2>&1 || echo ""
 
                                 wget -q --show-progress -O "security.ops" "https://raw.githubusercontent.com/vilksons/Triops/refs/heads/testing/Security/security.ops" || { cd "$shell_DIR" >/dev/null && touch ".sync"; } && cd "$shell_DIR/.triops" >/dev/null 2>&1 || echo ""
@@ -1017,13 +966,13 @@ mode_TRIOPS() {
             
             if [[ -n "$commands_ARGS" && "$commands_ARGS" != "$ops_table" ]]; then
                 if [[ -n "${descriptions[$commands_ARGS]}" ]]; then
-                    if [ "$commands_ARGS" == "nano" ]; then
+                    if [[ "$commands_ARGS" == "nano" ]]; then
                         if ! command -v nano &> /dev/null; then
                             help_dialog_ops "invalid"
                         else
                             echo "${descriptions[$commands_ARGS]}"
                         fi
-                    elif [ "$commands_ARGS" == "compile" ]; then
+                    elif [[ "$commands_ARGS" == "compile" ]]; then
                         echo "${descriptions[$commands_ARGS]}"
                         echo " Example: compile bare.pwn +option_amx"
                         echo " For Option. Please See: github.com/vilksons/triops/wiki/Compiler-Option"
@@ -1065,7 +1014,7 @@ function help_dialog_ops()
     '
     local check_param=$1
 
-    if [ "$check_param" == "invalid" ]; then
+    if [[ "$check_param" == "invalid" ]]; then
         echo "Invalid!.. Please Use:"
     fi
 

@@ -131,9 +131,9 @@ function fetch_now()
         current=""
     fi
     
-    if [ "$json_WSPACE_REPO" == "stable" ]; then
+    if [[ "$json_WSPACE_REPO" == "stable" ]]; then
         latest=$(curl -s "https://api.github.com/repos/vilksons/triops/commits/main" | grep -o '"sha": "[^"]*' | awk -F': "' '{print $2}')
-    elif [ "$json_WSPACE_REPO" == "testing" ]; then
+    elif [[ "$json_WSPACE_REPO" == "testing" ]]; then
         latest=$(curl -s "https://api.github.com/repos/vilksons/triops/commits/testing" | grep -o '"sha": "[^"]*' | awk -F': "' '{print $2}')
     fi
 
@@ -157,8 +157,8 @@ function fetch_now()
     echo "Triops Licenses: $LICENSES"
 
     find_PLATFORM=""
-    if [ "$__OS__" == "linux" ]; then find_PLATFORM="Linux"; fi
-    if [ "$__OS__" == "windows" ]; then find_PLATFORM="${find_PLATFORM:+$find_PLATFORM & }Windows"; fi
+    if [[ "$__OS__" == "linux" ]]; then find_PLATFORM="Linux"; fi
+    if [[ "$__OS__" == "windows" ]]; then find_PLATFORM="${find_PLATFORM:+$find_PLATFORM & }Windows"; fi
 
     if [ -n "$find_PLATFORM" ]; then
         echo "Triops Platform: $find_PLATFORM"

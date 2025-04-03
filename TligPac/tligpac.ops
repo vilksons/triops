@@ -442,7 +442,7 @@ EOF
             done
 
     if [ -f "$shell_DIR/$json_SERVER_CONFIG" ]; then
-        if [ "$__SAMP_SERVER" == "samp" ]; then
+        if [[ "$__SAMP_SERVER" == "samp" ]]; then
                 function pac_plugin_serv_samp() {
                     # Check if the plugin is already listed in server.cfg
                     if ! grep -qE "^plugins.*\b$1\b" "$json_SERVER_CONFIG"; then
@@ -474,7 +474,7 @@ EOF
                 for __plugins__ in $pac_DEPENDS $new_pac_DEPENDS; do
                     pac_plugin_serv_samp "$__plugins__"
                 done
-        elif [ "$__SAMP_SERVER" == "omp" ]; then
+        elif [[ "$__SAMP_SERVER" == "omp" ]]; then
             function pac_plugin_serv_omp() {
                 # Check if the plugin already exists in the "legacy_plugins" array within the "pawn" object
                 if ! grep -q -E "$1\.(so|dll)" "$json_SERVER_CONFIG"; then
@@ -605,7 +605,7 @@ EOF
                 fi
             done
 
-        if [ "$__SAMP_SERVER" == "samp" ]; then
+        if [[ "$__SAMP_SERVER" == "samp" ]]; then
             # Check if the $json_SERVER_CONFIG file exists
             if [ -f "$json_SERVER_CONFIG" ]; then
                 # Check if the 'plugins' entry exists in the $json_SERVER_CONFIG file
@@ -627,7 +627,7 @@ EOF
                 # If the $json_SERVER_CONFIG file does not exist, print a warning message
                 printf_green "warn:" "$json_SERVER_CONFIG not found"
             fi
-        elif [ "$__SAMP_SERVER" == "omp" ]; then
+        elif [[ "$__SAMP_SERVER" == "omp" ]]; then
             # Check if the $json_SERVER_CONFIG file exists
             if [ -f "$json_SERVER_CONFIG" ]; then
             # Check if the 'legacy_plugins' entry exists in the $json_SERVER_CONFIG file
