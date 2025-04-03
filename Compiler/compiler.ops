@@ -86,11 +86,13 @@ function triops_compilers() {
             cat "$__cache_save_compile"
             ignore_this sleep 0.1
 
-            cache_compiler=".cache/compiler.log"
-            if [ -f "$cache_compiler" ]; then
-                shred -u "$cache_compiler"
+            if [ "$json_RM_CACHE" == "true" ]; then
+                cache_compiler=".cache/compiler.log"
+                if [ -f "$cache_compiler" ]; then
+                    shred -u "$cache_compiler"
+                fi
             fi
-
+            
             if [ -s "$AMX_O" ]; then
                 echo
                 echo -e "$(collor_green " Finished: $AMX_O")"
