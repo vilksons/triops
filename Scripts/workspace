@@ -310,11 +310,12 @@ function struct_console_main() {
                     if [ "$3" != "ignore" ]; then
                         wget -q -O "$shell_DIR/$1" "$2" &>/dev/null
                     else
-                        # Download in background 
                         wget -q -O "$shell_DIR/$1" "$2" &>/dev/null &
                     fi
 
-                    ignore_this clear
+                    if [ "$3" = "end" ]; then
+                        typeof ""
+                    fi
                 fi
             }
 
@@ -338,7 +339,7 @@ function struct_console_main() {
             # misc.ops
             console_pack ".triops/misc.ops" "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Misc/misc.ops" "ignore" 
             # server.ops
-            console_pack ".triops/server.ops" "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Server/server.ops" "ignore"
+            console_pack ".triops/server.ops" "https://raw.githubusercontent.com/vilksons/triops/refs/heads/main/Server/server.ops" "end"
             
             console_save_notice=1
         fi
@@ -370,7 +371,12 @@ function struct_console_main() {
     ignore_this @LANG_CREATE ""
 	
     rest_var ""
-            
+
+    typeof ""
+}
+export struct_console_main
+
+function typeof() {
     if [ "$console_save_messages" -ne 1 ]; then
         console_save_messages=1
         printf "Welcome to Triops!"
@@ -392,7 +398,6 @@ function struct_console_main() {
 
     mode_TRIOPS "$ops_table"
 }
-export struct_console_main
 
 mode_TRIOPS() {
     #
