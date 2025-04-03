@@ -532,8 +532,16 @@ mode_TRIOPS() {
                         local elapsed=$((end_time - start_time))
                         
                         bash_cache_compiler ""
-                        ignore_this sleep 0.5 &&
+                        ignore_this sleep 0.1
                         cat "$__cache_save_compile"
+                        ignore_this sleep 0.1
+
+                        cache_compiler=".cache/compiler.log"
+                        _cache_compiler=".cache/.compiler.log"
+                        if [ -f "$cache_compiler" ] || [ -f "$_cache_compiler" ]; then
+                            [ -f "$cache_compiler" ] && shred -u "$cache_compiler"
+                            [ -f "$_cache_compiler" ] && shred -u "$_cache_compiler"
+                        fi
 
                         if [ -s "$AMX_O" ]; then
                             echo
@@ -750,7 +758,7 @@ mode_TRIOPS() {
                 echo "warning: $shell_NAME is up to date, Nothing to do."
                 end_console_main ""
             else
-				printf_gray ":: New Commits is Found..: Commits: (SHA1): "
+                printf_gray ":: New Commits is Found..: Commits: (SHA1): "
                 echo "$latest"
                 
                 read -r -n1 -p ":: Do you want to continue Sync Triops? [y/n] " PERMISSION_NEED_S

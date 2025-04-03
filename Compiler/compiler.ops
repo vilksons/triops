@@ -82,8 +82,16 @@ function triops_compilers() {
             local elapsed=$((end_time - start_time))
 
             bash_cache_compiler ""
-            ignore_this sleep 0.5
+            ignore_this sleep 0.1
             cat "$__cache_save_compile"
+            ignore_this sleep 0.1
+
+            cache_compiler=".cache/compiler.log"
+            _cache_compiler=".cache/.compiler.log"
+            if [ -f "$cache_compiler" ] || [ -f "$_cache_compiler" ]; then
+                [ -f "$cache_compiler" ] && shred -u "$cache_compiler"
+                [ -f "$_cache_compiler" ] && shred -u "$_cache_compiler"
+            fi
 
             if [ -s "$AMX_O" ]; then
                 echo
@@ -117,8 +125,9 @@ export triops_compilers
 function bash_cache_compiler() {
     cache_compiler=".cache/compiler.log"
     _cache_compiler=".cache/.compiler.log"
-    if [ -f "$_cache_compiler" ]; then
-        shred -u "$_cache_compiler"
+    if [ -f "$cache_compiler" ] || [ -f "$_cache_compiler" ]; then
+        [ -f "$cache_compiler" ] && shred -u "$cache_compiler"
+        [ -f "$_cache_compiler" ] && shred -u "$_cache_compiler"
     fi
     while IFS= read -r line; do
         echo "~" >> "$_cache_compiler"
