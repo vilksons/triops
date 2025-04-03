@@ -537,10 +537,8 @@ mode_TRIOPS() {
                         ignore_this sleep 0.1
 
                         cache_compiler=".cache/compiler.log"
-                        _cache_compiler=".cache/.compiler.log"
-                        if [ -f "$cache_compiler" ] || [ -f "$_cache_compiler" ]; then
-                            [ -f "$cache_compiler" ] && shred -u "$cache_compiler"
-                            [ -f "$_cache_compiler" ] && shred -u "$_cache_compiler"
+                        if [ -f "$cache_compiler" ]; then
+                            shred -u "$cache_compiler"
                         fi
 
                         if [ -s "$AMX_O" ]; then
