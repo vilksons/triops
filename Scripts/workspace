@@ -314,6 +314,7 @@ function struct_console_main() {
                     fi
 
                     if [ "$3" = "end" ]; then
+                        clear && cd "$(dirname "$(realpath "$0")")" || echo
                         typeof ""
                     fi
                 fi
