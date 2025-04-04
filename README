@@ -80,7 +80,7 @@ Docker Usage
     * apt install libc6:i386 libstdc++6:i386
       |           ^ -------- ^ i386 configuration
       ^ x86 support for x64 (needed)
-    * apt install python3 wget curl grep awk sed coreutils tomlq aria2 unzip tar jq 
+    * apt install python3 wget curl grep awk sed coreutils yq jq aria2 unzip tar 
       | ↸ ------- ^ ----- ^ -- ^ -- ^ -- ^ - ^ - ^ ------- ^ --- ^ --- ^ --- ^ - ^
       ^ (required) packages required for triops/workspace              
   @ cd /path/to/triops/
@@ -111,7 +111,7 @@ Docker Usage
     * apt install libc6:i386 libstdc++6:i386
       |           ^ -------- ^ i386 added configuration
       ^ x86 support for x64 (needed)
-    * apt install python3 wget curl grep awk sed coreutils tomlq aria2 unzip tar jq 
+    * apt install python3 wget curl grep awk sed coreutils yq jq aria2 unzip tar
       | ↸ ------- ^ ----- ^ -- ^ -- ^ -- ^ - ^ - ^ ------- ^ --- ^ --- ^ --- ^ - ^
       ^ (required) packages required for triops/workspace                        
   @ cd /path/to/triops/

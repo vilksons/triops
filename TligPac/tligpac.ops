@@ -581,7 +581,7 @@ EOF
             fi
 
             # Function to remove #include <find_plugin_name> from main.pwn
-        function __rm_include_f_main() {
+        __rm_include_f_main() {
                 local escaped_plugins
                 escaped_plugins=$(echo "$1" | sed 's/[&/\]/\\&/g')  # Escape special characters in the plugin name
 
