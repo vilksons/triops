@@ -403,7 +403,7 @@ EOF
                 fi
             done
 
-        function pac_include_serv() {
+        pac_include_serv() {
             # Check if the main file exists
             if [[ -f "$shell_DIR/gamemodes/$json_FILE_SERV" ]]; then
                 # Check if the include already exists in the file
@@ -443,7 +443,7 @@ EOF
 
     if [ -f "$shell_DIR/$json_SERVER_CONFIG" ]; then
         if [[ "$__SAMP_SERVER" == "samp" ]]; then
-                function pac_plugin_serv_samp() {
+                pac_plugin_serv_samp() {
                     # Check if the plugin is already listed in server.cfg
                     if ! grep -qE "^plugins.*\b$1\b" "$json_SERVER_CONFIG"; then
                         # If both .so and .dll files exist
@@ -475,7 +475,7 @@ EOF
                     pac_plugin_serv_samp "$__plugins__"
                 done
         elif [[ "$__SAMP_SERVER" == "omp" ]]; then
-            function pac_plugin_serv_omp() {
+            pac_plugin_serv_omp() {
                 # Check if the plugin already exists in the "legacy_plugins" array within the "pawn" object
                 if ! grep -q -E "$1\.(so|dll)" "$json_SERVER_CONFIG"; then
                     # If both .so and .dll exist
@@ -542,7 +542,7 @@ EOF
 
             # Function to filter and remove files based on a pattern
             # Takes one argument, a pattern, which will be used to match file names
-            function regex_to_remove() {
+            regex_to_remove() {
                 # Read each line (file path) passed to the function
                 while read -r __file; do
                     _file=$(basename "$__file")  # Extract the file name from the full path

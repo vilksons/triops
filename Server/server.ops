@@ -190,7 +190,7 @@ with open(config_file, 'w') as file:
 }
 export space_wargs_servers
 
-start_true() {
+function start_true() {
     : '
         @strain.True
     '
@@ -200,7 +200,7 @@ start_true() {
 }
 export start_true
 
-start_false() {
+function start_false() {
     : '
         @strain.False
     '
@@ -210,7 +210,7 @@ start_false() {
 }
 export start_false
 
-start_true2() {
+function start_true2() {
     : '
         @strain.True2
     '
@@ -220,7 +220,7 @@ start_true2() {
 }
 export start_true2
 
-start_false2() {
+function start_false2() {
     : '
         @strain.False2
     '
@@ -230,7 +230,7 @@ start_false2() {
 }
 export start_false2
 
-start_true3() {
+function start_true3() {
     : '
         @strain.True3
     '
@@ -248,7 +248,7 @@ fi
 }
 export start_true3
 
-start_false3() {
+function start_false3() {
     : '
         @strain.False3
     '
@@ -266,7 +266,7 @@ fi
 }
 export start_false3
 
-error_cache() {
+function error_cache() {
     : '
         @strain.Error
     '
@@ -277,7 +277,7 @@ error_cache() {
 }
 export error_cache
 
-failed_cache() {
+function failed_cache() {
     : '
         @strain.Failed
     '
@@ -288,7 +288,7 @@ failed_cache() {
 }
 export failed_cache
 
-invalid_cache() {
+function invalid_cache() {
     : '
         @strain.Invalid
     '
@@ -298,7 +298,7 @@ invalid_cache() {
 }
 export invalid_cache
 
-check2() {
+function check2() {
     if grep -i "failed" $json_LOG_SERV > /dev/null; then
         start_true2 ""
     else
@@ -307,7 +307,7 @@ check2() {
 }
 export check2
 
-check3() {
+function check3() {
     if grep -i "invalid" $json_LOG_SERV > /dev/null; then
         start_true3 ""
     else
@@ -316,7 +316,7 @@ check3() {
 }
 export check3
 
-ok_next() {
+function ok_next() {
     : '
         @Func.OK_Next
     '

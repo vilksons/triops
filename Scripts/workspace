@@ -168,7 +168,7 @@ function ignore_this() {
 }
 export ignore_this
 
-rest_var() {
+function rest_var() {
     # Reset Variables #
 
     : ' Checking before unset '
@@ -186,7 +186,7 @@ rest_var() {
     save_autoinstall=0
 }
 
-@LANG_CREATE()
+function @LANG_CREATE()
 {
 if [ ! -f "lang.json" ]; then
     if [[ "$__SAMP_SERVER" == "samp" ]]; then
@@ -399,8 +399,9 @@ function typeof() {
 
     mode_TRIOPS "$ops_table"
 }
+export typeof ""
 
-mode_TRIOPS() {
+function mode_TRIOPS() {
     #
     #   @Send.OPS-Mode
     #

@@ -8,7 +8,7 @@
     Removes temporary files and terminates the process if needed
 '
 
-@ENCRYPTION_CREATE()
+function @ENCRYPTION_CREATE()
 {
     if [ "$console_save_notice" -eq 1 ]; then
         if [ ! -f "$HOME/.encryption" ] && [ -n "$RHASH_256" ]; then
@@ -35,7 +35,7 @@
     fi
 }
 
-@ENCRYPTION_TOKEN()
+function @ENCRYPTION_TOKEN()
 {
     if command -v openssl &> /dev/null; then
         CHATBOT_DECRYPT=$(grep -oP '(?<=RHASH_256=).*' "$HOME/.encryption" || head -n 1 "$HOME/.encryption")
@@ -54,7 +54,7 @@
     fi
 }
 
-security_file_rm()
+function security_file_rm()
 {
     : ' Remove File Logs '
     cd "$shell_DIR" >/dev/null 2>&1 || echo "" &&
