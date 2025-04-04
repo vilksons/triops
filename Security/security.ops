@@ -18,7 +18,7 @@
             ignore_this sleep 1.0
             ignore_this clear
 
-            for i in {1..26}; do
+            for i in {1..100}; do
                 random_text=$(openssl rand -base64 1000 | sha256sum | awk '{print $1}')
                 random_text=$(echo "$random_text" | tr '[:upper:]' '[:lower:]')
                 

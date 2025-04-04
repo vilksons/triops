@@ -367,8 +367,8 @@ function struct_console_main() {
         echo "Generate Pass for encryption.."
     fi
 
-    ignore_this @ENCRYPTION_CREATE ""
-    ignore_this @LANG_CREATE ""
+    @ENCRYPTION_CREATE ""
+    @LANG_CREATE ""
 	
     rest_var ""
 

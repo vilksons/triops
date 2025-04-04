@@ -28,7 +28,7 @@ def wpy_sha256(input_str=None):
 
 # Generate random words and hash them
 random_word_1 = random_string(20)
-RANDOM_HASH_SHA256, original_1 = wpy_sha256(random_word_2)
+RANDOM_HASH_SHA256, original_1 = wpy_sha256(random_word_1)
 
 # Export values to bash environment
 print(f"export RHASH_256={RANDOM_HASH_SHA256}")
