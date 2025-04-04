@@ -77,6 +77,8 @@ Docker Usage
     - apt upgrade
       ^ (optional) upgrade packages if needed
     * dpkg --add-architecture i386
+    * apt update
+      ^ refresh repository
     * apt install libc6:i386 libstdc++6:i386
       |           ^ -------- ^ i386 configuration
       ^ x86 support for x64 (needed)
@@ -108,6 +110,8 @@ Docker Usage
     - apt upgrade
       ^ (optional) upgrade packages if needed
     * dpkg --add-architecture i386
+    * apt update
+      ^ refresh repository
     * apt install libc6:i386 libstdc++6:i386
       |           ^ -------- ^ i386 added configuration
       ^ x86 support for x64 (needed)
